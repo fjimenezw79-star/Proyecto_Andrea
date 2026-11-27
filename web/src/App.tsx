@@ -11,6 +11,7 @@ import { ToastProvider } from "./ui/Toast";
 import { PosPage } from "./pos/PosPage";
 import { InventoryPage } from "./inventory/InventoryPage";
 import { ProductDetail } from "./inventory/ProductDetail";
+import { NewProductWizard } from "./products/NewProductWizard";
 
 function Routed() {
   const { expire } = useAuth();
@@ -32,7 +33,7 @@ function Routed() {
           <Route path="inventario" element={<InventoryPage />} />
           <Route path="inventario/:id" element={<ProductDetail />} />
           <Route path="ventas" element={<Placeholder title="Ventas de hoy" />} />
-          <Route path="productos/nuevo" element={<RequireAuth admin><Placeholder title="Nuevo producto" /></RequireAuth>} />
+          <Route path="productos/nuevo" element={<RequireAuth admin><NewProductWizard /></RequireAuth>} />
           <Route path="categorias" element={<RequireAuth admin><Placeholder title="Categorías" /></RequireAuth>} />
           <Route path="configuracion" element={<RequireAuth admin><Placeholder title="Configuración" /></RequireAuth>} />
           <Route path="*" element={<Navigate to="/vender" replace />} />
