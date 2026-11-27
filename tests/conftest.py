@@ -95,3 +95,36 @@ def stocked_variant(admin, product):
     r = admin.post("/api/inventory/entries", json={"items": [{"variant_id": vid, "qty": 5}], "note": "Inicial"})
     assert r.status_code == 200, r.get_json()
     return vid
+
+
+def _variant_with_stock(admin, cat_id, name, price, cost, stock):
+    r = post_product(admin, {"name": name, "category_id": cat_id, "price_cents": price, "cost_cents": cost},
+                     [(make_jpeg(), "x.jpg")])
+    vid = r.get_json()["product"]["variants"][0]["id"]
+    admin.post("/api/inventory/entries", json={"items": [{"variant_id": vid, "qty": stock}]})
+    return vid
+
+
+@pytest.fixture()
+def v1(admin, cat_id):
+    return _variant_with_stock(admin, cat_id, "Princesas Disney", 35000, 20000, 3)
+
+
+@pytest.fixture()
+def v2(admin, cat_id, v1):
+    return _variant_with_stock(admin, cat_id, "Botella deportiva", 19000, 9000, 4)
+
+
+@pytest.fixture()
+def v_one_left(admin, cat_id):
+    return _variant_with_stock(admin, cat_id, "Última pieza", 35000, 20000, 1)
+
+
+@pytest.fixture()
+def seller_user(app):
+    from server.db import session
+    from server.models import User
+    from server.security import SessionUser
+
+    with app.app_context():
+        return SessionUser(session.query(User).filter_by(username="vendedor").one())
