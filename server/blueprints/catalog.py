@@ -55,6 +55,8 @@ def create_product():
         data = json.loads(request.form.get("data") or "{}")
     except ValueError:
         raise ValidationError("Datos del producto no válidos.", "data") from None
+    if not isinstance(data, dict):
+        raise ValidationError("Datos del producto no válidos.", "data")
     p = catalog.create_product(data, request.files.getlist("photos"), current_user)
     return _product_json(p, 201, "Producto creado.")
 

@@ -22,6 +22,9 @@ DEFAULT_SETTINGS = {
 }
 
 
+RANGES = {"ticket_width_mm": (40, 112), "low_stock_threshold": (0, 1000)}
+
+
 def get_settings() -> dict:
     out = dict(DEFAULT_SETTINGS)
     out.update({s.key: s.value for s in session.query(Setting).all() if s.key in DEFAULT_SETTINGS})
@@ -45,6 +48,8 @@ def update():
     for k, v in data.items():
         if isinstance(v, bool) or not isinstance(v, type(DEFAULT_SETTINGS[k])):
             return fail("Valor no válido.", 400, k)
+        if k in RANGES and not RANGES[k][0] <= v <= RANGES[k][1]:
+            return fail(f"El valor debe estar entre {RANGES[k][0]} y {RANGES[k][1]}.", 400, k)
         session.merge(Setting(key=k, value=v))
     session.commit()
     return ok("Configuración guardada.", settings=get_settings())

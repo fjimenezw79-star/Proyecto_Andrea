@@ -73,6 +73,10 @@ def seconds_locked(username: str) -> int:
     return max(0, int(remaining) + 1)
 
 
+def purge_old_failures() -> None:
+    session.query(LoginFailure).filter(LoginFailure.at < datetime.now() - WINDOW).delete()
+
+
 def record_failure(username: str) -> None:
     session.add(LoginFailure(username=username.lower()))
     session.commit()

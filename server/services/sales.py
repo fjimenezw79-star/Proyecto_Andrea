@@ -18,6 +18,12 @@ METHODS = {"cash", "card", "transfer"}
 ID_RE = re.compile(r"^[A-Za-z0-9-]{8,36}$")
 
 
+class NotFound(Exception):
+    def __init__(self, message: str):
+        super().__init__(message)
+        self.message = message
+
+
 class NotAllowed(Exception):
     def __init__(self, message: str):
         super().__init__(message)
@@ -83,7 +89,7 @@ def create_sale(payload: dict, user) -> Sale:
         pays = payload.get("payments") or []
         if not isinstance(pays, list) or not all(isinstance(p, dict) for p in pays):
             raise ValidationError("Formas de pago no válidas.", "payments")
-        if not pays:
+        if not pays and total > 0:
             raise ValidationError("Agrega la forma de pago.", "payments")
         parsed = []
         for p in pays:
@@ -145,7 +151,7 @@ def cancel_sale(sale_id: str, user, reason: str) -> Sale:
         raise ValidationError("Escribe el motivo de la cancelación.", "reason")
     sale = session.get(Sale, sale_id)
     if not sale:
-        raise LookupError("La venta no existe.")
+        raise NotFound("La venta no existe.")
     if sale.status == "cancelled":
         raise ConflictError("Esta venta ya estaba cancelada.")
     begin_write()
@@ -172,7 +178,7 @@ def cancel_sale(sale_id: str, user, reason: str) -> Sale:
 def get_sale(sale_id: str) -> Sale:
     sale = session.get(Sale, sale_id)
     if not sale:
-        raise LookupError("La venta no existe.")
+        raise NotFound("La venta no existe.")
     return sale
 
 

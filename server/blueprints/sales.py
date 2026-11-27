@@ -17,9 +17,9 @@ def _not_allowed(e):
     return fail(e.message, 403)
 
 
-@bp.errorhandler(LookupError)
+@bp.errorhandler(sales.NotFound)
 def _missing(e):
-    return fail(str(e), 404)
+    return fail(e.message, 404)
 
 
 @bp.post("")

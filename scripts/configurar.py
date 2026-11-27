@@ -12,8 +12,16 @@ def run(root: Path = ROOT) -> bool:
     env = root / ".env"
     if env.exists() and re.search(r"^SECRET_KEY=\S+", env.read_text(encoding="utf-8"), re.M):
         return False
-    text = (root / ".env.example").read_text(encoding="utf-8")
-    text = re.sub(r"^SECRET_KEY=.*$", f"SECRET_KEY={secrets.token_hex(32)}", text, flags=re.M)
+    line = f"SECRET_KEY={secrets.token_hex(32)}"
+    if env.exists():  # conserva lo que ya estaba configurado y solo agrega la clave
+        text = env.read_text(encoding="utf-8")
+        if re.search(r"^SECRET_KEY=.*$", text, re.M):
+            text = re.sub(r"^SECRET_KEY=.*$", line, text, flags=re.M)
+        else:
+            text = text.rstrip("\n") + "\n" + line + "\n"
+    else:
+        text = (root / ".env.example").read_text(encoding="utf-8")
+        text = re.sub(r"^SECRET_KEY=.*$", line, text, flags=re.M)
     env.write_text(text, encoding="utf-8")
     return True
 

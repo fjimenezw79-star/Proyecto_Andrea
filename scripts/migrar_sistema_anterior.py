@@ -22,16 +22,16 @@ def _table_count(con: sqlite3.Connection, table: str) -> int:
 
 
 def run(app, ruta_db: Path) -> dict:
-    from server.db import begin_write, session
+    from server.api_util import ConflictError, ValidationError
+    from server.db import session
     from server.models import Category, Variant
     from server.services import catalog
-    from server.services.inventory import move
 
     ruta_db = Path(ruta_db)
     uploads = ruta_db.parent / "static" / "uploads"
     con = sqlite3.connect(ruta_db)
     con.row_factory = sqlite3.Row
-    creados, sin_foto = 0, []
+    creados, sin_foto, con_error = 0, [], []
     try:
         with app.app_context():
             def cat(name, parent=None):
@@ -55,19 +55,18 @@ def run(app, ruta_db: Path) -> dict:
                 categoria = mochilas if ("mochila" in texto or "combo" in texto) else utiles
                 files = [file_storage(f) for f in fotos]
                 try:
-                    p = catalog.create_product(
+                    catalog.create_product(
                         {"name": row["name"], "description": row["description"] or "", "category_id": categoria.id,
                          "price_cents": round(float(row["price"] or 0) * 100),
-                         "cost_cents": round(float(row["cost_price"] or 0) * 100), "barcode": code}, files)
+                         "cost_cents": round(float(row["cost_price"] or 0) * 100), "barcode": code}, files,
+                        import_stock=max(0, int(row["stock"] or 0)))
+                except (ValidationError, ConflictError):
+                    con_error.append(row["name"])  # se reporta y se sigue con los demás
+                    continue
                 finally:
                     close_all(files)
-                stock = int(row["stock"] or 0)
-                if stock > 0:
-                    begin_write()
-                    move(p.variants[0].id, stock, "import", None, "Migrado del sistema anterior")
-                    session.commit()
                 creados += 1
-        return {"productos": creados, "sin_foto": sin_foto, "ventas_omitidas": _table_count(con, "sales"),
+        return {"productos": creados, "sin_foto": sin_foto, "con_error": con_error, "ventas_omitidas": _table_count(con, "sales"),
                 "apartados_omitidos": _table_count(con, "layaways")}
     finally:
         con.close()

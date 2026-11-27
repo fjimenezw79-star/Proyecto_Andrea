@@ -3,7 +3,8 @@ def test_import_test_data_twice(app, repo_root):
 
     a = run(app, repo_root / "datos_prueba")
     b = run(app, repo_root / "datos_prueba")
-    assert a == {"creados": 58, "omitidos": 0} and b == {"creados": 0, "omitidos": 58}
+    assert a == {"creados": 58, "omitidos": 0, "conflictos": []}
+    assert b == {"creados": 0, "omitidos": 58, "conflictos": []}
 
 
 def test_imported_stock_and_price(app, admin, repo_root):

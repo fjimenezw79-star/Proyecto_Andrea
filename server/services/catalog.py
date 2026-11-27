@@ -37,9 +37,10 @@ def _clean_name(name) -> str:
 
 
 def _check_parent(parent_id, category_id: int | None = None) -> int | None:
+    from ..api_util import strict_int
     if parent_id in (None, ""):
         return None
-    parent = session.get(Category, int(parent_id))
+    parent = session.get(Category, strict_int(parent_id, "parent_id", 1))
     if not parent:
         raise ValidationError("La categoría padre no existe.", "parent_id")
     node = parent
@@ -107,6 +108,7 @@ from sqlalchemy import func  # noqa: E402
 from ..codes import next_sku  # noqa: E402
 from ..models import Product, ProductPhoto, Variant  # noqa: E402
 from ..photos import delete_files, save_photo  # noqa: E402
+from . import inventory as _inventory  # noqa: E402
 
 PAGE_SIZE = 60
 
@@ -145,18 +147,28 @@ def _check_barcode_free(code: str | None, variant_id: int | None = None) -> None
         raise ConflictError("Ese código ya pertenece a otro producto.")
 
 
+def _category(value) -> Category | None:
+    if value in (None, "", 0):
+        return None
+    return session.get(Category, strict_int(value, "category_id", 1))
+
+
 def _upload_dir() -> Path:
     return Path(current_app.config["UPLOAD_DIR"])
 
 
-def create_product(data: dict, photos: list, user=None, skus: list[str] | None = None) -> Product:
-    """``skus`` solo lo usan los importadores para conservar códigos existentes."""
+def create_product(data: dict, photos: list, user=None, skus: list[str] | None = None,
+                   import_stock: int = 0) -> Product:
+    """``skus`` e ``import_stock`` solo los usan los importadores: conservan los códigos existentes y
+    cargan el stock inicial en la misma transacción que el producto."""
+    if not isinstance(data, dict):
+        raise ValidationError("Datos del producto no válidos.", "data")
     name = str(data.get("name") or "").strip()
     if not name:
         raise ValidationError("Escribe el nombre del producto.", "name")
     if len(name) > 120:
         raise ValidationError("El nombre es demasiado largo (máximo 120 caracteres).", "name")
-    cat = session.get(Category, int(data.get("category_id") or 0))
+    cat = _category(data.get("category_id"))
     if not cat:
         raise ValidationError("Elige una categoría.", "category_id")
     photos = [p for p in photos if p and p.filename]
@@ -196,6 +208,8 @@ def create_product(data: dict, photos: list, user=None, skus: list[str] | None =
                         stock=0, hidden=hidden)
             session.add(v)
             session.flush()
+        if import_stock > 0:
+            _inventory.move(p.variants[0].id, import_stock, "import", None, "Carga inicial")
         session.commit()
         return p
     except Exception:
@@ -222,9 +236,10 @@ def update_product(product_id: int, data: dict) -> Product:
     if "description" in data:
         p.description = str(data["description"] or "").strip()[:2000]
     if "category_id" in data:
-        if not session.get(Category, int(data["category_id"] or 0)):
+        cat = _category(data["category_id"])
+        if not cat:
             raise ValidationError("Elige una categoría.", "category_id")
-        p.category_id = int(data["category_id"])
+        p.category_id = cat.id
     for flag in ("online", "active"):
         if flag in data:
             setattr(p, flag, bool(data[flag]))
@@ -304,6 +319,8 @@ def lookup(code: str) -> Variant:
          .order_by(Variant.active.desc(), Variant.id).first()) if code else None
     if not v:
         raise LookupError("No encontramos ningún producto con ese código.")
+    if not v.active or not v.product.active:
+        raise LookupError("Ese producto está dado de baja.")
     return v
 
 

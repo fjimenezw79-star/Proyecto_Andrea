@@ -57,7 +57,7 @@ def create_app(config_class: type[Config] = Config) -> Flask:
 
     @app.errorhandler(413)
     def too_large(_e):
-        return fail("El envío es demasiado grande. Cada foto debe pesar menos de 25 MB.", 413)
+        return fail("El envío es demasiado grande: las fotos deben pesar menos de 25 MB en total.", 413)
 
     @app.errorhandler(404)
     def not_found(_e):
