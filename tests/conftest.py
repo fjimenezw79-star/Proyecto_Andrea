@@ -141,3 +141,29 @@ def repo_root():
 @pytest.fixture()
 def legacy_db(repo_root):
     return repo_root / "tests" / "fixtures" / "legacy" / "bazarges_data.db"
+
+
+@pytest.fixture()
+def client_id(seller):
+    return seller.post("/api/clients", json={"name": "Laura Pérez", "phone": "4731234567"}).get_json()["client"]["id"]
+
+
+@pytest.fixture()
+def client_with_credit(app, client_id):
+    from server.db import session
+    from server.models import Client
+
+    with app.app_context():
+        session.get(Client, client_id).credit_cents = 10000
+        session.commit()
+    return client_id
+
+
+@pytest.fixture()
+def admin_user(app):
+    from server.db import session
+    from server.models import User
+    from server.security import SessionUser
+
+    with app.app_context():
+        return SessionUser(session.query(User).filter_by(username="admin").one())

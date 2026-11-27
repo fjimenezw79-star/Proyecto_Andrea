@@ -12,9 +12,9 @@ from sqlalchemy.exc import IntegrityError
 from ..api_util import ConflictError, ValidationError, strict_int
 from ..db import begin_write, session
 from ..models import Client, Sale, SaleItem, SalePayment, User, Variant
+from . import payments as pay
 from .inventory import InsufficientStock, move
 
-METHODS = {"cash", "card", "transfer"}
 ID_RE = re.compile(r"^[A-Za-z0-9-]{8,36}$")
 
 
@@ -86,25 +86,8 @@ def create_sale(payload: dict, user) -> Sale:
             raise NotAllowed("Ese descuento necesita autorización del administrador.")
         total = subtotal - discount
 
-        pays = payload.get("payments") or []
-        if not isinstance(pays, list) or not all(isinstance(p, dict) for p in pays):
-            raise ValidationError("Formas de pago no válidas.", "payments")
-        if not pays and total > 0:
-            raise ValidationError("Agrega la forma de pago.", "payments")
-        parsed = []
-        for p in pays:
-            method = p.get("method")
-            if method not in METHODS:
-                raise ValidationError("Forma de pago no válida.", "payments")
-            amount = _int(p.get("amount_cents"), "amount_cents", 1)
-            received = None
-            if method == "cash":
-                received = _int(p.get("received_cents", amount), "received_cents", 0)
-                if received < amount:
-                    raise ValidationError("El efectivo recibido es menor que lo que se cobra.", "received_cents")
-            parsed.append((method, amount, received))
-        if sum(a for _, a, _ in parsed) != total:
-            raise ValidationError("Los pagos no cuadran con el total.", "payments")
+        parsed = pay.parse(payload.get("payments"), total, client_id)
+        cash_session_id = pay.apply(parsed, client_id=client_id, user_id=user.id)
 
         folio = (session.query(func.max(Sale.folio)).scalar() or 0) + 1
         sale = Sale(id=sale_id, folio=folio, user_id=user.id, client_id=client_id, subtotal_cents=subtotal,
@@ -119,8 +102,10 @@ def create_sale(payload: dict, user) -> Sale:
                 raise _with_label(e, v) from None
             session.add(SaleItem(sale_id=sale_id, variant_id=v.id, qty=qty, unit_price_cents=v.price_cents,
                                  unit_cost_cents=v.cost_cents, discount_cents=disc))
-        for method, amount, received in parsed:
-            session.add(SalePayment(sale_id=sale_id, method=method, amount_cents=amount, received_cents=received))
+        for p in parsed:
+            session.add(SalePayment(sale_id=sale_id, method=p.method, amount_cents=p.amount_cents,
+                                    received_cents=p.received_cents,
+                                    cash_session_id=cash_session_id if p.method == "cash" else None))
         if client_id:
             session.get(Client, client_id).points += _points(total)
         session.commit()
