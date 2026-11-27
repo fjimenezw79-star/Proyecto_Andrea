@@ -87,3 +87,11 @@ def product2(admin, cat_id):
     r = post_product(admin, {"name": "Mario Bros", "category_id": cat_id, "price_cents": 32000,
                              "cost_cents": 18000}, [(make_jpeg(), "b.jpg")])
     return r.get_json()["product"]
+
+
+@pytest.fixture()
+def stocked_variant(admin, product):
+    vid = product["variants"][0]["id"]
+    r = admin.post("/api/inventory/entries", json={"items": [{"variant_id": vid, "qty": 5}], "note": "Inicial"})
+    assert r.status_code == 200, r.get_json()
+    return vid
