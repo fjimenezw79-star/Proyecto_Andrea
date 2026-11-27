@@ -37,3 +37,20 @@ def test_me_and_logout(admin):
     assert admin.get("/api/auth/me").get_json()["user"]["username"] == "admin"
     admin.post("/api/auth/logout")
     assert admin.get("/api/auth/me").status_code == 401
+
+
+def test_csrf_required_outside_tests(tmp_path):
+    from server import create_app
+    from server.config import TestConfig
+
+    class Cfg(TestConfig):
+        WTF_CSRF_ENABLED = True
+        DATABASE = str(tmp_path / "c.db")
+        UPLOAD_DIR = str(tmp_path / "f")
+        BACKUP_DIR = str(tmp_path / "r")
+
+    c = create_app(Cfg).test_client()
+    body = {"username": "admin", "password": "admin123"}
+    assert c.post("/api/auth/login", json=body).status_code == 400
+    token = c.get("/api/auth/csrf").get_json()["token"]
+    assert c.post("/api/auth/login", json=body, headers={"X-CSRFToken": token}).status_code == 200
