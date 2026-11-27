@@ -140,7 +140,7 @@ export function PaymentSheet({
               {mode === "cash" && total > 0 && (
                 <div className="grid gap-3">
                   <label htmlFor="pay-received" className="text-sm font-semibold">Recibido</label>
-                  <input id="pay-received" inputMode="decimal" autoFocus value={received} onChange={(e) => setReceived(e.target.value)} placeholder={(total / 100).toFixed(2)} className="min-h-14 rounded-2xl border border-line bg-paper px-4 text-2xl tnum" />
+                  <input id="pay-received" inputMode="decimal" autoFocus value={received} onChange={(e) => setReceived(e.target.value)} placeholder={(total / 100).toFixed(2)} aria-invalid={!check.ok && received.trim() ? true : undefined} className={`min-h-14 rounded-2xl border bg-paper px-4 text-2xl tnum ${!check.ok && received.trim() ? "border-danger" : "border-line"}`} />
                   <div className="flex flex-wrap gap-2">
                     {[total, 20000, 50000, 100000].filter((v, i, a) => v >= total && a.indexOf(v) === i).map((v) => (
                       <button key={v} className="rounded-full border border-line px-4 py-2 font-semibold tnum hover:bg-surface" onClick={() => setReceived((v / 100).toFixed(2))}>

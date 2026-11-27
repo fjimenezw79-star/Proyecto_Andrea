@@ -5,6 +5,7 @@ import { ApiError } from "../lib/api";
 import { Button } from "../ui/Button";
 import { Field } from "../ui/Input";
 import { useAuth } from "./AuthProvider";
+import { safeTarget } from "./safeTarget";
 
 export function LoginPage() {
   const { user, ready, login } = useAuth();
@@ -14,8 +15,7 @@ export function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const back = params.get("volver");
-  const target = back && back.startsWith("/") && !back.startsWith("//") ? back : "/vender";
+  const target = safeTarget(params.get("volver"));
 
   if (ready && user) return <Navigate to={target} replace />;
 

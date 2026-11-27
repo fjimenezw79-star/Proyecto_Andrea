@@ -12,8 +12,8 @@ export const DISCOUNT_DENIED = "Ese descuento necesita autorización del adminis
 export function CartPanel({ cart, dispatch, role, onCharge }: { cart: Cart; dispatch: (a: CartAction) => void; role: "admin" | "seller"; onCharge: () => void }) {
   const reduce = useReducedMotion();
   const t = totals(cart);
-  const [showDiscount, setShowDiscount] = useState(false);
-  const [discountText, setDiscountText] = useState("");
+  const [showDiscount, setShowDiscount] = useState(cart.discountCents > 0);
+  const [discountText, setDiscountText] = useState(cart.discountCents > 0 ? (cart.discountCents / 100).toFixed(2) : "");
   const parsed = discountText.trim() ? parsePesos(discountText) : 0;
   const lineDisc = cart.lines.reduce((s, l) => s + l.discountCents, 0);
   const tooMuch = parsed !== null && parsed + lineDisc > maxDiscountCents(t.subtotal, role);

@@ -26,7 +26,7 @@ def index():
 
 @bp.get("/<path:path>")
 def app_route(path: str):
-    if path.startswith(("api/", "uploads/")):
+    if path in ("api", "uploads") or path.startswith(("api/", "uploads/")):
         abort(404)
     target = (DIST / path).resolve()
     if DIST in target.parents and target.is_file():

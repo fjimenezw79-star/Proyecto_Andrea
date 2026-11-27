@@ -32,6 +32,27 @@ export function empty(): Cart {
   return { id: newId(), lines: [], discountCents: 0 };
 }
 
+const STORE = "ma-cart";
+
+/** El carrito sobrevive a cambiar de pantalla o volver a iniciar sesión (mismo id = misma venta). */
+export function loadCart(): Cart {
+  try {
+    const c = JSON.parse(sessionStorage.getItem(STORE) ?? "null");
+    if (c && typeof c.id === "string" && Array.isArray(c.lines)) return { id: c.id, lines: c.lines, discountCents: c.discountCents ?? 0, clientId: c.clientId };
+  } catch {
+    /* sin almacenamiento */
+  }
+  return empty();
+}
+
+export function saveCart(cart: Cart) {
+  try {
+    sessionStorage.setItem(STORE, JSON.stringify({ id: cart.id, lines: cart.lines, discountCents: cart.discountCents, clientId: cart.clientId }));
+  } catch {
+    /* sin almacenamiento */
+  }
+}
+
 const left = (n: number) => `Quedan ${n}.`;
 
 export function cartReducer(cart: Cart, action: CartAction): Cart {

@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
-import { api, AuthError, resetCsrf } from "../lib/api";
+import { api, AuthError, resetCsrf, setAuthExpiredHandler } from "../lib/api";
 
 export type User = { id: number; username: string; full_name: string; role: "admin" | "seller" };
 type Ctx = {
@@ -52,6 +52,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     resetCsrf();
     setUser(null);
   }, []);
+
+  useEffect(() => {
+    setAuthExpiredHandler(expire);
+    return () => setAuthExpiredHandler(null);
+  }, [expire]);
 
   return (
     <AuthCtx.Provider value={{ user, ready, isAdmin: user?.role === "admin", login, logout, expire }}>{children}</AuthCtx.Provider>

@@ -4,7 +4,7 @@ import { ScanLine, Search, ShoppingBag } from "lucide-react";
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { useAuth } from "../auth/AuthProvider";
 import { api, ApiError } from "../lib/api";
-import { cartReducer, empty, salePayload, totals, type Payment } from "../lib/cart";
+import { cartReducer, loadCart, salePayload, saveCart, totals, type Payment } from "../lib/cart";
 import { formatMoney } from "../lib/money";
 import { createScanDetector } from "../lib/scanner";
 import type { Category, Product, Variant } from "../lib/types";
@@ -19,8 +19,14 @@ export function PosPage() {
   const toast = useToast();
   const qc = useQueryClient();
   const reduce = useReducedMotion();
-  const [cart, dispatch] = useReducer(cartReducer, undefined, empty);
+  const [cart, dispatch] = useReducer(cartReducer, undefined, loadCart);
+  useEffect(() => saveCart(cart), [cart]);
   const [q, setQ] = useState("");
+  const [dq, setDq] = useState("");
+  useEffect(() => {
+    const t = setTimeout(() => setDq(q.trim()), 200);
+    return () => clearTimeout(t);
+  }, [q]);
   const [category, setCategory] = useState<number | null>(null);
   const [paying, setPaying] = useState(false);
   const [mobileCart, setMobileCart] = useState(false);
@@ -28,8 +34,8 @@ export function PosPage() {
 
   const categories = useQuery({ queryKey: ["categories"], queryFn: () => api<{ categories: Category[] }>("/api/categories") });
   const products = useQuery({
-    queryKey: ["products", "pos", q.trim(), category],
-    queryFn: () => api<{ products: Product[]; total: number }>(`/api/products?q=${encodeURIComponent(q.trim())}${category ? `&category=${category}` : ""}`),
+    queryKey: ["products", "pos", dq, category],
+    queryFn: () => api<{ products: Product[]; total: number }>(`/api/products?q=${encodeURIComponent(dq)}${category ? `&category=${category}` : ""}`),
     placeholderData: (prev) => prev,
   });
 
@@ -63,6 +69,7 @@ export function PosPage() {
       if (detector.handleKey(e)) e.preventDefault();
     };
     const onPick = (e: Event) => {
+      if (paying) return;
       const p = (e as CustomEvent<Product>).detail;
       const v = p.variants.find((x) => x.active && x.stock > 0) ?? p.variants[0];
       if (v) addVariant(p, v);
@@ -79,8 +86,16 @@ export function PosPage() {
   const t = totals(cart);
 
   async function confirm(payments: Payment[]): Promise<SaleResult> {
-    const d = await api<{ sale: SaleResult }>("/api/sales", { method: "POST", json: salePayload(cart, payments) });
-    return d.sale;
+    try {
+      const d = await api<{ sale: SaleResult }>("/api/sales", { method: "POST", json: salePayload(cart, payments) });
+      if (d.sale.total_cents !== t.total)
+        toast(`Esta venta ya se había registrado como #${d.sale.folio} por ${formatMoney(d.sale.total_cents)}. Revisa el carrito antes de cobrar otra vez.`, "error");
+      return d.sale;
+    } catch (e) {
+      if (e instanceof ApiError && e.status === 409 && typeof e.data.variant_id === "number" && typeof e.data.available === "number")
+        dispatch({ type: "refreshStock", stock: { [e.data.variant_id]: e.data.available } });
+      throw e;
+    }
   }
 
   function newSale() {
@@ -90,7 +105,7 @@ export function PosPage() {
     qc.invalidateQueries({ queryKey: ["products"] });
   }
 
-  const panel = <CartPanel cart={cart} dispatch={dispatch} role={user!.role} onCharge={() => setPaying(true)} />;
+  const panel = <CartPanel key={cart.id} cart={cart} dispatch={dispatch} role={user!.role} onCharge={() => setPaying(true)} />;
 
   return (
     <div className="grid h-full lg:grid-cols-[minmax(0,1fr)_400px]">

@@ -111,3 +111,9 @@ def test_sale_has_user_and_client_names(app, seller, v1):
     s = seller.post("/api/sales", json={"items": [{"variant_id": v1, "qty": 1}], "client_id": "c-9",
                                         "payments": [{"method": "card", "amount_cents": 35000}]}).get_json()["sale"]
     assert s["client_name"] == "Laura Pérez"
+
+
+def test_409_reports_available(seller, v1):
+    r = seller.post("/api/sales", json={"items": [{"variant_id": v1, "qty": 9}],
+                                        "payments": [{"method": "card", "amount_cents": 315000}]})
+    assert r.status_code == 409 and r.get_json()["available"] == 3 and r.get_json()["variant_id"] == v1

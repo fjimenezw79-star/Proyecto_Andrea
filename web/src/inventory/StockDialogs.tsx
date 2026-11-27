@@ -32,7 +32,8 @@ export function EntryDialog({ open, onOpenChange, variants, onDone }: { open: bo
   const [busy, setBusy] = useState(false);
   useEffect(() => {
     if (open) { setVariantId(variants[0]?.id ?? 0); setQty(""); setCost(""); setNote(""); setErrors({}); }
-  }, [open, variants]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   async function submit(e: FormEvent) {
     e.preventDefault();
@@ -77,7 +78,8 @@ export function AdjustDialog({ open, onOpenChange, variants, onDone }: { open: b
   const [busy, setBusy] = useState(false);
   useEffect(() => {
     if (open) { setVariantId(variants[0]?.id ?? 0); setStock(""); setNote(""); setErrors({}); }
-  }, [open, variants]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   async function submit(e: FormEvent) {
     e.preventDefault();

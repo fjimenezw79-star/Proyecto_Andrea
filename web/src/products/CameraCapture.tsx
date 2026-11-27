@@ -4,12 +4,30 @@ import { Button } from "../ui/Button";
 
 const GUIDE = ["Frente", "Lado", "Detalle o etiqueta"];
 
-/** Cámara trasera con guía de tomas. Si no hay cámara o no hay permiso, queda el botón "Elegir foto". */
+/** Cámara trasera con guía de tomas. Si no hay cámara o no hay permiso, quedan "Elegir foto" y "Tomar foto con el celular". */
 export function CameraCapture({ count, onPhotos }: { count: number; onPhotos: (files: Blob[]) => void }) {
   const video = useRef<HTMLVideoElement>(null);
-  const [stream, setStream] = useState<MediaStream | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const mounted = useRef(true);
+  const [live, setLive] = useState(false);
   const [status, setStatus] = useState<"idle" | "starting" | "live" | "unavailable">("idle");
-  const fileRef = useRef<HTMLInputElement>(null);
+
+  const stopAll = () => {
+    streamRef.current?.getTracks().forEach((t) => t.stop());
+    streamRef.current = null;
+  };
+
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+      stopAll();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (live && video.current && streamRef.current) video.current.srcObject = streamRef.current;
+  }, [live]);
 
   async function start() {
     if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
@@ -18,21 +36,18 @@ export function CameraCapture({ count, onPhotos }: { count: number; onPhotos: (f
     }
     setStatus("starting");
     try {
-      const s = await Promise.race([
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment", width: { ideal: 1920 } }, audio: false }),
-        new Promise<never>((_, rej) => setTimeout(() => rej(new Error("tiempo")), 8000)),
-      ]);
-      setStream(s);
+      const s = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment", width: { ideal: 1920 } }, audio: false });
+      if (!mounted.current) {
+        s.getTracks().forEach((t) => t.stop()); // se salió del paso mientras se pedía el permiso
+        return;
+      }
+      streamRef.current = s;
+      setLive(true);
       setStatus("live");
     } catch {
-      setStatus("unavailable");
+      if (mounted.current) setStatus("unavailable");
     }
   }
-
-  useEffect(() => {
-    if (video.current && stream) video.current.srcObject = stream;
-    return () => stream?.getTracks().forEach((t) => t.stop());
-  }, [stream]);
 
   function shoot() {
     const v = video.current;
@@ -45,6 +60,10 @@ export function CameraCapture({ count, onPhotos }: { count: number; onPhotos: (f
   }
 
   const next = GUIDE[Math.min(count, GUIDE.length - 1)];
+  const pick = (files: FileList | null) => {
+    const list = [...(files ?? [])];
+    if (list.length) onPhotos(list);
+  };
 
   return (
     <div className="grid gap-4">
@@ -68,36 +87,27 @@ export function CameraCapture({ count, onPhotos }: { count: number; onPhotos: (f
         <div className="grid gap-3 rounded-3xl border border-dashed border-line px-5 py-8 text-center">
           <p className="text-muted">
             {status === "unavailable"
-              ? "No se pudo usar la cámara aquí. Elige fotos de la galería o de la computadora."
-              : "Toma la foto con la cámara del dispositivo o elige una de la galería."}
+              ? "No se pudo abrir la cámara aquí. Toma la foto con el celular o elige una de la galería."
+              : "Usa la cámara de este dispositivo, toma la foto con el celular o elige una de la galería."}
           </p>
-          <div className="flex flex-wrap justify-center gap-2">
-            {status !== "unavailable" && (
+          {status !== "unavailable" && (
+            <div className="flex justify-center">
               <Button type="button" onClick={start} disabled={status === "starting"}>
-                <Camera className="size-5" aria-hidden /> {status === "starting" ? "Abriendo cámara…" : "Usar cámara"}
+                <Camera className="size-5" aria-hidden /> {status === "starting" ? "Esperando permiso de la cámara…" : "Usar cámara"}
               </Button>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       )}
-      <div>
+      <div className="flex flex-wrap gap-2">
         <label htmlFor="pick-photo" className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-full border border-ink px-5 font-semibold hover:bg-surface">
           <ImagePlus className="size-5" aria-hidden /> Elegir foto
         </label>
-        <input
-          id="pick-photo"
-          ref={fileRef}
-          type="file"
-          accept="image/*"
-          capture="environment"
-          multiple
-          className="sr-only"
-          onChange={(e) => {
-            const files = [...(e.target.files ?? [])];
-            e.target.value = "";
-            if (files.length) onPhotos(files);
-          }}
-        />
+        <input id="pick-photo" type="file" accept="image/*" multiple className="sr-only" onChange={(e) => { pick(e.target.files); e.target.value = ""; }} />
+        <label htmlFor="shoot-photo" className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-full border border-line px-5 font-semibold hover:bg-surface">
+          <Camera className="size-5" aria-hidden /> Tomar foto con el celular
+        </label>
+        <input id="shoot-photo" type="file" accept="image/*" capture="environment" className="sr-only" onChange={(e) => { pick(e.target.files); e.target.value = ""; }} />
       </div>
     </div>
   );

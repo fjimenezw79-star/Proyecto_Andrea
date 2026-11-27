@@ -21,7 +21,6 @@ export function createScanDetector(onScan: (code: string) => void, { minLength =
       buffer = "";
       fast = true;
     }
-    if (buffer && gap > maxGapMs) fast = false;
     buffer += e.key;
     return false;
   }

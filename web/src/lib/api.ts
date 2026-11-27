@@ -18,6 +18,12 @@ const CSRF_EXPIRED = "La sesión de seguridad expiró";
 const NETWORK = "No hay conexión con el servidor. Revisa la red e inténtalo de nuevo.";
 
 let csrfToken: string | null = null;
+let onAuthExpired: (() => void) | null = null;
+
+/** La app registra aquí qué hacer cuando la sesión vence (ir a iniciar sesión). */
+export function setAuthExpiredHandler(fn: (() => void) | null) {
+  onAuthExpired = fn;
+}
 
 export function resetCsrf() {
   csrfToken = null;
@@ -66,6 +72,9 @@ export async function api<T = Record<string, unknown>>(path: string, opts: Opts 
     resetCsrf();
     return api<T>(path, opts, true);
   }
-  if (res.status === 401) throw new AuthError(401, message);
+  if (res.status === 401) {
+    if (!path.startsWith("/api/auth/")) onAuthExpired?.();
+    throw new AuthError(401, message);
+  }
   throw new ApiError(res.status, message, (data.field as string) ?? null, data);
 }

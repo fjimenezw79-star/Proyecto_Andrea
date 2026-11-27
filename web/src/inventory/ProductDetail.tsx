@@ -187,11 +187,11 @@ export function ProductDetail() {
                     </td>
                     <td className="px-4 py-2.5 text-muted">{variantLabel(v.attrs) || "Única"}</td>
                     <td className="px-4 py-2.5 text-right">
-                      {isAdmin ? <MoneyCell label={`Precio de ${v.sku}`} cents={v.price_cents} onSave={(c) => run(() => api(`/api/variants/${v.id}`, { method: "PATCH", json: { price_cents: c } }), "Precio actualizado.")} /> : <span className="tnum font-bold">{formatMoney(v.price_cents)}</span>}
+                      {isAdmin ? <MoneyCell key={`p${v.price_cents}`} label={`Precio de ${v.sku}`} cents={v.price_cents} onSave={(c) => run(() => api(`/api/variants/${v.id}`, { method: "PATCH", json: { price_cents: c } }), "Precio actualizado.")} /> : <span className="tnum font-bold">{formatMoney(v.price_cents)}</span>}
                     </td>
                     {isAdmin && (
                       <td className="px-4 py-2.5 text-right">
-                        <MoneyCell label={`Costo de ${v.sku}`} cents={v.cost_cents ?? 0} onSave={(c) => run(() => api(`/api/variants/${v.id}`, { method: "PATCH", json: { cost_cents: c } }), "Costo actualizado.")} />
+                        <MoneyCell key={`c${v.cost_cents}`} label={`Costo de ${v.sku}`} cents={v.cost_cents ?? 0} onSave={(c) => run(() => api(`/api/variants/${v.id}`, { method: "PATCH", json: { cost_cents: c } }), "Costo actualizado.")} />
                       </td>
                     )}
                     <td className="tnum px-4 py-2.5 text-right font-semibold">{v.stock}</td>

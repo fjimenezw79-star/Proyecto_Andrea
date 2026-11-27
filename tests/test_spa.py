@@ -21,3 +21,7 @@ def test_assets_cached_long(client):
     name = next(assets.glob("*.js")).name
     r = client.get(f"/assets/{name}")
     assert r.status_code == 200 and "max-age=31536000" in r.headers["Cache-Control"]
+
+
+def test_bare_api_is_404(client):
+    assert client.get("/api").status_code == 404
