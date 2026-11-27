@@ -17,3 +17,19 @@ def app(tmp_path):
 @pytest.fixture()
 def client(app):
     return app.test_client()
+
+
+def login(client, username="admin", password="admin123"):
+    r = client.post("/api/auth/login", json={"username": username, "password": password})
+    assert r.status_code == 200, r.get_json()
+    return client
+
+
+@pytest.fixture()
+def admin(app):
+    return login(app.test_client())
+
+
+@pytest.fixture()
+def seller(app):
+    return login(app.test_client(), "vendedor", "12345")
