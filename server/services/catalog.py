@@ -146,7 +146,8 @@ def _upload_dir() -> Path:
     return Path(current_app.config["UPLOAD_DIR"])
 
 
-def create_product(data: dict, photos: list, user=None) -> Product:
+def create_product(data: dict, photos: list, user=None, skus: list[str] | None = None) -> Product:
+    """``skus`` solo lo usan los importadores para conservar códigos existentes."""
     name = str(data.get("name") or "").strip()
     if not name:
         raise ValidationError("Escribe el nombre del producto.", "name")
@@ -182,8 +183,9 @@ def create_product(data: dict, photos: list, user=None) -> Product:
             full, thumb = save_photo(f, _upload_dir())
             saved += [full, thumb]
             p.photos.append(ProductPhoto(filename=full, thumb_filename=thumb, position=i))
-        for attrs, price, cost, code in rows:
-            v = Variant(product=p, sku=next_sku(), barcode=code, attrs=attrs, price_cents=price, cost_cents=cost,
+        for i, (attrs, price, cost, code) in enumerate(rows):
+            sku = skus[i] if skus and i < len(skus) else next_sku()
+            v = Variant(product=p, sku=sku, barcode=code, attrs=attrs, price_cents=price, cost_cents=cost,
                         stock=0, hidden=hidden)
             session.add(v)
             session.flush()

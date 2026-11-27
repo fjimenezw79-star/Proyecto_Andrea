@@ -128,3 +128,16 @@ def seller_user(app):
 
     with app.app_context():
         return SessionUser(session.query(User).filter_by(username="vendedor").one())
+
+
+from pathlib import Path as _Path
+
+
+@pytest.fixture()
+def repo_root():
+    return _Path(__file__).resolve().parents[1]
+
+
+@pytest.fixture()
+def legacy_db(repo_root):
+    return repo_root / "tests" / "fixtures" / "legacy" / "bazarges_data.db"
