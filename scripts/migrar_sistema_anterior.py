@@ -22,7 +22,7 @@ def _table_count(con: sqlite3.Connection, table: str) -> int:
 
 
 def run(app, ruta_db: Path) -> dict:
-    from server.db import session
+    from server.db import begin_write, session
     from server.models import Category, Variant
     from server.services import catalog
     from server.services.inventory import move
@@ -41,8 +41,9 @@ def run(app, ruta_db: Path) -> dict:
             escolar = cat("Escolar")
             mochilas, utiles = cat("Mochilas", escolar), cat("Útiles", escolar)
             for row in con.execute("SELECT * FROM products ORDER BY id"):
-                code = (row["custom_id"] or "").strip() or None
-                if code and session.query(Variant).filter((Variant.barcode == code) | (Variant.sku == code)).first():
+                # sin código anterior se usa ANT-<id> para poder reconocerlo si la migración se repite
+                code = (row["custom_id"] or "").strip() or f"ANT-{row['id']}"
+                if session.query(Variant).filter((Variant.barcode == code) | (Variant.sku == code)).first():
                     continue
                 fotos = [uploads / r["filename"] for r in
                          con.execute("SELECT filename FROM product_images WHERE product_id=? ORDER BY id", (row["id"],))]
@@ -62,6 +63,7 @@ def run(app, ruta_db: Path) -> dict:
                     close_all(files)
                 stock = int(row["stock"] or 0)
                 if stock > 0:
+                    begin_write()
                     move(p.variants[0].id, stock, "import", None, "Migrado del sistema anterior")
                     session.commit()
                 creados += 1

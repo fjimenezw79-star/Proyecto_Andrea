@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import sqlite3
+import threading
 from datetime import date
 from pathlib import Path
 
@@ -13,6 +14,16 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 MIGRATIONS = Path(__file__).resolve().parent / "migrations"
 
 session = scoped_session(sessionmaker(expire_on_commit=False))
+_tls = threading.local()
+
+
+def begin_write() -> None:
+    """Prepara una transacción de escritura: cierra la lectura en curso y la siguiente empieza con
+    BEGIN IMMEDIATE, para que dos escrituras (dos ventas de la última pieza) se hagan en fila.
+    Las lecturas usan BEGIN normal: en modo WAL no bloquean a nadie."""
+    if session().in_transaction():
+        session.commit()
+    _tls.immediate = True
 
 
 def _make_engine(path: str) -> Engine:
@@ -30,8 +41,11 @@ def _make_engine(path: str) -> Engine:
 
     @event.listens_for(eng, "begin")
     def _begin(conn):
-        # BEGIN IMMEDIATE: las escrituras concurrentes (dos ventas de la última pieza) se hacen en fila.
-        conn.exec_driver_sql("BEGIN IMMEDIATE")
+        if getattr(_tls, "immediate", False):
+            _tls.immediate = False
+            conn.exec_driver_sql("BEGIN IMMEDIATE")
+        else:
+            conn.exec_driver_sql("BEGIN")
 
     return eng
 

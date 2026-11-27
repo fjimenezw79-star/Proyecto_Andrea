@@ -26,3 +26,23 @@ def ok(message: str = "", status: int = 200, **data):
 
 def fail(message: str, status: int = 400, field: str | None = None, **data):
     return jsonify(ok=False, message=message, field=field, **data), status
+
+
+MAX_MONEY = 10**12
+
+
+def strict_int(value, field: str, minimum: int | None = None, maximum: int = MAX_MONEY) -> int:
+    """Entero exacto: rechaza decimales (199.99), booleanos y texto no numérico."""
+    if isinstance(value, bool) or value is None:
+        raise ValidationError("Escribe un número entero.", field)
+    if isinstance(value, int):
+        n = value
+    elif isinstance(value, str) and value.strip().lstrip("-").isdigit():
+        n = int(value.strip())
+    else:
+        raise ValidationError("Escribe un número entero, sin decimales.", field)
+    if minimum is not None and n < minimum:
+        raise ValidationError("La cantidad no es válida.", field)
+    if n > maximum:
+        raise ValidationError("La cantidad es demasiado grande.", field)
+    return n

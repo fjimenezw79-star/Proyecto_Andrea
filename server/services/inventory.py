@@ -3,8 +3,8 @@ from __future__ import annotations
 
 from sqlalchemy import update
 
-from ..api_util import ConflictError, ValidationError
-from ..db import session
+from ..api_util import ConflictError, ValidationError, strict_int
+from ..db import begin_write, session
 from ..models import StockMovement, Variant
 
 REASONS = {"sale", "sale_cancel", "purchase", "adjustment", "import"}
@@ -38,16 +38,16 @@ def move(variant_id: int, qty_delta: int, reason: str, user_id: int | None, note
 
 
 def _int(value, field: str) -> int:
-    try:
-        return int(value)
-    except (TypeError, ValueError):
-        raise ValidationError("Escribe un número entero.", field) from None
+    return strict_int(value, field)
 
 
 def add_entries(items: list, note: str, user_id: int) -> list[StockMovement]:
     if not items:
         raise ValidationError("Agrega al menos un producto a la entrada.", "items")
+    if not isinstance(items, list) or not all(isinstance(it, dict) for it in items):
+        raise ValidationError("Lista de productos no válida.", "items")
     out = []
+    begin_write()
     try:
         for it in items:
             qty = _int(it.get("qty"), "qty")
@@ -82,6 +82,7 @@ def adjust(variant_id: int, new_stock, note: str, user_id: int) -> StockMovement
     delta = new_stock - v.stock
     if delta == 0:
         return None
+    begin_write()
     try:
         mv = move(v.id, delta, "adjustment", user_id, note)
         session.commit()

@@ -7,7 +7,7 @@ from flask_wtf.csrf import generate_csrf
 from werkzeug.security import check_password_hash
 
 from ..api_util import fail, ok
-from ..db import session
+from ..db import begin_write, session
 from ..models import User
 from ..security import SessionUser, clear_failures, record_failure, seconds_locked
 
@@ -19,6 +19,7 @@ def login():
     data = request.get_json(silent=True) or {}
     username = str(data.get("username", "")).strip().lower()
     password = str(data.get("password", ""))
+    begin_write()  # la revisión de intentos y su registro van juntos
     wait = seconds_locked(username)
     if wait:
         minutes = max(1, round(wait / 60))

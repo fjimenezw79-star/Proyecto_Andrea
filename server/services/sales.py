@@ -9,8 +9,8 @@ from flask import current_app
 from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 
-from ..api_util import ConflictError, ValidationError
-from ..db import session
+from ..api_util import ConflictError, ValidationError, strict_int
+from ..db import begin_write, session
 from ..models import Client, Sale, SaleItem, SalePayment, Variant
 from .inventory import InsufficientStock, move
 
@@ -25,13 +25,7 @@ class NotAllowed(Exception):
 
 
 def _int(value, field: str, minimum: int | None = None) -> int:
-    try:
-        n = int(value)
-    except (TypeError, ValueError):
-        raise ValidationError("Escribe un número entero.", field) from None
-    if minimum is not None and n < minimum:
-        raise ValidationError("La cantidad no es válida.", field)
-    return n
+    return strict_int(value, field, minimum)
 
 
 def _variant_label(v: Variant) -> str:
@@ -52,13 +46,19 @@ def create_sale(payload: dict, user) -> Sale:
         return existing
 
     raw_items = payload.get("items") or []
+    if not isinstance(raw_items, list) or not all(isinstance(it, dict) for it in raw_items):
+        raise ValidationError("Lista de productos no válida.", "items")
     if not raw_items:
         raise ValidationError("Agrega al menos un producto.", "items")
     client_id = payload.get("client_id") or None
     if client_id and not session.get(Client, client_id):
         raise ValidationError("El cliente no existe.", "client_id")
 
+    begin_write()
     try:
+        existing = session.get(Sale, sale_id)  # otra petición con el mismo id pudo ganar la carrera
+        if existing:
+            return existing
         lines, subtotal, item_disc = [], 0, 0
         for it in raw_items:
             v = session.get(Variant, _int(it.get("variant_id"), "variant_id"))
@@ -81,6 +81,8 @@ def create_sale(payload: dict, user) -> Sale:
         total = subtotal - discount
 
         pays = payload.get("payments") or []
+        if not isinstance(pays, list) or not all(isinstance(p, dict) for p in pays):
+            raise ValidationError("Formas de pago no válidas.", "payments")
         if not pays:
             raise ValidationError("Agrega la forma de pago.", "payments")
         parsed = []
@@ -144,6 +146,10 @@ def cancel_sale(sale_id: str, user, reason: str) -> Sale:
     sale = session.get(Sale, sale_id)
     if not sale:
         raise LookupError("La venta no existe.")
+    if sale.status == "cancelled":
+        raise ConflictError("Esta venta ya estaba cancelada.")
+    begin_write()
+    sale = session.get(Sale, sale_id)
     if sale.status == "cancelled":
         raise ConflictError("Esta venta ya estaba cancelada.")
     try:

@@ -5,7 +5,7 @@ from flask import Blueprint, request
 from flask_login import login_required
 
 from ..api_util import fail, ok
-from ..db import session
+from ..db import begin_write, session
 from ..models import Setting
 from ..security import admin_required
 
@@ -41,8 +41,9 @@ def update():
     unknown = [k for k in data if k not in DEFAULT_SETTINGS]
     if unknown:
         return fail(f"Configuración desconocida: {', '.join(unknown)}.", 400, unknown[0])
+    begin_write()
     for k, v in data.items():
-        if not isinstance(v, type(DEFAULT_SETTINGS[k])):
+        if isinstance(v, bool) or not isinstance(v, type(DEFAULT_SETTINGS[k])):
             return fail("Valor no válido.", 400, k)
         session.merge(Setting(key=k, value=v))
     session.commit()

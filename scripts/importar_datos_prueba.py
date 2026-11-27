@@ -16,7 +16,7 @@ COST_RATIO = 0.55
 
 
 def run(app, carpeta: Path = Path("datos_prueba")) -> dict:
-    from server.db import session
+    from server.db import begin_write, session
     from server.models import Category, Variant
     from server.services import catalog
     from server.services.inventory import move
@@ -43,6 +43,7 @@ def run(app, carpeta: Path = Path("datos_prueba")) -> dict:
             finally:
                 close_all(files)
             if int(p.get("stock") or 0) > 0:
+                begin_write()
                 move(prod.variants[0].id, int(p["stock"]), "import", None, "Datos de prueba")
                 session.commit()
             creados += 1

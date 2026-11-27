@@ -51,7 +51,9 @@ def _check_parent(parent_id, category_id: int | None = None) -> int | None:
 
 
 def create_category(name: str, parent_id: int | None = None) -> Category:
+    from ..db import begin_write
     name = _clean_name(name)
+    begin_write()
     c = Category(name=name, slug=_unique_slug(name), parent_id=_check_parent(parent_id))
     session.add(c)
     session.commit()
@@ -59,6 +61,8 @@ def create_category(name: str, parent_id: int | None = None) -> Category:
 
 
 def update_category(category_id: int, data: dict) -> Category:
+    from ..db import begin_write
+    begin_write()
     c = session.get(Category, category_id)
     if not c:
         raise ValidationError("La categoría no existe.", "id")
@@ -97,7 +101,9 @@ from flask import current_app  # noqa: E402
 from sqlalchemy import or_  # noqa: E402
 from sqlalchemy.exc import IntegrityError  # noqa: E402
 
-from ..api_util import ConflictError  # noqa: E402
+from ..api_util import ConflictError, strict_int  # noqa: E402
+from ..db import begin_write  # noqa: E402
+from sqlalchemy import func  # noqa: E402
 from ..codes import next_sku  # noqa: E402
 from ..models import Product, ProductPhoto, Variant  # noqa: E402
 from ..photos import delete_files, save_photo  # noqa: E402
@@ -106,13 +112,7 @@ PAGE_SIZE = 60
 
 
 def _money(value, field: str) -> int:
-    try:
-        n = int(value)
-    except (TypeError, ValueError):
-        raise ValidationError("Escribe una cantidad válida en centavos.", field) from None
-    if n < 0:
-        raise ValidationError("La cantidad no puede ser negativa.", field)
-    return n
+    return strict_int(value, field, minimum=0)
 
 
 def _attrs(value) -> dict:
@@ -129,13 +129,16 @@ def _barcode(value) -> str | None:
         return None
     if len(code) > 40 or not re.fullmatch(r"[0-9A-Za-z\-]+", code):
         raise ValidationError("El código solo puede tener letras, números y guiones.", "barcode")
+    if re.fullmatch(r"MA\d{6}", code, re.I):
+        raise ValidationError("Los códigos MA###### los asigna el sistema; usa el código de fábrica.", "barcode")
     return code
 
 
 def _check_barcode_free(code: str | None, variant_id: int | None = None) -> None:
     if not code:
         return
-    q = session.query(Variant).filter(or_(Variant.barcode == code, Variant.sku == code))
+    up = code.upper()
+    q = session.query(Variant).filter(or_(func.upper(Variant.barcode) == up, Variant.sku == up))
     if variant_id:
         q = q.filter(Variant.id != variant_id)
     if q.first():
@@ -176,12 +179,16 @@ def create_product(data: dict, photos: list, user=None, skus: list[str] | None =
 
     saved: list[str] = []
     try:
+        files = []
+        for f in photos:  # la conversión de fotos va fuera de la transacción de escritura
+            full, thumb = save_photo(f, _upload_dir())
+            saved += [full, thumb]
+            files.append((full, thumb))
+        begin_write()
         p = Product(name=name, description=str(data.get("description") or "").strip()[:2000], category_id=cat.id,
                     online=bool(data.get("online", True)))
         session.add(p)
-        for i, f in enumerate(photos):
-            full, thumb = save_photo(f, _upload_dir())
-            saved += [full, thumb]
+        for i, (full, thumb) in enumerate(files):
             p.photos.append(ProductPhoto(filename=full, thumb_filename=thumb, position=i))
         for i, (attrs, price, cost, code) in enumerate(rows):
             sku = skus[i] if skus and i < len(skus) else next_sku()
@@ -205,6 +212,7 @@ def get_product(product_id: int) -> Product:
 
 
 def update_product(product_id: int, data: dict) -> Product:
+    begin_write()
     p = get_product(product_id)
     if "name" in data:
         name = str(data["name"] or "").strip()
@@ -231,10 +239,15 @@ def add_photos(product_id: int, photos: list) -> Product:
         raise ValidationError("Agrega al menos una foto.", "photos")
     saved: list[str] = []
     try:
-        start = max((ph.position for ph in p.photos), default=-1) + 1
-        for i, f in enumerate(photos):
+        files = []
+        for f in photos:
             full, thumb = save_photo(f, _upload_dir())
             saved += [full, thumb]
+            files.append((full, thumb))
+        begin_write()
+        p = get_product(product_id)
+        start = max((ph.position for ph in p.photos), default=-1) + 1
+        for i, (full, thumb) in enumerate(files):
             p.photos.append(ProductPhoto(filename=full, thumb_filename=thumb, position=start + i))
         session.commit()
         return p
@@ -245,6 +258,7 @@ def add_photos(product_id: int, photos: list) -> Product:
 
 
 def delete_photo(product_id: int, photo_id: int) -> Product:
+    begin_write()
     p = get_product(product_id)
     ph = next((x for x in p.photos if x.id == photo_id), None)
     if not ph:
@@ -259,6 +273,7 @@ def delete_photo(product_id: int, photo_id: int) -> Product:
 
 
 def update_variant(variant_id: int, data: dict) -> Variant:
+    begin_write()
     v = session.get(Variant, variant_id)
     if not v:
         raise ValidationError("La variante no existe.", "id")
@@ -284,7 +299,9 @@ def update_variant(variant_id: int, data: dict) -> Variant:
 
 def lookup(code: str) -> Variant:
     code = str(code or "").strip()
-    v = session.query(Variant).filter(or_(Variant.sku == code.upper(), Variant.barcode == code)).first() if code else None
+    up = code.upper()
+    v = (session.query(Variant).filter(or_(Variant.sku == up, func.upper(Variant.barcode) == up))
+         .order_by(Variant.active.desc(), Variant.id).first()) if code else None
     if not v:
         raise LookupError("No encontramos ningún producto con ese código.")
     return v
