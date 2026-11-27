@@ -27,6 +27,9 @@ def create_app(config_class: type[Config] = Config) -> Flask:
         app.register_blueprint(module.bp)
     app.register_blueprint(catalog.uploads)
 
+    from . import spa
+    app.register_blueprint(spa.bp)  # al final: atrapa las rutas de la app web
+
     @app.get("/api/health")
     def health():
         return ok(app=app.config["APP_NAME"])
