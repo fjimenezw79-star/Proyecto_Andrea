@@ -8,6 +8,7 @@ import { AuthError } from "./lib/api";
 import { AppShell } from "./shell/AppShell";
 import { Placeholder } from "./ui/Placeholder";
 import { ToastProvider } from "./ui/Toast";
+import { PosPage } from "./pos/PosPage";
 
 function Routed() {
   const { expire } = useAuth();
@@ -25,7 +26,7 @@ function Routed() {
         <Route path="/entrar" element={<LoginPage />} />
         <Route element={<RequireAuth><AppShell /></RequireAuth>}>
           <Route index element={<Navigate to="/vender" replace />} />
-          <Route path="vender" element={<Placeholder title="Vender" />} />
+          <Route path="vender" element={<PosPage />} />
           <Route path="inventario" element={<Placeholder title="Inventario" />} />
           <Route path="inventario/:id" element={<Placeholder title="Producto" />} />
           <Route path="ventas" element={<Placeholder title="Ventas de hoy" />} />
