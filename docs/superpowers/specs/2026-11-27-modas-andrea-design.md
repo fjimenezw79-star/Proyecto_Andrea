@@ -214,7 +214,11 @@ El dueño eligió la **opción 1**.
 - **Aviso visible** "Sin señal", un botón de **pendientes** (forzar envío, reintentar o descartar con motivo), un aviso antes de cerrar sesión con pendientes y un respaldo de emergencia de la cola.
 - Los pendientes son por usuario: si otra persona entra en el mismo dispositivo, no se envían a su nombre.
 - **Service worker** con la app completa guardada en el dispositivo, el índice de huellas y el modelo de visión, además de catálogo, precios y clientes en IndexedDB para vender sin señal.
-- **Límite conocido:** los dispositivos que entran por `http://192.168…` (WiFi local) no pueden usar el modo sin conexión porque el navegador lo impide sin HTTPS. Pero en la WiFi del local, que se vaya el internet **no** los desconecta de la PC. Los dispositivos que salen del local deben usar el enlace HTTPS. **Fase posterior**, cuando haya dominio: certificado propio en la PC para que dentro y fuera del local se use la misma dirección HTTPS.
+- **Un solo enlace para todos (decisión del dueño).** Todos los dispositivos, dentro y fuera del local, se conectan con el mismo enlace **HTTPS**, así que todos pueden trabajar sin señal. Dentro del local, si se cae el internet, el dispositivo pasa al modo sin señal y envía todo al volver. La dirección `http://192.168…` queda como respaldo de emergencia, sin modo sin señal porque el navegador lo impide sin HTTPS.
+- **Pantalla "Conectar dispositivo"** (sección 8.13): QR, *Enviar por WhatsApp* y *Copiar enlace*. Elige sola el mejor enlace disponible: 1) `PUBLIC_URL` (dominio fijo), 2) el enlace temporal del túnel si `acceso_remoto.bat` está activo, 3) la IP de la red local. Al abrirlo se ofrece **instalar la app** (PWA) en la pantalla de inicio.
+- **Etapas del enlace:**
+  - **Desarrollo y pruebas:** red local y enlace temporal de Cloudflare. El enlace temporal cambia en cada arranque: hay que volver a escanear el QR, y lo guardado en el dispositivo para ese enlace se pierde. Antes de volver a escanear, la app debe avisar si quedan pendientes.
+  - **Cuando el sistema esté estable (decisión del dueño):** se compra un dominio, se configura el túnel fijo (`CLOUDFLARE_TUNNEL_TOKEN` + `PUBLIC_URL`) y todos los dispositivos escanean el QR una última vez. Al mudarse a la nube solo cambia a dónde apunta el dominio.
 
 ### 8.12 Tienda en línea
 - Se publica en **Cloudflare Pages** (gratis y siempre encendida), así que **funciona aunque la PC esté apagada**. Requiere una cuenta gratuita de Cloudflare, la misma que después servirá para el dominio fijo.
@@ -245,7 +249,8 @@ El dueño eligió la **opción 1**.
 - `acceso_remoto.bat`: además abre el túnel de Cloudflare (modo prueba o modo fijo con token).
 - También `actualizar.bat` y `restablecer_contrasena.bat`.
 - **Respaldos diarios** automáticos (se conservan 15) y descarga de respaldo `.zip` con fotos.
-- **Código QR** en pantalla para conectar un dispositivo nuevo.
+- **Conectar dispositivo**: QR, envío por WhatsApp y copia del enlace, con la elección de enlace descrita en 8.11.
+- El **dominio fijo se compra más adelante**, cuando el sistema esté estable y las pruebas avanzadas (decisión del dueño).
 
 ## 10. Calidad
 - Pruebas automáticas del servidor con `pytest`, sobre todo:
@@ -277,3 +282,5 @@ El dueño eligió la **opción 1**.
 8. Confirmación al vender sin señal cuando quedan 2 piezas o menos.
 9. La tienda en línea vive en Cloudflare Pages para funcionar con la PC apagada, y los pedidos se confirman en el sistema.
 10. No se importan los usuarios ni las contraseñas del sistema viejo.
+
+Decidido por el dueño: un solo enlace HTTPS para todos los dispositivos, compartido por QR o WhatsApp. El dominio fijo se compra cuando el sistema esté estable.
