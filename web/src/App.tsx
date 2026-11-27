@@ -1,51 +1,42 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useState } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router";
 import { AuthProvider, useAuth } from "./auth/AuthProvider";
 import { LoginPage } from "./auth/LoginPage";
 import { RequireAuth } from "./auth/RequireAuth";
 import { AuthError } from "./lib/api";
+import { AppShell } from "./shell/AppShell";
+import { Placeholder } from "./ui/Placeholder";
 import { ToastProvider } from "./ui/Toast";
-
-function makeClient(onAuth: () => void) {
-  const retry = (n: number, e: unknown) => !(e instanceof AuthError) && n < 1;
-  const qc = new QueryClient({ defaultOptions: { queries: { retry, staleTime: 15_000, refetchOnWindowFocus: true } } });
-  const handle = (e: unknown) => e instanceof AuthError && onAuth();
-  qc.getQueryCache().config.onError = handle;
-  qc.getMutationCache().config.onError = handle;
-  return qc;
-}
-
-function Home() {
-  const { user, logout } = useAuth();
-  return (
-    <main className="p-6">
-      <p className="text-muted">Sesión iniciada como</p>
-      <p className="font-serif text-4xl">{user?.full_name}</p>
-      <button className="mt-4 underline" onClick={() => logout()}>
-        Salir
-      </button>
-    </main>
-  );
-}
 
 function Routed() {
   const { expire } = useAuth();
-  const [qc] = [makeClientOnce(expire)];
+  const [qc] = useState(() => {
+    const retry = (n: number, e: unknown) => !(e instanceof AuthError) && n < 1;
+    const c = new QueryClient({ defaultOptions: { queries: { retry, staleTime: 15_000 }, mutations: { retry: false } } });
+    const onError = (e: unknown) => e instanceof AuthError && expire();
+    c.getQueryCache().config.onError = onError;
+    c.getMutationCache().config.onError = onError;
+    return c;
+  });
   return (
     <QueryClientProvider client={qc}>
       <Routes>
         <Route path="/entrar" element={<LoginPage />} />
-        <Route path="/" element={<Navigate to="/vender" replace />} />
-        <Route path="*" element={<RequireAuth><Home /></RequireAuth>} />
+        <Route element={<RequireAuth><AppShell /></RequireAuth>}>
+          <Route index element={<Navigate to="/vender" replace />} />
+          <Route path="vender" element={<Placeholder title="Vender" />} />
+          <Route path="inventario" element={<Placeholder title="Inventario" />} />
+          <Route path="inventario/:id" element={<Placeholder title="Producto" />} />
+          <Route path="ventas" element={<Placeholder title="Ventas de hoy" />} />
+          <Route path="productos/nuevo" element={<RequireAuth admin><Placeholder title="Nuevo producto" /></RequireAuth>} />
+          <Route path="categorias" element={<RequireAuth admin><Placeholder title="Categorías" /></RequireAuth>} />
+          <Route path="configuracion" element={<RequireAuth admin><Placeholder title="Configuración" /></RequireAuth>} />
+          <Route path="*" element={<Navigate to="/vender" replace />} />
+        </Route>
       </Routes>
     </QueryClientProvider>
   );
-}
-
-let client: QueryClient | null = null;
-function makeClientOnce(onAuth: () => void) {
-  if (!client) client = makeClient(onAuth);
-  return client;
 }
 
 export default function App() {
