@@ -1,0 +1,1148 @@
+[
+ {
+  "id": "p001",
+  "code": "MA000001",
+  "name": "Princesas Disney",
+  "dept": "Mochilas",
+  "sub": "Mochila preescolar",
+  "price": 350,
+  "stock": 3,
+  "info": [
+   "Bolsa frontal con cierre",
+   "Correas acolchadas"
+  ],
+  "imgs": [
+   "fotos/p001.webp"
+  ],
+  "cut": true,
+  "credit": null,
+  "feature": false,
+  "source_url": null
+ },
+ {
+  "id": "p002",
+  "code": "MA000002",
+  "name": "Mario Bros",
+  "dept": "Mochilas",
+  "sub": "Combo primaria",
+  "price": 320,
+  "stock": 2,
+  "info": [
+   "Incluye mochila, lonchera y lapicera",
+   "Relieve 3D"
+  ],
+  "imgs": [
+   "fotos/p002.webp"
+  ],
+  "cut": true,
+  "credit": null,
+  "feature": true,
+  "source_url": null
+ },
+ {
+  "id": "p003",
+  "code": "MA000003",
+  "name": "Bob Esponja",
+  "dept": "Mochilas",
+  "sub": "Combo primaria",
+  "price": 300,
+  "stock": 5,
+  "info": [
+   "Incluye mochila, lonchera y lapicera",
+   "Bolsas laterales para termo"
+  ],
+  "imgs": [
+   "fotos/p003.webp"
+  ],
+  "cut": true,
+  "credit": null,
+  "feature": false,
+  "source_url": null
+ },
+ {
+  "id": "p004",
+  "code": "MA000004",
+  "name": "Labubu",
+  "dept": "Mochilas",
+  "sub": "Combo primaria",
+  "price": 380,
+  "stock": 4,
+  "info": [
+   "Incluye mochila, lonchera y lapicera"
+  ],
+  "imgs": [
+   "fotos/p004.webp"
+  ],
+  "cut": true,
+  "credit": null,
+  "feature": false,
+  "source_url": null
+ },
+ {
+  "id": "p005",
+  "code": "MA000005",
+  "name": "Mochila pana beige",
+  "dept": "Mochilas",
+  "sub": "Asas de mano, 14 pulgadas",
+  "price": 320,
+  "stock": 6,
+  "info": [
+   "Tela de pana",
+   "Bolsa frontal con cierre"
+  ],
+  "imgs": [
+   "fotos/p005.webp"
+  ],
+  "cut": false,
+  "credit": "My Heart Teddy, BY 2.0 vía flickr",
+  "feature": false,
+  "source_url": "https://www.flickr.com/photos/189513740@N06/50220173556"
+ },
+ {
+  "id": "p006",
+  "code": "MA000006",
+  "name": "Mochila pana rosa",
+  "dept": "Mochilas",
+  "sub": "Asas de mano, 14 pulgadas",
+  "price": 320,
+  "stock": 5,
+  "info": [
+   "Tela de pana",
+   "Bolsa frontal con cierre"
+  ],
+  "imgs": [
+   "fotos/p006.webp"
+  ],
+  "cut": false,
+  "credit": "My Heart Teddy, BY 2.0 vía flickr",
+  "feature": false,
+  "source_url": "https://www.flickr.com/photos/189513740@N06/50220173556"
+ },
+ {
+  "id": "p007",
+  "code": "MA000007",
+  "name": "Mochila pana terracota",
+  "dept": "Mochilas",
+  "sub": "Asas de mano, 14 pulgadas",
+  "price": 320,
+  "stock": 4,
+  "info": [
+   "Tela de pana",
+   "Bolsa frontal con cierre"
+  ],
+  "imgs": [
+   "fotos/p007.webp"
+  ],
+  "cut": false,
+  "credit": "My Heart Teddy, BY 2.0 vía flickr",
+  "feature": false,
+  "source_url": "https://www.flickr.com/photos/189513740@N06/50220173556"
+ },
+ {
+  "id": "p008",
+  "code": "MA000008",
+  "name": "Mochila pana negra",
+  "dept": "Mochilas",
+  "sub": "Asas de mano, 14 pulgadas",
+  "price": 320,
+  "stock": 7,
+  "info": [
+   "Tela de pana",
+   "Bolsa frontal con cierre"
+  ],
+  "imgs": [
+   "fotos/p008.webp"
+  ],
+  "cut": false,
+  "credit": "My Heart Teddy, BY 2.0 vía flickr",
+  "feature": false,
+  "source_url": "https://www.flickr.com/photos/189513740@N06/50220173556"
+ },
+ {
+  "id": "p009",
+  "code": "MA000009",
+  "name": "Mochila Venom",
+  "dept": "Mochilas",
+  "sub": "Primaria, con relieve",
+  "price": 360,
+  "stock": 2,
+  "info": [
+   "Bolsa lateral de malla",
+   "Correas acolchadas"
+  ],
+  "imgs": [
+   "fotos/p009.webp"
+  ],
+  "cut": false,
+  "credit": "somegeekintn, BY 2.0 vía flickr",
+  "feature": false,
+  "source_url": "https://www.flickr.com/photos/66335021@N00/3410828982"
+ },
+ {
+  "id": "p010",
+  "code": "MA000010",
+  "name": "Mochila búho",
+  "dept": "Mochilas",
+  "sub": "Preescolar",
+  "price": 280,
+  "stock": 6,
+  "info": [
+   "Ligera, para niños de 3 a 5 años"
+  ],
+  "imgs": [
+   "fotos/p010.webp"
+  ],
+  "cut": false,
+  "credit": "Lars Plougmann, BY-SA 2.0 vía flickr",
+  "feature": false,
+  "source_url": "https://www.flickr.com/photos/75062596@N00/7198166228"
+ },
+ {
+  "id": "p011",
+  "code": "MA000011",
+  "name": "Mochila floral azul",
+  "dept": "Mochilas",
+  "sub": "Secundaria",
+  "price": 340,
+  "stock": 3,
+  "info": [
+   "Estampado de girasoles",
+   "Bolsa para laptop"
+  ],
+  "imgs": [
+   "fotos/p011.webp"
+  ],
+  "cut": false,
+  "credit": "megforce1, CC0 1.0 vía flickr",
+  "feature": false,
+  "source_url": "https://www.flickr.com/photos/35608308@N05/28404475294"
+ },
+ {
+  "id": "p012",
+  "code": "MA000012",
+  "name": "Mochila dinosaurio",
+  "dept": "Mochilas",
+  "sub": "Preescolar",
+  "price": 260,
+  "stock": 8,
+  "info": [
+   "Estampado de dinosaurio",
+   "Bolsas laterales"
+  ],
+  "imgs": [
+   "fotos/p012.webp"
+  ],
+  "cut": false,
+  "credit": "Faisal Ahammad, CC0 1.0 vía wordpress",
+  "feature": false,
+  "source_url": "https://wordpress.org/photos/photo/18769e115f/"
+ },
+ {
+  "id": "p013",
+  "code": "MA000013",
+  "name": "Mochila de excursión verde",
+  "dept": "Mochilas",
+  "sub": "40 L, para viaje",
+  "price": 890,
+  "stock": 2,
+  "info": [
+   "Tela impermeable",
+   "Cinturón de cadera"
+  ],
+  "imgs": [
+   "fotos/p013.webp"
+  ],
+  "cut": false,
+  "credit": "kooikkari, BY-SA 2.0 vía flickr",
+  "feature": false,
+  "source_url": "https://www.flickr.com/photos/126392958@N03/26645453056"
+ },
+ {
+  "id": "p014",
+  "code": "MA000014",
+  "name": "Mochila de piel vintage",
+  "dept": "Mochilas",
+  "sub": "Universitaria",
+  "price": 650,
+  "stock": 1,
+  "info": [
+   "Piel sintética",
+   "Cierre de broche"
+  ],
+  "imgs": [
+   "fotos/p014.webp"
+  ],
+  "cut": false,
+  "credit": "goatling, BY-SA 2.0 vía flickr",
+  "feature": false,
+  "source_url": "https://www.flickr.com/photos/32907326@N00/1078101024"
+ },
+ {
+  "id": "p015",
+  "code": "MA000015",
+  "name": "Termo clásico rojo",
+  "dept": "Termos",
+  "sub": "1 L, tapa vaso",
+  "price": 420,
+  "stock": 4,
+  "info": [
+   "Mantiene frío y caliente",
+   "Fácil de lavar"
+  ],
+  "imgs": [
+   "fotos/p015.webp"
+  ],
+  "cut": false,
+  "credit": "alexkerhead, BY 2.0 vía flickr",
+  "feature": true,
+  "source_url": "https://www.flickr.com/photos/26354629@N02/3602592574"
+ },
+ {
+  "id": "p016",
+  "code": "MA000016",
+  "name": "Termos infantiles",
+  "dept": "Termos",
+  "sub": "Popote integrado, 350 ml",
+  "price": 260,
+  "stock": 4,
+  "info": [
+   "Mantiene frío y caliente",
+   "Fácil de lavar"
+  ],
+  "imgs": [
+   "fotos/p016.webp"
+  ],
+  "cut": false,
+  "credit": "Kid's Birthday Parties, BY-ND 2.0 vía flickr",
+  "feature": false,
+  "source_url": "https://www.flickr.com/photos/13698839@N00/3250037233"
+ },
+ {
+  "id": "p017",
+  "code": "MA000017",
+  "name": "Botella con asa morada",
+  "dept": "Termos",
+  "sub": "Tritán libre de BPA, 700 ml",
+  "price": 210,
+  "stock": 4,
+  "info": [
+   "Mantiene frío y caliente",
+   "Fácil de lavar"
+  ],
+  "imgs": [
+   "fotos/p017.webp"
+  ],
+  "cut": false,
+  "credit": "Rubbermaid Products, BY 2.0 vía flickr",
+  "feature": false,
+  "source_url": "https://www.flickr.com/photos/28040596@N08/6959993447"
+ },
+ {
+  "id": "p018",
+  "code": "MA000018",
+  "name": "Botella tejida",
+  "dept": "Termos",
+  "sub": "Funda tejida a mano",
+  "price": 240,
+  "stock": 4,
+  "info": [
+   "Mantiene frío y caliente",
+   "Fácil de lavar"
+  ],
+  "imgs": [
+   "fotos/p018.webp"
+  ],
+  "cut": false,
+  "credit": "Dvortygirl, BY-SA 2.0 vía flickr",
+  "feature": false,
+  "source_url": "https://www.flickr.com/photos/21093323@N02/6788171646"
+ },
+ {
+  "id": "p019",
+  "code": "MA000019",
+  "name": "Botella deportiva lila",
+  "dept": "Termos",
+  "sub": "Tapa abre fácil, 600 ml",
+  "price": 190,
+  "stock": 4,
+  "info": [
+   "Mantiene frío y caliente",
+   "Fácil de lavar"
+  ],
+  "imgs": [
+   "fotos/p019.webp"
+  ],
+  "cut": false,
+  "credit": "Rubbermaid Products, BY 2.0 vía flickr",
+  "feature": false,
+  "source_url": "https://www.flickr.com/photos/28040596@N08/6959993521"
+ },
+ {
+  "id": "p020",
+  "code": "MA000020",
+  "name": "Botella deportiva azul",
+  "dept": "Termos",
+  "sub": "Tapa abre fácil, 600 ml",
+  "price": 190,
+  "stock": 4,
+  "info": [
+   "Mantiene frío y caliente",
+   "Fácil de lavar"
+  ],
+  "imgs": [
+   "fotos/p020.webp"
+  ],
+  "cut": false,
+  "credit": "Rubbermaid Products, BY 2.0 vía flickr",
+  "feature": false,
+  "source_url": "https://www.flickr.com/photos/28040596@N08/6813880300"
+ },
+ {
+  "id": "p021",
+  "code": "MA000021",
+  "name": "Botella de aluminio",
+  "dept": "Termos",
+  "sub": "Ligera, 750 ml",
+  "price": 280,
+  "stock": 4,
+  "info": [
+   "Mantiene frío y caliente",
+   "Fácil de lavar"
+  ],
+  "imgs": [
+   "fotos/p021.webp"
+  ],
+  "cut": false,
+  "credit": "ILoveVerdi, BY 2.0 vía flickr",
+  "feature": false,
+  "source_url": "https://www.flickr.com/photos/24483041@N05/3385538245"
+ },
+ {
+  "id": "p022",
+  "code": "MA000022",
+  "name": "Termo Love",
+  "dept": "Termos",
+  "sub": "Acero doble pared, 500 ml",
+  "price": 350,
+  "stock": 4,
+  "info": [
+   "Mantiene frío y caliente",
+   "Fácil de lavar"
+  ],
+  "imgs": [
+   "fotos/p022.webp"
+  ],
+  "cut": false,
+  "credit": "umairasghar, CC0 1.0 vía wordpress",
+  "feature": false,
+  "source_url": "https://wordpress.org/photos/photo/7266a3b8ce/"
+ },
+ {
+  "id": "p023",
+  "code": "MA000023",
+  "name": "Botella de acero azul",
+  "dept": "Termos",
+  "sub": "Acero inoxidable, 1 L",
+  "price": 390,
+  "stock": 4,
+  "info": [
+   "Mantiene frío y caliente",
+   "Fácil de lavar"
+  ],
+  "imgs": [
+   "fotos/p023.webp"
+  ],
+  "cut": false,
+  "credit": "Worlds Direction, CC0 1.0 vía flickr",
+  "feature": false,
+  "source_url": "https://www.flickr.com/photos/144661696@N05/34776192110"
+ },
+ {
+  "id": "p024",
+  "code": "MA000024",
+  "name": "Vaso térmico de viaje",
+  "dept": "Termos",
+  "sub": "Tapa a prueba de goteo, 450 ml",
+  "price": 230,
+  "stock": 4,
+  "info": [
+   "Mantiene frío y caliente",
+   "Fácil de lavar"
+  ],
+  "imgs": [
+   "fotos/p024.webp"
+  ],
+  "cut": false,
+  "credit": "aaronparecki, BY 2.0 vía flickr",
+  "feature": false,
+  "source_url": "https://www.flickr.com/photos/10970592@N04/5033401089"
+ },
+ {
+  "id": "p025",
+  "code": "MA000025",
+  "name": "Cobija venados",
+  "dept": "Cobijas",
+  "sub": "Polar delgada, individual",
+  "price": 320,
+  "stock": 5,
+  "info": [
+   "Delgada y ligera",
+   "Lavable en lavadora"
+  ],
+  "imgs": [
+   "fotos/p025.webp"
+  ],
+  "cut": false,
+  "credit": "LuneOwl, BY 2.0 vía flickr",
+  "feature": false,
+  "source_url": "https://www.flickr.com/photos/25533577@N06/6563674283"
+ },
+ {
+  "id": "p026",
+  "code": "MA000026",
+  "name": "Cobija cuadros tejidos",
+  "dept": "Cobijas",
+  "sub": "Tejido granny, 120 × 150 cm",
+  "price": 450,
+  "stock": 5,
+  "info": [
+   "Delgada y ligera",
+   "Lavable en lavadora"
+  ],
+  "imgs": [
+   "fotos/p026.webp"
+  ],
+  "cut": false,
+  "credit": "callme_crochet, BY-ND 2.0 vía flickr",
+  "feature": false,
+  "source_url": "https://www.flickr.com/photos/57231735@N00/219257413"
+ },
+ {
+  "id": "p027",
+  "code": "MA000027",
+  "name": "Cobija zigzag",
+  "dept": "Cobijas",
+  "sub": "Tejida, para sillón",
+  "price": 420,
+  "stock": 5,
+  "info": [
+   "Delgada y ligera",
+   "Lavable en lavadora"
+  ],
+  "imgs": [
+   "fotos/p027.webp"
+  ],
+  "cut": false,
+  "credit": "callme_crochet, BY-ND 2.0 vía flickr",
+  "feature": false,
+  "source_url": "https://www.flickr.com/photos/57231735@N00/383372329"
+ },
+ {
+  "id": "p028",
+  "code": "MA000028",
+  "name": "Cobija chevron azul",
+  "dept": "Cobijas",
+  "sub": "Tejida, 120 × 150 cm",
+  "price": 420,
+  "stock": 5,
+  "info": [
+   "Delgada y ligera",
+   "Lavable en lavadora"
+  ],
+  "imgs": [
+   "fotos/p028.webp"
+  ],
+  "cut": false,
+  "credit": "Breibeest, BY 2.0 vía flickr",
+  "feature": false,
+  "source_url": "https://www.flickr.com/photos/81876892@N00/2300141095"
+ },
+ {
+  "id": "p029",
+  "code": "MA000029",
+  "name": "Cobija trenzada turquesa",
+  "dept": "Cobijas",
+  "sub": "Tejido de trenza",
+  "price": 480,
+  "stock": 5,
+  "info": [
+   "Delgada y ligera",
+   "Lavable en lavadora"
+  ],
+  "imgs": [
+   "fotos/p029.webp"
+  ],
+  "cut": false,
+  "credit": "RLHyde, BY-SA 2.0 vía flickr",
+  "feature": true,
+  "source_url": "https://www.flickr.com/photos/36655009@N05/14189583349"
+ },
+ {
+  "id": "p030",
+  "code": "MA000030",
+  "name": "Cobija gris de sala",
+  "dept": "Cobijas",
+  "sub": "Ligera, para sillón",
+  "price": 390,
+  "stock": 5,
+  "info": [
+   "Delgada y ligera",
+   "Lavable en lavadora"
+  ],
+  "imgs": [
+   "fotos/p030.webp"
+  ],
+  "cut": false,
+  "credit": "currystrumpet, BY-SA 2.0 vía flickr",
+  "feature": false,
+  "source_url": "https://www.flickr.com/photos/93171945@N00/15471451887"
+ },
+ {
+  "id": "p031",
+  "code": "MA000031",
+  "name": "Cobija beige de sillón",
+  "dept": "Cobijas",
+  "sub": "Con flecos",
+  "price": 370,
+  "stock": 5,
+  "info": [
+   "Delgada y ligera",
+   "Lavable en lavadora"
+  ],
+  "imgs": [
+   "fotos/p031.webp"
+  ],
+  "cut": false,
+  "credit": "Rankin Miss, BY-ND 2.0 vía flickr",
+  "feature": false,
+  "source_url": "https://www.flickr.com/photos/27186597@N05/4710633997"
+ },
+ {
+  "id": "p032",
+  "code": "MA000032",
+  "name": "Cobija crema de viaje",
+  "dept": "Cobijas",
+  "sub": "Doblada cabe en la mochila",
+  "price": 340,
+  "stock": 5,
+  "info": [
+   "Delgada y ligera",
+   "Lavable en lavadora"
+  ],
+  "imgs": [
+   "fotos/p032.webp"
+  ],
+  "cut": false,
+  "credit": "autor desconocido, CC0 1.0 vía rawpixel",
+  "feature": false,
+  "source_url": "https://www.rawpixel.com/image/3301353/free-photo-image-animal-apparel-blanket"
+ },
+ {
+  "id": "p033",
+  "code": "MA000033",
+  "name": "Cobija escocesa verde",
+  "dept": "Cobijas",
+  "sub": "Cuadros, 130 × 170 cm",
+  "price": 360,
+  "stock": 5,
+  "info": [
+   "Delgada y ligera",
+   "Lavable en lavadora"
+  ],
+  "imgs": [
+   "fotos/p033.webp"
+  ],
+  "cut": false,
+  "credit": "Joanna Bourne, BY 2.0 vía flickr",
+  "feature": false,
+  "source_url": "https://www.flickr.com/photos/66992990@N00/6715403921"
+ },
+ {
+  "id": "p034",
+  "code": "MA000034",
+  "name": "Cobija tartán",
+  "dept": "Cobijas",
+  "sub": "Cuadros verdes",
+  "price": 360,
+  "stock": 5,
+  "info": [
+   "Delgada y ligera",
+   "Lavable en lavadora"
+  ],
+  "imgs": [
+   "fotos/p034.webp"
+  ],
+  "cut": false,
+  "credit": "webtreats, BY 2.0 vía flickr",
+  "feature": false,
+  "source_url": "https://www.flickr.com/photos/44071822@N08/4368106451"
+ },
+ {
+  "id": "p035",
+  "code": "MA000035",
+  "name": "Reloj redondo acero",
+  "dept": "Relojes",
+  "sub": "Carátula redonda, pulso de eslabones",
+  "price": 1890,
+  "stock": 3,
+  "info": [
+   "Notificaciones del celular",
+   "Carga magnética"
+  ],
+  "imgs": [
+   "fotos/p035.webp"
+  ],
+  "cut": false,
+  "credit": "chrisf608, BY 2.0 vía flickr",
+  "feature": false,
+  "source_url": "https://www.flickr.com/photos/114264438@N03/13736591024"
+ },
+ {
+  "id": "p036",
+  "code": "MA000036",
+  "name": "Reloj cuadrado clásico",
+  "dept": "Relojes",
+  "sub": "Pantalla táctil, pulso negro",
+  "price": 1290,
+  "stock": 3,
+  "info": [
+   "Notificaciones del celular",
+   "Carga magnética"
+  ],
+  "imgs": [
+   "fotos/p036.webp"
+  ],
+  "cut": false,
+  "credit": "Janitors, BY 2.0 vía flickr",
+  "feature": false,
+  "source_url": "https://www.flickr.com/photos/65265630@N03/10289879613"
+ },
+ {
+  "id": "p037",
+  "code": "MA000037",
+  "name": "Reloj de tinta electrónica",
+  "dept": "Relojes",
+  "sub": "Batería de 7 días",
+  "price": 990,
+  "stock": 3,
+  "info": [
+   "Notificaciones del celular",
+   "Carga magnética"
+  ],
+  "imgs": [
+   "fotos/p037.webp"
+  ],
+  "cut": false,
+  "credit": "chrisf608, BY 2.0 vía flickr",
+  "feature": false,
+  "source_url": "https://www.flickr.com/photos/114264438@N03/14005625224"
+ },
+ {
+  "id": "p038",
+  "code": "MA000038",
+  "name": "Banda curva deportiva",
+  "dept": "Relojes",
+  "sub": "Ritmo cardiaco y pasos",
+  "price": 790,
+  "stock": 3,
+  "info": [
+   "Notificaciones del celular",
+   "Carga magnética"
+  ],
+  "imgs": [
+   "fotos/p038.webp"
+  ],
+  "cut": false,
+  "credit": "Janitors, BY 2.0 vía flickr",
+  "feature": false,
+  "source_url": "https://www.flickr.com/photos/65265630@N03/13467836054"
+ },
+ {
+  "id": "p039",
+  "code": "MA000039",
+  "name": "Reloj cuadrado dorado",
+  "dept": "Relojes",
+  "sub": "Pulso de piel café",
+  "price": 1490,
+  "stock": 3,
+  "info": [
+   "Notificaciones del celular",
+   "Carga magnética"
+  ],
+  "imgs": [
+   "fotos/p039.webp"
+  ],
+  "cut": false,
+  "credit": "Janitors, BY 2.0 vía flickr",
+  "feature": false,
+  "source_url": "https://www.flickr.com/photos/65265630@N03/10289750076"
+ },
+ {
+  "id": "p040",
+  "code": "MA000040",
+  "name": "Reloj cuadrado menta",
+  "dept": "Relojes",
+  "sub": "Pulso de silicón menta",
+  "price": 1690,
+  "stock": 3,
+  "info": [
+   "Notificaciones del celular",
+   "Carga magnética"
+  ],
+  "imgs": [
+   "fotos/p040.webp"
+  ],
+  "cut": false,
+  "credit": "Yasunobu Ikeda, BY-SA 2.0 vía flickr",
+  "feature": true,
+  "source_url": "https://www.flickr.com/photos/88403964@N00/17111109088"
+ },
+ {
+  "id": "p041",
+  "code": "MA000041",
+  "name": "Reloj cuadrado eslabones",
+  "dept": "Relojes",
+  "sub": "Pulso de acero",
+  "price": 2190,
+  "stock": 3,
+  "info": [
+   "Notificaciones del celular",
+   "Carga magnética"
+  ],
+  "imgs": [
+   "fotos/p041.webp"
+  ],
+  "cut": false,
+  "credit": "raneko, BY 2.0 vía flickr",
+  "feature": false,
+  "source_url": "https://www.flickr.com/photos/24926669@N07/17670358204"
+ },
+ {
+  "id": "p042",
+  "code": "MA000042",
+  "name": "Reloj cuadrado lila",
+  "dept": "Relojes",
+  "sub": "Pulso de silicón lila",
+  "price": 1590,
+  "stock": 3,
+  "info": [
+   "Notificaciones del celular",
+   "Carga magnética"
+  ],
+  "imgs": [
+   "fotos/p042.webp"
+  ],
+  "cut": false,
+  "credit": "MIKI Yoshihito. (#mikiyoshihito), BY 2.0 vía flickr",
+  "feature": false,
+  "source_url": "https://www.flickr.com/photos/7940758@N07/51850706077"
+ },
+ {
+  "id": "p043",
+  "code": "MA000043",
+  "name": "Reloj cuadrado negro",
+  "dept": "Relojes",
+  "sub": "Carátula de esferas",
+  "price": 1790,
+  "stock": 3,
+  "info": [
+   "Notificaciones del celular",
+   "Carga magnética"
+  ],
+  "imgs": [
+   "fotos/p043.webp"
+  ],
+  "cut": false,
+  "credit": "jfingas, BY-ND 2.0 vía flickr",
+  "feature": false,
+  "source_url": "https://www.flickr.com/photos/60886372@N00/17102788065"
+ },
+ {
+  "id": "p044",
+  "code": "MA000044",
+  "name": "Reloj aventura naranja",
+  "dept": "Relojes",
+  "sub": "Pulso alpino naranja",
+  "price": 2490,
+  "stock": 3,
+  "info": [
+   "Notificaciones del celular",
+   "Carga magnética"
+  ],
+  "imgs": [
+   "fotos/p044.webp"
+  ],
+  "cut": false,
+  "credit": "TheBetterDay, BY-ND 2.0 vía flickr",
+  "feature": false,
+  "source_url": "https://www.flickr.com/photos/94977883@N08/52414435285"
+ },
+ {
+  "id": "p045",
+  "code": "MA000045",
+  "name": "Calculadora básica",
+  "dept": "Útiles",
+  "sub": "8 dígitos, solar",
+  "price": 120,
+  "stock": 8,
+  "info": [
+   "Para primaria y secundaria"
+  ],
+  "imgs": [
+   "fotos/p045.webp"
+  ],
+  "cut": false,
+  "credit": "401(K) 2013, BY-SA 2.0 vía flickr",
+  "feature": false,
+  "source_url": "https://www.flickr.com/photos/68751915@N05/6757892539"
+ },
+ {
+  "id": "p046",
+  "code": "MA000046",
+  "name": "Crayones 24 colores",
+  "dept": "Útiles",
+  "sub": "Caja de 24",
+  "price": 65,
+  "stock": 8,
+  "info": [
+   "Para primaria y secundaria"
+  ],
+  "imgs": [
+   "fotos/p046.webp"
+  ],
+  "cut": false,
+  "credit": "chrismetcalfTV, BY 2.0 vía flickr",
+  "feature": false,
+  "source_url": "https://www.flickr.com/photos/73207064@N00/404313786"
+ },
+ {
+  "id": "p047",
+  "code": "MA000047",
+  "name": "Colores de madera",
+  "dept": "Útiles",
+  "sub": "Juego de 12",
+  "price": 85,
+  "stock": 8,
+  "info": [
+   "Para primaria y secundaria"
+  ],
+  "imgs": [
+   "fotos/p047.webp"
+  ],
+  "cut": false,
+  "credit": "Horia Varlan, BY 2.0 vía flickr",
+  "feature": false,
+  "source_url": "https://www.flickr.com/photos/10361931@N06/4268864706"
+ },
+ {
+  "id": "p048",
+  "code": "MA000048",
+  "name": "Plumones de colores",
+  "dept": "Útiles",
+  "sub": "Juego de 12",
+  "price": 110,
+  "stock": 8,
+  "info": [
+   "Para primaria y secundaria"
+  ],
+  "imgs": [
+   "fotos/p048.webp"
+  ],
+  "cut": false,
+  "credit": "Rene Mensen, BY 2.0 vía flickr",
+  "feature": false,
+  "source_url": "https://www.flickr.com/photos/44206268@N07/12258455276"
+ },
+ {
+  "id": "p049",
+  "code": "MA000049",
+  "name": "Tijeras escolares",
+  "dept": "Útiles",
+  "sub": "Punta roma",
+  "price": 35,
+  "stock": 8,
+  "info": [
+   "Para primaria y secundaria"
+  ],
+  "imgs": [
+   "fotos/p049.webp"
+  ],
+  "cut": false,
+  "credit": "James Bowe, BY 2.0 vía flickr",
+  "feature": false,
+  "source_url": "https://www.flickr.com/photos/29848680@N08/3708293822"
+ },
+ {
+  "id": "p050",
+  "code": "MA000050",
+  "name": "Marcatextos pastel",
+  "dept": "Útiles",
+  "sub": "Juego de 3",
+  "price": 55,
+  "stock": 8,
+  "info": [
+   "Para primaria y secundaria"
+  ],
+  "imgs": [
+   "fotos/p050.webp"
+  ],
+  "cut": false,
+  "credit": "Rawpixel Ltd, BY 2.0 vía flickr",
+  "feature": false,
+  "source_url": "https://www.flickr.com/photos/147875007@N03/44876320715"
+ },
+ {
+  "id": "p051",
+  "code": "MA000051",
+  "name": "Cuadernos profesionales",
+  "dept": "Útiles",
+  "sub": "Paquete de 5",
+  "price": 160,
+  "stock": 8,
+  "info": [
+   "Para primaria y secundaria"
+  ],
+  "imgs": [
+   "fotos/p051.webp"
+  ],
+  "cut": false,
+  "credit": "Risager, BY-SA 2.0 vía flickr",
+  "feature": false,
+  "source_url": "https://www.flickr.com/photos/68978695@N00/4259059620"
+ },
+ {
+  "id": "p052",
+  "code": "MA000052",
+  "name": "Lapicera mapa",
+  "dept": "Útiles",
+  "sub": "Con cierre",
+  "price": 95,
+  "stock": 8,
+  "info": [
+   "Para primaria y secundaria"
+  ],
+  "imgs": [
+   "fotos/p052.webp"
+  ],
+  "cut": false,
+  "credit": "Annie Mole, BY 2.0 vía flickr",
+  "feature": false,
+  "source_url": "https://www.flickr.com/photos/21309047@N00/91337911"
+ },
+ {
+  "id": "p053",
+  "code": "MA000053",
+  "name": "Sacapuntas avión",
+  "dept": "Útiles",
+  "sub": "Con depósito",
+  "price": 45,
+  "stock": 8,
+  "info": [
+   "Para primaria y secundaria"
+  ],
+  "imgs": [
+   "fotos/p053.webp"
+  ],
+  "cut": false,
+  "credit": "lemonfilmblog, BY-ND 2.0 vía flickr",
+  "feature": false,
+  "source_url": "http://www.flickr.com/photos/22245339@N05/16634219150"
+ },
+ {
+  "id": "p054",
+  "code": "MA000054",
+  "name": "Juego de geometría",
+  "dept": "Útiles",
+  "sub": "Escuadras, transportador y regla",
+  "price": 75,
+  "stock": 10,
+  "info": [
+   "4 piezas de acrílico",
+   "Para secundaria"
+  ],
+  "imgs": [
+   "fotos/p054.webp"
+  ],
+  "cut": false,
+  "credit": "MJA1975, BY 2.0 vía flickr",
+  "feature": true,
+  "source_url": "https://www.flickr.com/photos/66145057@N07/14689373559"
+ },
+ {
+  "id": "p055",
+  "code": "MA000055",
+  "name": "Transportador de colores",
+  "dept": "Útiles",
+  "sub": "180°, acrílico",
+  "price": 25,
+  "stock": 15,
+  "info": [
+   "Escala clara",
+   "Varios colores"
+  ],
+  "imgs": [
+   "fotos/p055.webp"
+  ],
+  "cut": false,
+  "credit": "Dean Hochman, BY 2.0 vía flickr",
+  "feature": false,
+  "source_url": "https://www.flickr.com/photos/17997843@N02/14481958642"
+ },
+ {
+  "id": "p056",
+  "code": "MA000056",
+  "name": "Regla de 30 cm",
+  "dept": "Útiles",
+  "sub": "Plástico flexible",
+  "price": 15,
+  "stock": 20,
+  "info": [
+   "Escala en cm y pulgadas"
+  ],
+  "imgs": [
+   "fotos/p056.webp"
+  ],
+  "cut": false,
+  "credit": "LoopZilla, BY-SA 2.0 vía flickr",
+  "feature": false,
+  "source_url": "https://www.flickr.com/photos/24987280@N00/1596948402"
+ },
+ {
+  "id": "p057",
+  "code": "MA000057",
+  "name": "Regla de madera",
+  "dept": "Útiles",
+  "sub": "30 cm",
+  "price": 22,
+  "stock": 12,
+  "info": [
+   "Madera barnizada"
+  ],
+  "imgs": [
+   "fotos/p057.webp"
+  ],
+  "cut": false,
+  "credit": "B/Hiking Nikon Oregon, BY 2.0 vía flickr",
+  "feature": false,
+  "source_url": "https://www.flickr.com/photos/67395061@N00/408971482"
+ },
+ {
+  "id": "p058",
+  "code": "MA000058",
+  "name": "Compás de pizarrón",
+  "dept": "Útiles",
+  "sub": "Para maestros",
+  "price": 180,
+  "stock": 2,
+  "info": [
+   "Madera, con portagis"
+  ],
+  "imgs": [
+   "fotos/p058.webp"
+  ],
+  "cut": false,
+  "credit": "quinet, BY 2.0 vía flickr",
+  "feature": false,
+  "source_url": "https://www.flickr.com/photos/91994044@N00/30684927415"
+ }
+]

@@ -1,0 +1,59 @@
+codigo,nombre,departamento,descripcion,precio,stock,foto,credito_foto,fuente
+MA000001,Princesas Disney,Mochilas,Mochila preescolar,350,3,fotos/p001.webp,Foto del negocio,
+MA000002,Mario Bros,Mochilas,Combo primaria,320,2,fotos/p002.webp,Foto del negocio,
+MA000003,Bob Esponja,Mochilas,Combo primaria,300,5,fotos/p003.webp,Foto del negocio,
+MA000004,Labubu,Mochilas,Combo primaria,380,4,fotos/p004.webp,Foto del negocio,
+MA000005,Mochila pana beige,Mochilas,"Asas de mano, 14 pulgadas",320,6,fotos/p005.webp,"My Heart Teddy, BY 2.0 vía flickr",https://www.flickr.com/photos/189513740@N06/50220173556
+MA000006,Mochila pana rosa,Mochilas,"Asas de mano, 14 pulgadas",320,5,fotos/p006.webp,"My Heart Teddy, BY 2.0 vía flickr",https://www.flickr.com/photos/189513740@N06/50220173556
+MA000007,Mochila pana terracota,Mochilas,"Asas de mano, 14 pulgadas",320,4,fotos/p007.webp,"My Heart Teddy, BY 2.0 vía flickr",https://www.flickr.com/photos/189513740@N06/50220173556
+MA000008,Mochila pana negra,Mochilas,"Asas de mano, 14 pulgadas",320,7,fotos/p008.webp,"My Heart Teddy, BY 2.0 vía flickr",https://www.flickr.com/photos/189513740@N06/50220173556
+MA000009,Mochila Venom,Mochilas,"Primaria, con relieve",360,2,fotos/p009.webp,"somegeekintn, BY 2.0 vía flickr",https://www.flickr.com/photos/66335021@N00/3410828982
+MA000010,Mochila búho,Mochilas,Preescolar,280,6,fotos/p010.webp,"Lars Plougmann, BY-SA 2.0 vía flickr",https://www.flickr.com/photos/75062596@N00/7198166228
+MA000011,Mochila floral azul,Mochilas,Secundaria,340,3,fotos/p011.webp,"megforce1, CC0 1.0 vía flickr",https://www.flickr.com/photos/35608308@N05/28404475294
+MA000012,Mochila dinosaurio,Mochilas,Preescolar,260,8,fotos/p012.webp,"Faisal Ahammad, CC0 1.0 vía wordpress",https://wordpress.org/photos/photo/18769e115f/
+MA000013,Mochila de excursión verde,Mochilas,"40 L, para viaje",890,2,fotos/p013.webp,"kooikkari, BY-SA 2.0 vía flickr",https://www.flickr.com/photos/126392958@N03/26645453056
+MA000014,Mochila de piel vintage,Mochilas,Universitaria,650,1,fotos/p014.webp,"goatling, BY-SA 2.0 vía flickr",https://www.flickr.com/photos/32907326@N00/1078101024
+MA000015,Termo clásico rojo,Termos,"1 L, tapa vaso",420,4,fotos/p015.webp,"alexkerhead, BY 2.0 vía flickr",https://www.flickr.com/photos/26354629@N02/3602592574
+MA000016,Termos infantiles,Termos,"Popote integrado, 350 ml",260,4,fotos/p016.webp,"Kid's Birthday Parties, BY-ND 2.0 vía flickr",https://www.flickr.com/photos/13698839@N00/3250037233
+MA000017,Botella con asa morada,Termos,"Tritán libre de BPA, 700 ml",210,4,fotos/p017.webp,"Rubbermaid Products, BY 2.0 vía flickr",https://www.flickr.com/photos/28040596@N08/6959993447
+MA000018,Botella tejida,Termos,Funda tejida a mano,240,4,fotos/p018.webp,"Dvortygirl, BY-SA 2.0 vía flickr",https://www.flickr.com/photos/21093323@N02/6788171646
+MA000019,Botella deportiva lila,Termos,"Tapa abre fácil, 600 ml",190,4,fotos/p019.webp,"Rubbermaid Products, BY 2.0 vía flickr",https://www.flickr.com/photos/28040596@N08/6959993521
+MA000020,Botella deportiva azul,Termos,"Tapa abre fácil, 600 ml",190,4,fotos/p020.webp,"Rubbermaid Products, BY 2.0 vía flickr",https://www.flickr.com/photos/28040596@N08/6813880300
+MA000021,Botella de aluminio,Termos,"Ligera, 750 ml",280,4,fotos/p021.webp,"ILoveVerdi, BY 2.0 vía flickr",https://www.flickr.com/photos/24483041@N05/3385538245
+MA000022,Termo Love,Termos,"Acero doble pared, 500 ml",350,4,fotos/p022.webp,"umairasghar, CC0 1.0 vía wordpress",https://wordpress.org/photos/photo/7266a3b8ce/
+MA000023,Botella de acero azul,Termos,"Acero inoxidable, 1 L",390,4,fotos/p023.webp,"Worlds Direction, CC0 1.0 vía flickr",https://www.flickr.com/photos/144661696@N05/34776192110
+MA000024,Vaso térmico de viaje,Termos,"Tapa a prueba de goteo, 450 ml",230,4,fotos/p024.webp,"aaronparecki, BY 2.0 vía flickr",https://www.flickr.com/photos/10970592@N04/5033401089
+MA000025,Cobija venados,Cobijas,"Polar delgada, individual",320,5,fotos/p025.webp,"LuneOwl, BY 2.0 vía flickr",https://www.flickr.com/photos/25533577@N06/6563674283
+MA000026,Cobija cuadros tejidos,Cobijas,"Tejido granny, 120 × 150 cm",450,5,fotos/p026.webp,"callme_crochet, BY-ND 2.0 vía flickr",https://www.flickr.com/photos/57231735@N00/219257413
+MA000027,Cobija zigzag,Cobijas,"Tejida, para sillón",420,5,fotos/p027.webp,"callme_crochet, BY-ND 2.0 vía flickr",https://www.flickr.com/photos/57231735@N00/383372329
+MA000028,Cobija chevron azul,Cobijas,"Tejida, 120 × 150 cm",420,5,fotos/p028.webp,"Breibeest, BY 2.0 vía flickr",https://www.flickr.com/photos/81876892@N00/2300141095
+MA000029,Cobija trenzada turquesa,Cobijas,Tejido de trenza,480,5,fotos/p029.webp,"RLHyde, BY-SA 2.0 vía flickr",https://www.flickr.com/photos/36655009@N05/14189583349
+MA000030,Cobija gris de sala,Cobijas,"Ligera, para sillón",390,5,fotos/p030.webp,"currystrumpet, BY-SA 2.0 vía flickr",https://www.flickr.com/photos/93171945@N00/15471451887
+MA000031,Cobija beige de sillón,Cobijas,Con flecos,370,5,fotos/p031.webp,"Rankin Miss, BY-ND 2.0 vía flickr",https://www.flickr.com/photos/27186597@N05/4710633997
+MA000032,Cobija crema de viaje,Cobijas,Doblada cabe en la mochila,340,5,fotos/p032.webp,"autor desconocido, CC0 1.0 vía rawpixel",https://www.rawpixel.com/image/3301353/free-photo-image-animal-apparel-blanket
+MA000033,Cobija escocesa verde,Cobijas,"Cuadros, 130 × 170 cm",360,5,fotos/p033.webp,"Joanna Bourne, BY 2.0 vía flickr",https://www.flickr.com/photos/66992990@N00/6715403921
+MA000034,Cobija tartán,Cobijas,Cuadros verdes,360,5,fotos/p034.webp,"webtreats, BY 2.0 vía flickr",https://www.flickr.com/photos/44071822@N08/4368106451
+MA000035,Reloj redondo acero,Relojes,"Carátula redonda, pulso de eslabones",1890,3,fotos/p035.webp,"chrisf608, BY 2.0 vía flickr",https://www.flickr.com/photos/114264438@N03/13736591024
+MA000036,Reloj cuadrado clásico,Relojes,"Pantalla táctil, pulso negro",1290,3,fotos/p036.webp,"Janitors, BY 2.0 vía flickr",https://www.flickr.com/photos/65265630@N03/10289879613
+MA000037,Reloj de tinta electrónica,Relojes,Batería de 7 días,990,3,fotos/p037.webp,"chrisf608, BY 2.0 vía flickr",https://www.flickr.com/photos/114264438@N03/14005625224
+MA000038,Banda curva deportiva,Relojes,Ritmo cardiaco y pasos,790,3,fotos/p038.webp,"Janitors, BY 2.0 vía flickr",https://www.flickr.com/photos/65265630@N03/13467836054
+MA000039,Reloj cuadrado dorado,Relojes,Pulso de piel café,1490,3,fotos/p039.webp,"Janitors, BY 2.0 vía flickr",https://www.flickr.com/photos/65265630@N03/10289750076
+MA000040,Reloj cuadrado menta,Relojes,Pulso de silicón menta,1690,3,fotos/p040.webp,"Yasunobu Ikeda, BY-SA 2.0 vía flickr",https://www.flickr.com/photos/88403964@N00/17111109088
+MA000041,Reloj cuadrado eslabones,Relojes,Pulso de acero,2190,3,fotos/p041.webp,"raneko, BY 2.0 vía flickr",https://www.flickr.com/photos/24926669@N07/17670358204
+MA000042,Reloj cuadrado lila,Relojes,Pulso de silicón lila,1590,3,fotos/p042.webp,"MIKI Yoshihito. (#mikiyoshihito), BY 2.0 vía flickr",https://www.flickr.com/photos/7940758@N07/51850706077
+MA000043,Reloj cuadrado negro,Relojes,Carátula de esferas,1790,3,fotos/p043.webp,"jfingas, BY-ND 2.0 vía flickr",https://www.flickr.com/photos/60886372@N00/17102788065
+MA000044,Reloj aventura naranja,Relojes,Pulso alpino naranja,2490,3,fotos/p044.webp,"TheBetterDay, BY-ND 2.0 vía flickr",https://www.flickr.com/photos/94977883@N08/52414435285
+MA000045,Calculadora básica,Útiles,"8 dígitos, solar",120,8,fotos/p045.webp,"401(K) 2013, BY-SA 2.0 vía flickr",https://www.flickr.com/photos/68751915@N05/6757892539
+MA000046,Crayones 24 colores,Útiles,Caja de 24,65,8,fotos/p046.webp,"chrismetcalfTV, BY 2.0 vía flickr",https://www.flickr.com/photos/73207064@N00/404313786
+MA000047,Colores de madera,Útiles,Juego de 12,85,8,fotos/p047.webp,"Horia Varlan, BY 2.0 vía flickr",https://www.flickr.com/photos/10361931@N06/4268864706
+MA000048,Plumones de colores,Útiles,Juego de 12,110,8,fotos/p048.webp,"Rene Mensen, BY 2.0 vía flickr",https://www.flickr.com/photos/44206268@N07/12258455276
+MA000049,Tijeras escolares,Útiles,Punta roma,35,8,fotos/p049.webp,"James Bowe, BY 2.0 vía flickr",https://www.flickr.com/photos/29848680@N08/3708293822
+MA000050,Marcatextos pastel,Útiles,Juego de 3,55,8,fotos/p050.webp,"Rawpixel Ltd, BY 2.0 vía flickr",https://www.flickr.com/photos/147875007@N03/44876320715
+MA000051,Cuadernos profesionales,Útiles,Paquete de 5,160,8,fotos/p051.webp,"Risager, BY-SA 2.0 vía flickr",https://www.flickr.com/photos/68978695@N00/4259059620
+MA000052,Lapicera mapa,Útiles,Con cierre,95,8,fotos/p052.webp,"Annie Mole, BY 2.0 vía flickr",https://www.flickr.com/photos/21309047@N00/91337911
+MA000053,Sacapuntas avión,Útiles,Con depósito,45,8,fotos/p053.webp,"lemonfilmblog, BY-ND 2.0 vía flickr",http://www.flickr.com/photos/22245339@N05/16634219150
+MA000054,Juego de geometría,Útiles,"Escuadras, transportador y regla",75,10,fotos/p054.webp,"MJA1975, BY 2.0 vía flickr",https://www.flickr.com/photos/66145057@N07/14689373559
+MA000055,Transportador de colores,Útiles,"180°, acrílico",25,15,fotos/p055.webp,"Dean Hochman, BY 2.0 vía flickr",https://www.flickr.com/photos/17997843@N02/14481958642
+MA000056,Regla de 30 cm,Útiles,Plástico flexible,15,20,fotos/p056.webp,"LoopZilla, BY-SA 2.0 vía flickr",https://www.flickr.com/photos/24987280@N00/1596948402
+MA000057,Regla de madera,Útiles,30 cm,22,12,fotos/p057.webp,"B/Hiking Nikon Oregon, BY 2.0 vía flickr",https://www.flickr.com/photos/67395061@N00/408971482
+MA000058,Compás de pizarrón,Útiles,Para maestros,180,2,fotos/p058.webp,"quinet, BY 2.0 vía flickr",https://www.flickr.com/photos/91994044@N00/30684927415
