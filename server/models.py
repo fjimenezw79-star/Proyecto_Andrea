@@ -210,6 +210,8 @@ class Layaway(Base):
     cancelled_by: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
     cancel_reason: Mapped[str] = mapped_column(Text, default="")
     refund_mode: Mapped[str | None] = mapped_column(String(10), nullable=True)
+    refund_method: Mapped[str | None] = mapped_column(String(10), nullable=True)
+    refund_cash_session_id: Mapped[int | None] = mapped_column(ForeignKey("cash_sessions.id"), nullable=True)
     items: Mapped[list[LayawayItem]] = relationship(order_by="LayawayItem.id")
     payments: Mapped[list[LayawayPayment]] = relationship(order_by="LayawayPayment.created_at")
     client: Mapped[Client] = relationship()

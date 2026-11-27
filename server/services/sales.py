@@ -43,6 +43,49 @@ def _points(total_cents: int) -> int:
     return total_cents // (current_app.config["POINTS_PER_PESOS"] * 100)
 
 
+def _next_folio() -> int:
+    return (session.query(func.max(Sale.folio)).scalar() or 0) + 1
+
+
+def parse_items(raw_items) -> list:
+    if not isinstance(raw_items, list) or not all(isinstance(it, dict) for it in raw_items):
+        raise ValidationError("Lista de productos no válida.", "items")
+    if not raw_items:
+        raise ValidationError("Agrega al menos un producto.", "items")
+    return raw_items
+
+
+def price_lines(raw_items: list, general_discount, user):
+    """Precios del momento, descuentos y tope del vendedor. Devuelve (renglones, subtotal, descuento, total)."""
+    lines, subtotal, item_disc = [], 0, 0
+    for it in raw_items:
+        v = session.get(Variant, _int(it.get("variant_id"), "variant_id"))
+        if not v or not v.active:
+            raise ValidationError("Uno de los productos ya no existe.", "items")
+        qty = _int(it.get("qty"), "qty", 1)
+        disc = _int(it.get("discount_cents", 0), "discount_cents", 0)
+        gross = v.price_cents * qty
+        if disc > gross:
+            raise ValidationError("El descuento no puede ser mayor que el precio.", "discount_cents")
+        lines.append((v, qty, disc))
+        subtotal += gross
+        item_disc += disc
+    discount = item_disc + _int(general_discount or 0, "discount_cents", 0)
+    if discount > subtotal:
+        raise ValidationError("El descuento no puede ser mayor que el total.", "discount_cents")
+    if user.role == "seller" and discount * 100 > subtotal * current_app.config["SELLER_MAX_DISCOUNT_PCT"]:
+        raise NotAllowed("Ese descuento necesita autorización del administrador.")
+    return lines, subtotal, discount, subtotal - discount
+
+
+def points_for(total_cents: int) -> int:
+    return _points(total_cents)
+
+
+def label_insufficient(e: InsufficientStock, v: Variant) -> InsufficientStock:
+    return _with_label(e, v)
+
+
 def create_sale(payload: dict, user) -> Sale:
     sale_id = str(payload.get("id") or uuid.uuid4())
     if not ID_RE.match(sale_id):
@@ -51,11 +94,7 @@ def create_sale(payload: dict, user) -> Sale:
     if existing:
         return existing
 
-    raw_items = payload.get("items") or []
-    if not isinstance(raw_items, list) or not all(isinstance(it, dict) for it in raw_items):
-        raise ValidationError("Lista de productos no válida.", "items")
-    if not raw_items:
-        raise ValidationError("Agrega al menos un producto.", "items")
+    raw_items = parse_items(payload.get("items") or [])
     client_id = payload.get("client_id") or None
     if client_id and not session.get(Client, client_id):
         raise ValidationError("El cliente no existe.", "client_id")
@@ -65,32 +104,12 @@ def create_sale(payload: dict, user) -> Sale:
         existing = session.get(Sale, sale_id)  # otra petición con el mismo id pudo ganar la carrera
         if existing:
             return existing
-        lines, subtotal, item_disc = [], 0, 0
-        for it in raw_items:
-            v = session.get(Variant, _int(it.get("variant_id"), "variant_id"))
-            if not v or not v.active:
-                raise ValidationError("Uno de los productos ya no existe.", "items")
-            qty = _int(it.get("qty"), "qty", 1)
-            disc = _int(it.get("discount_cents", 0), "discount_cents", 0)
-            gross = v.price_cents * qty
-            if disc > gross:
-                raise ValidationError("El descuento no puede ser mayor que el precio.", "discount_cents")
-            lines.append((v, qty, disc))
-            subtotal += gross
-            item_disc += disc
-        general = _int(payload.get("discount_cents", 0), "discount_cents", 0)
-        discount = item_disc + general
-        if discount > subtotal:
-            raise ValidationError("El descuento no puede ser mayor que el total.", "discount_cents")
-        if user.role == "seller" and discount * 100 > subtotal * current_app.config["SELLER_MAX_DISCOUNT_PCT"]:
-            raise NotAllowed("Ese descuento necesita autorización del administrador.")
-        total = subtotal - discount
+        lines, subtotal, discount, total = price_lines(raw_items, payload.get("discount_cents", 0), user)
 
         parsed = pay.parse(payload.get("payments"), total, client_id)
         cash_session_id = pay.apply(parsed, client_id=client_id, user_id=user.id)
 
-        folio = (session.query(func.max(Sale.folio)).scalar() or 0) + 1
-        sale = Sale(id=sale_id, folio=folio, user_id=user.id, client_id=client_id, subtotal_cents=subtotal,
+        sale = Sale(id=sale_id, folio=_next_folio(), user_id=user.id, client_id=client_id, subtotal_cents=subtotal,
                     discount_cents=discount, total_cents=total, status="paid",
                     note=str(payload.get("note") or "").strip()[:500])
         session.add(sale)
