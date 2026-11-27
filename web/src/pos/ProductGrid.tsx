@@ -22,10 +22,10 @@ export function ProductGrid({ products, onAdd, inCart }: { products: Product[]; 
                   type="button"
                   disabled={v.stock <= 0}
                   onClick={() => onAdd(p, i)}
-                  aria-label={`Agregar ${p.name}${label ? ` ${label}` : ""}, ${formatMoney(v.price_cents)}${v.stock <= 0 ? ", agotado" : `, Quedan ${v.stock}`}`}
                   className="group flex w-full flex-col gap-2 text-left disabled:opacity-60"
                 >
-                  <span className="relative block aspect-[4/5] overflow-hidden rounded-2xl bg-surface">
+                  <span className="sr-only">Agregar </span>
+                  <span className="relative block aspect-[4/5] overflow-hidden rounded-2xl bg-surface" aria-hidden>
                     {p.photos[0] && (
                       <img src={p.photos[0].thumb_url} alt="" loading="lazy" className="absolute inset-0 size-full object-cover transition duration-500 group-hover:scale-105" />
                     )}
@@ -55,6 +55,7 @@ export function ProductGrid({ products, onAdd, inCart }: { products: Product[]; 
                       <span className="truncate text-sm text-muted">{label || p.category}</span>
                       <span className="tnum shrink-0 font-bold">{formatMoney(v.price_cents)}</span>
                     </span>
+                    <span className="sr-only">{v.stock <= 0 ? "Agotado" : `Quedan ${v.stock}`}</span>
                   </span>
                 </button>
               </motion.li>

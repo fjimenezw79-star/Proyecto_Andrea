@@ -63,6 +63,10 @@ echo  [4/5] Configurando...
 "%VPY%" -m scripts.configurar
 
 REM 5. Base de datos
+if not exist "server\web_dist\index.html" (
+    echo  [!] Falta la app compilada (server\web_dist). Descarga de nuevo el sistema completo.
+    goto :fallo
+)
 if not exist "data" mkdir data
 "%VPY%" -c "from server import create_app; create_app()" >nul 2>&1
 if errorlevel 1 (

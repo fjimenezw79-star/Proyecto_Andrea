@@ -82,10 +82,9 @@ export function SalesTodayPage() {
               <motion.li key={s.id} initial={reduce ? false : { opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: Math.min(i, 10) * 0.02 }} className="bg-paper">
                 <button
                   onClick={() => { setOpen(s); setCancelling(false); setReason(""); setReasonErr(null); }}
-                  aria-label={`Venta ${s.folio}, ${formatMoney(s.total_cents)}${s.status === "cancelled" ? ", Cancelada" : ""}`}
                   className={`grid w-full grid-cols-[auto_1fr_auto] items-center gap-4 px-4 py-3 text-left hover:bg-surface md:grid-cols-[80px_80px_1fr_160px_140px] ${s.status === "cancelled" ? "text-muted" : ""}`}
                 >
-                  <span className="tnum font-serif text-2xl">#{s.folio}</span>
+                  <span className="tnum font-serif text-2xl"><span className="sr-only">Venta </span>#{s.folio}</span>
                   <span className="tnum hidden text-muted md:block">{time(s.created_at)}</span>
                   <span className="min-w-0">
                     <span className="block truncate font-semibold">{s.items.map((it) => it.name).join(", ")}</span>

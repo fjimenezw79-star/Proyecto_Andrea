@@ -16,7 +16,7 @@ function Node({ c, onRename, onToggle }: { c: Category; onRename: (c: Category, 
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(c.name);
   return (
-    <motion.li role="treeitem" aria-label={c.name} aria-expanded={c.children.length ? true : undefined} layout={!reduce} initial={reduce ? false : { opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} className="grid gap-1">
+    <motion.li data-category={c.name} layout={!reduce} initial={reduce ? false : { opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} className="grid gap-1">
       <div className={`flex items-center gap-3 rounded-xl px-3 py-2 hover:bg-surface ${c.active ? "" : "text-muted line-through"}`}>
         {editing ? (
           <form className="flex flex-1 gap-2" onSubmit={(e) => { e.preventDefault(); onRename(c, name); setEditing(false); }}>
@@ -25,14 +25,14 @@ function Node({ c, onRename, onToggle }: { c: Category; onRename: (c: Category, 
           </form>
         ) : (
           <>
-            <span className="flex-1 font-semibold">{c.name}</span>
+            <span id={`cat-${c.id}`} className="flex-1 font-semibold">{c.name}</span>
             <button className="text-sm underline" onClick={() => setEditing(true)}>Renombrar</button>
             <button className="text-sm underline" onClick={() => onToggle(c)}>{c.active ? "Desactivar" : "Activar"}</button>
           </>
         )}
       </div>
       {c.children.length > 0 && (
-        <ul role="group" className="ml-5 border-l border-line pl-3">
+        <ul aria-label={`Dentro de ${c.name}`} className="ml-5 border-l border-line pl-3">
           <AnimatePresence initial={false}>
             {c.children.map((k) => <Node key={k.id} c={k} onRename={onRename} onToggle={onToggle} />)}
           </AnimatePresence>
@@ -90,7 +90,7 @@ export function CategoriesPage() {
         </label>
         <Button type="submit">Agregar</Button>
       </form>
-      <ul role="tree" aria-label="Categorías" className="mt-8 grid gap-1">
+      <ul aria-label="Categorías" className="mt-8 grid gap-1">
         <AnimatePresence initial={false}>
           {tree.map((c) => (
             <Node key={c.id} c={c} onRename={(x, n) => patch(x, { name: n }, "Nombre actualizado.")} onToggle={(x) => patch(x, { active: !x.active }, x.active ? "Categoría desactivada." : "Categoría activada.")} />
