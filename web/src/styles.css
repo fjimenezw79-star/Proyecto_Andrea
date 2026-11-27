@@ -1,0 +1,65 @@
+@import "tailwindcss";
+@import "@fontsource/instrument-serif/400.css";
+@import "@fontsource/instrument-serif/400-italic.css";
+@import "@fontsource-variable/hanken-grotesk";
+
+/* Revista: blanco editorial, serif grande, la foto del producto manda. */
+:root {
+  --paper: #ffffff;
+  --surface: #f4f3f1;
+  --ink: #17140f;
+  --muted: #6b665e;
+  --line: #e6e2db;
+  --wine: #7b1d33;
+  --wine-ink: #ffffff;
+  --night: #070d1a;
+  --ok: #1f7a4d;
+  --danger: #b42318;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #12100d; --surface: #1d1a16; --ink: #f4f1ec; --muted: #a8a196; --line: #2f2a24;
+    --wine: #c2566e; --wine-ink: #12100d; --ok: #4cc38a; --danger: #ff8a80; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #12100d; --surface: #1d1a16; --ink: #f4f1ec; --muted: #a8a196; --line: #2f2a24;
+  --wine: #c2566e; --wine-ink: #12100d; --ok: #4cc38a; --danger: #ff8a80; color-scheme: dark;
+}
+
+@theme {
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-wine: var(--wine);
+  --color-wine-ink: var(--wine-ink);
+  --color-night: var(--night);
+  --color-ok: var(--ok);
+  --color-danger: var(--danger);
+  --font-serif: "Instrument Serif", Georgia, "Times New Roman", serif;
+  --font-sans: "Hanken Grotesk Variable", "Helvetica Neue", Arial, sans-serif;
+}
+
+html, body, #root { height: 100%; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+:focus-visible { outline: 3px solid var(--wine); outline-offset: 2px; }
+h1, h2, h3 { text-wrap: balance; }
+.tnum { font-variant-numeric: tabular-nums; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+
+@keyframes fade { from { opacity: 0 } to { opacity: 1 } }
+@keyframes pop { from { opacity: 0; transform: translate(-50%, 8px) scale(.98) } to { opacity: 1; transform: translate(-50%, 0) scale(1) } }

@@ -58,7 +58,7 @@ def main() -> None:
     ]), flush=True)
 
     if not args.no_browser:
-        threading.Timer(1.5, lambda: webbrowser.open(url + "/api/health")).start()
+        threading.Timer(1.5, lambda: webbrowser.open(url)).start()
 
     if args.dev:
         app.run(host=host, port=port, debug=True, use_reloader=False)

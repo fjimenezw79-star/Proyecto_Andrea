@@ -12,7 +12,7 @@ REASONS = {"sale", "sale_cancel", "purchase", "adjustment", "import"}
 
 class InsufficientStock(ConflictError):
     def __init__(self, variant_id: int, available: int):
-        super().__init__(f"No hay suficientes piezas. Quedan {available}.", variant_id=variant_id)
+        super().__init__(f"No hay suficientes piezas. Quedan {available}.", variant_id=variant_id, available=available)
         self.variant_id = variant_id
         self.available = available
 

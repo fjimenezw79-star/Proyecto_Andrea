@@ -11,7 +11,7 @@ from sqlalchemy.exc import IntegrityError
 
 from ..api_util import ConflictError, ValidationError, strict_int
 from ..db import begin_write, session
-from ..models import Client, Sale, SaleItem, SalePayment, Variant
+from ..models import Client, Sale, SaleItem, SalePayment, User, Variant
 from .inventory import InsufficientStock, move
 
 METHODS = {"cash", "card", "transfer"}
@@ -199,7 +199,11 @@ def sale_dict(s: Sale, with_cost: bool) -> dict:
         items.append(d)
     pays = [{"method": p.method, "amount_cents": p.amount_cents, "received_cents": p.received_cents} for p in s.payments]
     change = sum((p.received_cents or 0) - p.amount_cents for p in s.payments if p.method == "cash")
+    seller = session.get(User, s.user_id)
+    client = session.get(Client, s.client_id) if s.client_id else None
     return {"id": s.id, "folio": s.folio, "status": s.status, "user_id": s.user_id, "client_id": s.client_id,
+            "user_name": (seller.full_name or seller.username) if seller else None,
+            "client_name": client.name if client else None,
             "subtotal_cents": s.subtotal_cents, "discount_cents": s.discount_cents, "total_cents": s.total_cents,
             "change_cents": change, "note": s.note, "created_at": s.created_at.isoformat(),
             "cancel_reason": s.cancel_reason or None, "items": items, "payments": pays}
