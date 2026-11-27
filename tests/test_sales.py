@@ -96,3 +96,18 @@ def test_last_piece_concurrent(app, v_one_left, seller_user):
     [t.start() for t in ts]
     [t.join() for t in ts]
     assert sorted(results) == ["InsufficientStock", "ok"]
+
+
+def test_sale_has_user_and_client_names(app, seller, v1):
+    from server.db import session
+    from server.models import Client
+
+    s = seller.post("/api/sales", json={"items": [{"variant_id": v1, "qty": 1}],
+                                        "payments": [{"method": "card", "amount_cents": 35000}]}).get_json()["sale"]
+    assert s["user_name"] == "Vendedor" and s["client_name"] is None
+    with app.app_context():
+        session.add(Client(id="c-9", name="Laura Pérez"))
+        session.commit()
+    s = seller.post("/api/sales", json={"items": [{"variant_id": v1, "qty": 1}], "client_id": "c-9",
+                                        "payments": [{"method": "card", "amount_cents": 35000}]}).get_json()["sale"]
+    assert s["client_name"] == "Laura Pérez"

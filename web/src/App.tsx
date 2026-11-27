@@ -6,12 +6,14 @@ import { LoginPage } from "./auth/LoginPage";
 import { RequireAuth } from "./auth/RequireAuth";
 import { AuthError } from "./lib/api";
 import { AppShell } from "./shell/AppShell";
-import { Placeholder } from "./ui/Placeholder";
 import { ToastProvider } from "./ui/Toast";
 import { PosPage } from "./pos/PosPage";
 import { InventoryPage } from "./inventory/InventoryPage";
 import { ProductDetail } from "./inventory/ProductDetail";
 import { NewProductWizard } from "./products/NewProductWizard";
+import { CategoriesPage } from "./admin/CategoriesPage";
+import { SalesTodayPage } from "./admin/SalesTodayPage";
+import { SettingsPage } from "./admin/SettingsPage";
 
 function Routed() {
   const { expire } = useAuth();
@@ -32,10 +34,10 @@ function Routed() {
           <Route path="vender" element={<PosPage />} />
           <Route path="inventario" element={<InventoryPage />} />
           <Route path="inventario/:id" element={<ProductDetail />} />
-          <Route path="ventas" element={<Placeholder title="Ventas de hoy" />} />
+          <Route path="ventas" element={<SalesTodayPage />} />
           <Route path="productos/nuevo" element={<RequireAuth admin><NewProductWizard /></RequireAuth>} />
-          <Route path="categorias" element={<RequireAuth admin><Placeholder title="Categorías" /></RequireAuth>} />
-          <Route path="configuracion" element={<RequireAuth admin><Placeholder title="Configuración" /></RequireAuth>} />
+          <Route path="categorias" element={<RequireAuth admin><CategoriesPage /></RequireAuth>} />
+          <Route path="configuracion" element={<RequireAuth admin><SettingsPage /></RequireAuth>} />
           <Route path="*" element={<Navigate to="/vender" replace />} />
         </Route>
       </Routes>
