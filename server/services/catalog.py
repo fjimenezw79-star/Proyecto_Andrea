@@ -86,3 +86,243 @@ def category_tree() -> list[dict]:
     for c in cats:
         (nodes[c.parent_id]["children"] if c.parent_id in nodes else roots).append(nodes[c.id])
     return roots
+
+
+# ---------------------------------------------------------------------------
+# Productos y variantes
+# ---------------------------------------------------------------------------
+from pathlib import Path  # noqa: E402
+
+from flask import current_app  # noqa: E402
+from sqlalchemy import or_  # noqa: E402
+from sqlalchemy.exc import IntegrityError  # noqa: E402
+
+from ..api_util import ConflictError  # noqa: E402
+from ..codes import next_sku  # noqa: E402
+from ..models import Product, ProductPhoto, Variant  # noqa: E402
+from ..photos import delete_files, save_photo  # noqa: E402
+
+PAGE_SIZE = 60
+
+
+def _money(value, field: str) -> int:
+    try:
+        n = int(value)
+    except (TypeError, ValueError):
+        raise ValidationError("Escribe una cantidad válida en centavos.", field) from None
+    if n < 0:
+        raise ValidationError("La cantidad no puede ser negativa.", field)
+    return n
+
+
+def _attrs(value) -> dict:
+    if value in (None, ""):
+        return {}
+    if not isinstance(value, dict) or not all(isinstance(k, str) and isinstance(v, str) for k, v in value.items()):
+        raise ValidationError("Los atributos deben ser texto, por ejemplo {\"Color\": \"Azul\"}.", "attrs")
+    return {k.strip()[:30]: v.strip()[:40] for k, v in value.items() if k.strip() and v.strip()}
+
+
+def _barcode(value) -> str | None:
+    code = str(value or "").strip()
+    if not code:
+        return None
+    if len(code) > 40 or not re.fullmatch(r"[0-9A-Za-z\-]+", code):
+        raise ValidationError("El código solo puede tener letras, números y guiones.", "barcode")
+    return code
+
+
+def _check_barcode_free(code: str | None, variant_id: int | None = None) -> None:
+    if not code:
+        return
+    q = session.query(Variant).filter(or_(Variant.barcode == code, Variant.sku == code))
+    if variant_id:
+        q = q.filter(Variant.id != variant_id)
+    if q.first():
+        raise ConflictError("Ese código ya pertenece a otro producto.")
+
+
+def _upload_dir() -> Path:
+    return Path(current_app.config["UPLOAD_DIR"])
+
+
+def create_product(data: dict, photos: list, user=None) -> Product:
+    name = str(data.get("name") or "").strip()
+    if not name:
+        raise ValidationError("Escribe el nombre del producto.", "name")
+    if len(name) > 120:
+        raise ValidationError("El nombre es demasiado largo (máximo 120 caracteres).", "name")
+    cat = session.get(Category, int(data.get("category_id") or 0))
+    if not cat:
+        raise ValidationError("Elige una categoría.", "category_id")
+    photos = [p for p in photos if p and p.filename]
+    if not photos:
+        raise ValidationError("Agrega al menos una foto del producto.", "photos")
+    specs = data.get("variants") or []
+    hidden = not specs
+    if hidden:
+        specs = [{"attrs": {}, "price_cents": data.get("price_cents"), "cost_cents": data.get("cost_cents", 0),
+                  "barcode": data.get("barcode")}]
+    rows = []
+    for s in specs:
+        rows.append((_attrs(s.get("attrs")), _money(s.get("price_cents"), "price_cents"),
+                     _money(s.get("cost_cents", 0), "cost_cents"), _barcode(s.get("barcode"))))
+    codes = [r[3] for r in rows if r[3]]
+    if len(codes) != len(set(codes)):
+        raise ConflictError("Ese código ya pertenece a otro producto.")
+    for c in codes:
+        _check_barcode_free(c)
+
+    saved: list[str] = []
+    try:
+        p = Product(name=name, description=str(data.get("description") or "").strip()[:2000], category_id=cat.id,
+                    online=bool(data.get("online", True)))
+        session.add(p)
+        for i, f in enumerate(photos):
+            full, thumb = save_photo(f, _upload_dir())
+            saved += [full, thumb]
+            p.photos.append(ProductPhoto(filename=full, thumb_filename=thumb, position=i))
+        for attrs, price, cost, code in rows:
+            v = Variant(product=p, sku=next_sku(), barcode=code, attrs=attrs, price_cents=price, cost_cents=cost,
+                        stock=0, hidden=hidden)
+            session.add(v)
+            session.flush()
+        session.commit()
+        return p
+    except Exception:
+        session.rollback()
+        delete_files(_upload_dir(), saved)
+        raise
+
+
+def get_product(product_id: int) -> Product:
+    p = session.get(Product, product_id)
+    if not p:
+        raise ValidationError("El producto no existe.", "id")
+    return p
+
+
+def update_product(product_id: int, data: dict) -> Product:
+    p = get_product(product_id)
+    if "name" in data:
+        name = str(data["name"] or "").strip()
+        if not name:
+            raise ValidationError("Escribe el nombre del producto.", "name")
+        p.name = name[:120]
+    if "description" in data:
+        p.description = str(data["description"] or "").strip()[:2000]
+    if "category_id" in data:
+        if not session.get(Category, int(data["category_id"] or 0)):
+            raise ValidationError("Elige una categoría.", "category_id")
+        p.category_id = int(data["category_id"])
+    for flag in ("online", "active"):
+        if flag in data:
+            setattr(p, flag, bool(data[flag]))
+    session.commit()
+    return p
+
+
+def add_photos(product_id: int, photos: list) -> Product:
+    p = get_product(product_id)
+    photos = [f for f in photos if f and f.filename]
+    if not photos:
+        raise ValidationError("Agrega al menos una foto.", "photos")
+    saved: list[str] = []
+    try:
+        start = max((ph.position for ph in p.photos), default=-1) + 1
+        for i, f in enumerate(photos):
+            full, thumb = save_photo(f, _upload_dir())
+            saved += [full, thumb]
+            p.photos.append(ProductPhoto(filename=full, thumb_filename=thumb, position=start + i))
+        session.commit()
+        return p
+    except Exception:
+        session.rollback()
+        delete_files(_upload_dir(), saved)
+        raise
+
+
+def delete_photo(product_id: int, photo_id: int) -> Product:
+    p = get_product(product_id)
+    ph = next((x for x in p.photos if x.id == photo_id), None)
+    if not ph:
+        raise ValidationError("La foto no existe.", "photo_id")
+    if len(p.photos) <= 1:
+        raise ValidationError("El producto debe conservar al menos una foto.", "photos")
+    names = [ph.filename, ph.thumb_filename]
+    p.photos.remove(ph)
+    session.commit()
+    delete_files(_upload_dir(), names)
+    return p
+
+
+def update_variant(variant_id: int, data: dict) -> Variant:
+    v = session.get(Variant, variant_id)
+    if not v:
+        raise ValidationError("La variante no existe.", "id")
+    if "price_cents" in data:
+        v.price_cents = _money(data["price_cents"], "price_cents")
+    if "cost_cents" in data:
+        v.cost_cents = _money(data["cost_cents"], "cost_cents")
+    if "attrs" in data:
+        v.attrs = _attrs(data["attrs"])
+    if "active" in data:
+        v.active = bool(data["active"])
+    if "barcode" in data:
+        code = _barcode(data["barcode"])
+        _check_barcode_free(code, v.id)
+        v.barcode = code
+    try:
+        session.commit()
+    except IntegrityError:
+        session.rollback()
+        raise ConflictError("Ese código ya pertenece a otro producto.") from None
+    return v
+
+
+def lookup(code: str) -> Variant:
+    code = str(code or "").strip()
+    v = session.query(Variant).filter(or_(Variant.sku == code.upper(), Variant.barcode == code)).first() if code else None
+    if not v:
+        raise LookupError("No encontramos ningún producto con ese código.")
+    return v
+
+
+def _descendants(category_id: int) -> list[int]:
+    ids, frontier = [category_id], [category_id]
+    while frontier:
+        frontier = [c.id for c in session.query(Category).filter(Category.parent_id.in_(frontier))]
+        ids += frontier
+    return ids
+
+
+def list_products(q: str = "", category_id: int | None = None, online: bool | None = None, page: int = 1):
+    query = session.query(Product).filter(Product.active.is_(True))
+    if q:
+        like = f"%{q.strip()}%"
+        query = query.outerjoin(Variant).filter(or_(Product.name.ilike(like), Variant.sku.ilike(like),
+                                                    Variant.barcode == q.strip())).distinct()
+    if category_id:
+        query = query.filter(Product.category_id.in_(_descendants(category_id)))
+    if online is not None:
+        query = query.filter(Product.online.is_(online))
+    total = query.count()
+    items = query.order_by(Product.name, Product.id).offset((max(page, 1) - 1) * PAGE_SIZE).limit(PAGE_SIZE).all()
+    return items, total
+
+
+def variant_dict(v: Variant, with_cost: bool) -> dict:
+    d = {"id": v.id, "sku": v.sku, "barcode": v.barcode, "attrs": v.attrs or {}, "price_cents": v.price_cents,
+         "stock": v.stock, "hidden": v.hidden, "active": v.active}
+    if with_cost:
+        d["cost_cents"] = v.cost_cents
+    return d
+
+
+def product_dict(p: Product, with_cost: bool = False) -> dict:
+    variants = [variant_dict(v, with_cost) for v in p.variants]
+    return {"id": p.id, "name": p.name, "description": p.description, "category_id": p.category_id,
+            "category": p.category.name if p.category else "", "online": p.online, "active": p.active,
+            "photos": [{"id": ph.id, "url": f"/uploads/{ph.filename}", "thumb_url": f"/uploads/{ph.thumb_filename}"}
+                       for ph in p.photos],
+            "variants": variants, "stock_total": sum(v["stock"] for v in variants if v["active"])}

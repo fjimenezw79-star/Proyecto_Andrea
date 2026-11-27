@@ -25,6 +25,7 @@ def create_app(config_class: type[Config] = Config) -> Flask:
     from .blueprints import auth, catalog, settings
     for module in (auth, settings, catalog):
         app.register_blueprint(module.bp)
+    app.register_blueprint(catalog.uploads)
 
     @app.get("/api/health")
     def health():
