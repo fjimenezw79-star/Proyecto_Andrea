@@ -9,6 +9,8 @@ import { AppShell } from "./shell/AppShell";
 import { Placeholder } from "./ui/Placeholder";
 import { ToastProvider } from "./ui/Toast";
 import { PosPage } from "./pos/PosPage";
+import { InventoryPage } from "./inventory/InventoryPage";
+import { ProductDetail } from "./inventory/ProductDetail";
 
 function Routed() {
   const { expire } = useAuth();
@@ -27,8 +29,8 @@ function Routed() {
         <Route element={<RequireAuth><AppShell /></RequireAuth>}>
           <Route index element={<Navigate to="/vender" replace />} />
           <Route path="vender" element={<PosPage />} />
-          <Route path="inventario" element={<Placeholder title="Inventario" />} />
-          <Route path="inventario/:id" element={<Placeholder title="Producto" />} />
+          <Route path="inventario" element={<InventoryPage />} />
+          <Route path="inventario/:id" element={<ProductDetail />} />
           <Route path="ventas" element={<Placeholder title="Ventas de hoy" />} />
           <Route path="productos/nuevo" element={<RequireAuth admin><Placeholder title="Nuevo producto" /></RequireAuth>} />
           <Route path="categorias" element={<RequireAuth admin><Placeholder title="Categorías" /></RequireAuth>} />
