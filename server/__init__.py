@@ -15,6 +15,10 @@ def create_app(config_class: type[Config] = Config) -> Flask:
     app.config.from_object(config_class)
     csrf.init_app(app)
 
+    from . import db
+    db.init_app(app)
+    db.upgrade(app)
+
     @app.get("/api/health")
     def health():
         return ok(app=app.config["APP_NAME"])
