@@ -11,7 +11,7 @@ from sqlalchemy.exc import IntegrityError
 
 from ..api_util import ConflictError, ValidationError, strict_int
 from ..db import begin_write, session
-from ..models import Client, Sale, SaleItem, SalePayment, User, Variant
+from ..models import Client, Return, Sale, SaleItem, SalePayment, User, Variant
 from . import payments as pay
 from .inventory import InsufficientStock, move
 
@@ -158,6 +158,8 @@ def cancel_sale(sale_id: str, user, reason: str) -> Sale:
         raise NotFound("La venta no existe.")
     if sale.status == "cancelled":
         raise ConflictError("Esta venta ya estaba cancelada.")
+    if session.query(Return).filter(Return.sale_id == sale.id).first():
+        raise ConflictError("Esta venta ya tiene devoluciones; registra la devolución de las piezas restantes.")
     begin_write()
     sale = session.get(Sale, sale_id)
     if sale.status == "cancelled":
@@ -192,10 +194,15 @@ def list_sales(day: date) -> list[Sale]:
     return session.query(Sale).filter(Sale.created_at.between(start, end)).order_by(Sale.folio.desc()).all()
 
 
+def _returned(sale_item_id: int) -> int:
+    from .returns import returned_qty
+    return returned_qty(sale_item_id)
+
+
 def sale_dict(s: Sale, with_cost: bool) -> dict:
     items = []
     for it in s.items:
-        d = {"variant_id": it.variant_id, "sku": it.variant.sku, "name": it.variant.product.name,
+        d = {"id": it.id, "returned_qty": _returned(it.id), "variant_id": it.variant_id, "sku": it.variant.sku, "name": it.variant.product.name,
              "attrs": it.variant.attrs or {}, "qty": it.qty, "unit_price_cents": it.unit_price_cents,
              "discount_cents": it.discount_cents}
         if with_cost:
@@ -210,4 +217,8 @@ def sale_dict(s: Sale, with_cost: bool) -> dict:
             "client_name": client.name if client else None,
             "subtotal_cents": s.subtotal_cents, "discount_cents": s.discount_cents, "total_cents": s.total_cents,
             "change_cents": change, "note": s.note, "created_at": s.created_at.isoformat(),
-            "cancel_reason": s.cancel_reason or None, "items": items, "payments": pays}
+            "cancel_reason": s.cancel_reason or None, "items": items, "payments": pays, "source": s.source,
+            "fully_returned": bool(items) and all(i["returned_qty"] >= i["qty"] for i in items),
+            "returns": [{"id": r.id, "refund_cents": r.refund_cents, "refund_method": r.refund_method, "reason": r.reason,
+                         "created_at": r.created_at.isoformat()}
+                        for r in session.query(Return).filter(Return.sale_id == s.id).order_by(Return.created_at)]}
