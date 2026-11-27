@@ -22,8 +22,9 @@ def create_app(config_class: type[Config] = Config) -> Flask:
     from . import security
     security.init_app(app)
 
-    from .blueprints import auth
-    app.register_blueprint(auth.bp)
+    from .blueprints import auth, catalog, settings
+    for module in (auth, settings, catalog):
+        app.register_blueprint(module.bp)
 
     @app.get("/api/health")
     def health():
