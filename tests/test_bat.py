@@ -37,3 +37,33 @@ def test_updater_finds_old_install_copies_data_and_backs_up():
     assert "'Modas Andrea.lnk','Modas Andrea (internet).lnk'" in s
     assert 'robocopy "!OLD!\\data" "!NEW!\\data"' in s and 'copy /y "!OLD!\\.env" "!NEW!\\.env"' in s
     assert s.index("antes_de_actualizar_") < s.index('call "!NEW!\\instalar.bat" /actualizar')
+
+
+def _outside_quotes(line: str) -> str:
+    out, quoted = [], False
+    for ch in line:
+        if ch == '"':
+            quoted = not quoted
+        elif not quoted:
+            out.append(ch)
+    return "".join(out)
+
+
+@pytest.mark.parametrize("bat", sorted(p.name for p in ROOT.glob("*.bat")))
+def test_no_unescaped_parentheses_inside_blocks(bat):
+    """Dentro de un bloque ( ... ), un ")" en un echo cierra el bloque antes de tiempo y rompe el .bat
+    (así se cortaba instalar.bat antes de crear la base y los accesos directos). Se escriben ^( y ^)."""
+    import re
+
+    depth, bad = 0, []
+    for n, raw in enumerate((ROOT / bat).read_text(encoding="utf-8").splitlines(), 1):
+        line = raw.strip()
+        if line.upper().startswith("REM") or line.startswith("::"):
+            continue
+        plain = re.sub(r"\^.", "", _outside_quotes(line))
+        if re.match(r"(?i)^echo\b", line):
+            if depth > 0 and ("(" in plain or ")" in plain):
+                bad.append(f"línea {n}: {line}")
+            continue
+        depth = max(0, depth + plain.count("(") - plain.count(")"))
+    assert not bad, "\n".join(bad)

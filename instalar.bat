@@ -67,7 +67,7 @@ echo  [4/5] Configurando...
 
 REM 5. Base de datos
 if not exist "server\web_dist\index.html" (
-    echo  [!] Falta la app compilada (server\web_dist). Descarga de nuevo el sistema completo.
+    echo  [!] Falta la app compilada ^(server\web_dist^). Descarga de nuevo el sistema completo.
     goto :fallo
 )
 if not exist "data" mkdir data
