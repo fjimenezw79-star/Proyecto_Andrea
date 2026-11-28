@@ -82,10 +82,9 @@ if not defined UPDATE (
     if !errorlevel! equ 1 "%VPY%" -m scripts.importar_datos_prueba
 )
 
-powershell -NoProfile -ExecutionPolicy Bypass -Command "$d=[Environment]::GetFolderPath('Desktop'); $s=(New-Object -ComObject WScript.Shell).CreateShortcut((Join-Path $d 'Modas Andrea.lnk')); $s.TargetPath='%~dp0aplicacion.bat'; $s.WorkingDirectory='%~dp0'; $s.IconLocation='%SystemRoot%\System32\shell32.dll,13'; $s.Description='Iniciar Modas Andrea'; $s.Save()" >nul 2>&1
-if not errorlevel 1 echo        Acceso directo "Modas Andrea" creado en el escritorio.
-powershell -NoProfile -ExecutionPolicy Bypass -Command "$d=[Environment]::GetFolderPath('Desktop'); $s=(New-Object -ComObject WScript.Shell).CreateShortcut((Join-Path $d 'Modas Andrea (internet).lnk')); $s.TargetPath='%~dp0acceso_remoto.bat'; $s.WorkingDirectory='%~dp0'; $s.IconLocation='%SystemRoot%\System32\shell32.dll,14'; $s.Description='Modas Andrea con acceso desde internet y tienda en linea'; $s.Save()" >nul 2>&1
-if not errorlevel 1 echo        Acceso directo "Modas Andrea (internet)" creado en el escritorio.
+REM Accesos directos del escritorio (si fallan, se muestra el motivo y se puede repetir con crear_accesos_directos.bat)
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\accesos_directos.ps1" "%~dp0."
+if errorlevel 1 echo  [!] Ejecuta crear_accesos_directos.bat para intentarlo de nuevo.
 
 echo.
 echo  ==========================================================

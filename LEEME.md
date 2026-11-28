@@ -182,6 +182,7 @@ No hace falta abrir puertos del módem: Cloudflare solo reenvía las visitas cif
 |---|---|
 | `instalar.bat` | Instala o actualiza todo. Puedes volver a ejecutarlo: no borra tus datos. |
 | `actualizar.bat` | Pasa a una versión nueva: extrae el ZIP en una carpeta nueva y ejecútalo ahí. Copia datos, fotos, respaldos y `.env` de la instalación anterior (la encuentra por los accesos directos), respalda la base y deja los accesos directos apuntando a la carpeta nueva. La carpeta anterior no se toca. |
+| `crear_accesos_directos.bat` | Vuelve a crear los accesos directos **Modas Andrea** y **Modas Andrea (internet)** sin reinstalar; si algo falla, dice el motivo. |
 | `aplicacion.bat` | Inicia el servidor. Mientras la ventana esté abierta, el sistema funciona. |
 | `acceso_remoto.bat` | Inicia el servidor con acceso seguro desde internet (Cloudflare). |
 | `restablecer_contrasena.bat` | Cambia la contraseña de cualquier usuario. |

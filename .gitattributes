@@ -6,3 +6,4 @@
 *.y4m binary
 *.wasm binary
 *.tflite binary
+*.ps1 text eol=crlf

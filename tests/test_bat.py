@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
-BATS = ["instalar.bat", "actualizar.bat", "aplicacion.bat", "acceso_remoto.bat", "restablecer_contrasena.bat"]
+BATS = ["instalar.bat", "actualizar.bat", "crear_accesos_directos.bat", "aplicacion.bat", "acceso_remoto.bat", "restablecer_contrasena.bat"]
 
 
 @pytest.mark.parametrize("name", BATS)
@@ -14,9 +14,15 @@ def test_bat_uses_windows_line_endings(name):
 
 
 def test_installer_creates_both_shortcuts():
-    s = (ROOT / "instalar.bat").read_text(encoding="utf-8")
-    assert "'Modas Andrea.lnk'" in s and "%~dp0aplicacion.bat" in s
-    assert "'Modas Andrea (internet).lnk'" in s and "%~dp0acceso_remoto.bat" in s
+    cmd = 'powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\\accesos_directos.ps1" "%~dp0."'
+    assert cmd in (ROOT / "instalar.bat").read_text(encoding="utf-8")
+    assert cmd in (ROOT / "crear_accesos_directos.bat").read_text(encoding="utf-8")
+    ps = (ROOT / "scripts" / "accesos_directos.ps1").read_bytes()
+    assert ps.isascii() and b"\r\n" in ps  # PowerShell 5 de Windows lee mal los .ps1 UTF-8 sin BOM
+    text = ps.decode()
+    assert "Name = 'Modas Andrea';" in text and "Target = 'aplicacion.bat'" in text
+    assert "Name = 'Modas Andrea (internet)'" in text and "Target = 'acceso_remoto.bat'" in text
+    assert "exit 1" in text  # si falla, instalar.bat avisa en lugar de callar
 
 
 def test_installer_update_mode_skips_test_data():
