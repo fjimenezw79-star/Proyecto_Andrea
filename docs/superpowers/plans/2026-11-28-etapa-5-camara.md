@@ -66,7 +66,7 @@
 - `AiQuery(id, at, user_id, status in {"pending","ok","error"}, matched_product_id null, input_tokens, output_tokens)`.
 - Configuración: `ticket_footer` (texto, máx. 200), `label_size` en {`50x25`,`carta-30`,`carta-20`,`carta-10`}, `ai_monthly_limit` (0 a 10 000).
 
-- [ ] test → FAIL → implementar → PASS → commit `feat: migración 0004 (huellas de fotos y consultas de IA)`.
+- [x] test → FAIL → implementar → PASS → commit `feat: migración 0004 (huellas de fotos y consultas de IA)`.
 
 ### Task 2: API de huellas
 
@@ -76,7 +76,7 @@
 - `GET /api/vision/missing?product=` (admin): fotos sin huella del modelo actual, con su URL.
 - `PUT /api/vision/embeddings` (admin): `{model, items:[{photo_id, v}]}`; valida modelo, base64 y tamaño (1024 bytes).
 
-- [ ] test → FAIL → implementar → PASS → commit `feat: huellas de fotos para el reconocimiento visual`.
+- [x] test → FAIL → implementar → PASS → commit `feat: huellas de fotos para el reconocimiento visual`.
 
 ### Task 3: Botón de IA en el servidor
 
@@ -85,40 +85,40 @@
 - `GET /api/vision/ai`: `{enabled, used, limit, model}`.
 - `POST /api/vision/ai`: `{image: data:image/jpeg;base64,…, candidates:[product_id…≤8]}` → `{match: product_id|null, reason}`; 503 sin clave, 429 en el límite, 502 si la API falla (y la consulta queda como `error`, sin contar).
 
-- [ ] test → FAIL → implementar → PASS → commit `feat: búsqueda con IA (Claude) con límite mensual`.
+- [x] test → FAIL → implementar → PASS → commit `feat: búsqueda con IA (Claude) con límite mensual`.
 
 ### Task 4: Code 128 y etiquetas
 
 **Files:** `web/src/lib/code128.ts`, `web/src/print/PrintRoot.tsx`, `web/src/print/Labels.tsx`, `web/src/labels/LabelsPage.tsx`, rutas y menú; Test `code128.test.ts`, e2e `labels.spec.ts`.
 
-- [ ] test → FAIL → implementar → PASS → commit `feat: etiquetas con código de barras`.
+- [x] test → FAIL → implementar → PASS → commit `feat: etiquetas con código de barras`.
 
 ### Task 5: Tickets de venta y de apartado
 
 **Files:** `web/src/print/Ticket.tsx`, `web/src/lib/ticket.ts` (datos y texto para WhatsApp), `PaymentSheet.tsx`, `SalesTodayPage.tsx`, `LayawayDetail.tsx`, `SettingsPage.tsx`; Test `ticket.test.ts`, e2e `tickets.spec.ts`.
 
-- [ ] test → FAIL → implementar → PASS → commit `feat: tickets de venta y de apartado, impresos o por WhatsApp`.
+- [x] test → FAIL → implementar → PASS → commit `feat: tickets de venta y de apartado, impresos o por WhatsApp`.
 
 ### Task 6: Lector de códigos con la cámara
 
 **Files:** `web/src/scan/barcode.ts`, `web/src/scan/ScanSheet.tsx`, `PosPage.tsx`, `ProductDetail.tsx` (asociar código de fábrica), `offline/cache.ts` (búsqueda por código sin señal); Test `cache.test.ts`.
 
-- [ ] test → FAIL → implementar → PASS → commit `feat: lector de códigos con la cámara`.
+- [x] test → FAIL → implementar → PASS → commit `feat: lector de códigos con la cámara`.
 
 ### Task 7: Reconocimiento visual en el dispositivo
 
 **Files:** `web/src/vision/embedder.ts`, `web/src/vision/index.ts`, `web/src/vision/prepare.ts`, `ScanSheet.tsx` (modo "Por foto"), `NewProductWizard.tsx`, `ProductDetail.tsx`, `SettingsPage.tsx`, `vite.config.ts` (copia de los `.wasm`), `web/sw/sw.js` (caché del modelo); Test `vision/index.test.ts`.
 
-- [ ] test → FAIL → implementar → PASS → commit `feat: reconocimiento visual de productos en el dispositivo`.
+- [x] test → FAIL → implementar → PASS → commit `feat: reconocimiento visual de productos en el dispositivo`.
 
 ### Task 8: Botón "✨ Buscar con IA" en la pantalla
 
 **Files:** `ScanSheet.tsx`, `SettingsPage.tsx` (consumo del mes); e2e `vision.spec.ts` (con la API de IA simulada).
 
-- [ ] implementar → e2e → commit `feat: botón Buscar con IA en el escáner`.
+- [x] implementar → e2e → commit `feat: botón Buscar con IA en el escáner`.
 
 ### Task 9: Manual y guías
 
 **Files:** `docs/manual/manual.html`, `Manual_Modas_Andrea.pdf`, capturas en `docs/img/`, `LEEME.md`.
 
-- [ ] commit `docs: manual de usuario con la etapa 5`.
+- [x] commit `docs: manual de usuario con la etapa 5`.
