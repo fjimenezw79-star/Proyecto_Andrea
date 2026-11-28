@@ -125,7 +125,7 @@ def create_sale(payload: dict, user) -> Sale:
         for p in parsed:
             session.add(SalePayment(sale_id=sale_id, method=p.method, amount_cents=p.amount_cents,
                                     received_cents=p.received_cents,
-                                    cash_session_id=cash_session_id if p.method == "cash" else None))
+                                    cash_session_id=cash_session_id))
         if client_id:
             session.get(Client, client_id).points += _points(total)
         session.commit()

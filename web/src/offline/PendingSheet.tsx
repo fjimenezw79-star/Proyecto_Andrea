@@ -1,5 +1,6 @@
-import { AlertTriangle, CloudUpload, RotateCcw, Trash2 } from "lucide-react";
+import { AlertTriangle, CloudUpload, Download, RotateCcw, Trash2 } from "lucide-react";
 import { useState } from "react";
+import { api, ApiError } from "../lib/api";
 import { Button } from "../ui/Button";
 import { Modal } from "../ui/Dialog";
 import { useOffline } from "./OfflineProvider";
@@ -12,6 +13,16 @@ export function PendingSheet({ open, onOpenChange }: { open: boolean; onOpenChan
   const [busy, setBusy] = useState(false);
   const [discarding, setDiscarding] = useState<string | null>(null);
   const [reason, setReason] = useState("");
+  const [discardError, setDiscardError] = useState<string | null>(null);
+
+  function backup() {
+    const blob = new Blob([JSON.stringify({ exportado: new Date().toISOString(), pendientes: items }, null, 2)], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `pendientes-modas-andrea-${new Date().toISOString().slice(0, 16).replace(/[:T]/g, "-")}.json`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  }
 
   async function sendNow() {
     setBusy(true);
@@ -49,6 +60,13 @@ export function PendingSheet({ open, onOpenChange }: { open: boolean; onOpenChan
                       onSubmit={async (e) => {
                         e.preventDefault();
                         if (!reason.trim()) return;
+                        setDiscardError(null);
+                        try {
+                          // queda constancia en la bitácora del servidor antes de borrarla del dispositivo
+                          await api("/api/audit/discard", { method: "POST", json: { label: i.label, reason: reason.trim(), kind: i.kind, payload: i.json } });
+                        } catch (err) {
+                          return setDiscardError(err instanceof ApiError ? err.message : "No se pudo descartar.");
+                        }
                         await discard(i.uid, reason.trim());
                         setDiscarding(null);
                         setReason("");
@@ -58,6 +76,7 @@ export function PendingSheet({ open, onOpenChange }: { open: boolean; onOpenChan
                         ¿Por qué se descarta?
                         <input value={reason} onChange={(e) => setReason(e.target.value)} autoFocus className="min-h-11 rounded-xl border border-line bg-paper px-3 font-normal" />
                       </label>
+                      {discardError && <p role="alert" className="text-sm font-semibold text-danger">{discardError}</p>}
                       <div className="flex gap-2">
                         <Button type="button" variant="quiet" onClick={() => setDiscarding(null)}>Cancelar</Button>
                         <Button type="submit" variant="wine" disabled={!reason.trim()}>Descartar</Button>
@@ -74,6 +93,11 @@ export function PendingSheet({ open, onOpenChange }: { open: boolean; onOpenChan
             </li>
           ))}
         </ul>
+      )}
+      {items.length > 0 && (
+        <Button className="mt-4 w-full" variant="ghost" onClick={backup}>
+          <Download className="size-4" aria-hidden /> Guardar respaldo de pendientes
+        </Button>
       )}
       {items.some((i) => i.status === "pending") && (
         <Button className="mt-4 w-full" size="lg" disabled={busy || !online} onClick={sendNow}>

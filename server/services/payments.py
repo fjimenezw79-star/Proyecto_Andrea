@@ -69,7 +69,8 @@ def apply(parsed: list[ParsedPayment], *, client_id: str | None, user_id: int) -
             raise ValidationError(f"El saldo a favor del cliente es de {money(c.credit_cents if c else 0)}.", "payments")
     if any(p.method == "cash" for p in parsed):
         return cash.current_or_auto(user_id)
-    return None
+    cs = cash.current()  # tarjeta/transferencia/saldo: cuentan en la caja abierta que los recibió (si hay)
+    return cs.id if cs else None
 
 
 def cash_session_for_out(method: str, user_id: int) -> int | None:

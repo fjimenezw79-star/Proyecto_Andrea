@@ -41,3 +41,26 @@ it("un error de red da un mensaje en español", async () => {
   expect(err).toBeInstanceOf(ApiError);
   expect(err.message).toBe("No hay conexión con el servidor. Revisa la red e inténtalo de nuevo.");
 });
+
+it("una página de error de Cloudflare (530/502) cuenta como sin señal", async () => {
+  server.use(
+    http.get(`${URL}/api/products`, () => new HttpResponse("<h1>error code: 1033</h1>", { status: 530, headers: { "Content-Type": "text/html" } })),
+    http.get(`${URL}/api/caja`, () => new HttpResponse("Bad gateway", { status: 502 })),
+  );
+  await expect(api("/api/products")).rejects.toMatchObject({ status: 0 });
+  await expect(api("/api/caja")).rejects.toMatchObject({ status: 0 });
+});
+
+it("un 500 con mensaje del sistema no se confunde con falta de señal", async () => {
+  server.use(http.get(`${URL}/api/y`, () => HttpResponse.json({ ok: false, message: "Falla interna" }, { status: 500 })));
+  await expect(api("/api/y")).rejects.toMatchObject({ status: 500, message: "Falla interna" });
+});
+
+it("sin conexión, una acción que no se guarda en el dispositivo pide conexión", async () => {
+  resetCsrf();
+  server.use(
+    http.get(`${URL}/api/auth/csrf`, () => HttpResponse.json({ ok: true, token: "t" })),
+    http.post(`${URL}/api/expenses`, () => HttpResponse.error()),
+  );
+  await expect(api("/api/expenses", { method: "POST", json: {} })).rejects.toMatchObject({ status: 0, message: "Necesitas conexión para hacer esto." });
+});

@@ -16,6 +16,9 @@ export class AuthError extends ApiError {}
 
 const CSRF_EXPIRED = "La sesión de seguridad expiró";
 const NETWORK = "No hay conexión con el servidor. Revisa la red e inténtalo de nuevo.";
+const NEEDS_CONNECTION = "Necesitas conexión para hacer esto.";
+/** Respuestas de Cloudflare o del proxy cuando la PC del negocio o su internet no responden: equivalen a "sin señal". */
+const GATEWAY = new Set([502, 503, 504, 520, 521, 522, 523, 524, 525, 526, 527, 530]);
 
 let csrfToken: string | null = null;
 let onAuthExpired: (() => void) | null = null;
@@ -53,19 +56,22 @@ export async function api<T = Record<string, unknown>>(path: string, opts: Opts 
   } else if (opts.form) {
     body = opts.form;
   }
+  const offlineError = () => new ApiError(0, method !== "GET" && !headers["X-Client-Uid"] ? NEEDS_CONNECTION : NETWORK);
   let res: Response;
   try {
     if (method !== "GET") headers["X-CSRFToken"] = await getCsrf();
     res = await fetch(url(path), { method, headers, body, credentials: "same-origin" });
   } catch {
-    throw new ApiError(0, NETWORK);
+    throw offlineError();
   }
   let data: Record<string, unknown> = {};
+  let json = true;
   try {
     data = await res.json();
   } catch {
-    /* respuesta sin JSON */
+    json = false;
   }
+  if (GATEWAY.has(res.status) || (res.status >= 500 && !json)) throw offlineError();
   if (res.ok && data.ok !== false) return data as T;
   const message = typeof data.message === "string" && data.message ? data.message : "Ocurrió un error inesperado. Inténtalo de nuevo.";
   if (res.status === 400 && message.startsWith(CSRF_EXPIRED) && !retried) {

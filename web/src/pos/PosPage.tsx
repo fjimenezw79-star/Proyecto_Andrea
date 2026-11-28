@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { ScanLine, Search, ShoppingBag } from "lucide-react";
+import { CloudOff, ScanLine, Search, ShoppingBag } from "lucide-react";
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { useAuth } from "../auth/AuthProvider";
 import { api, ApiError } from "../lib/api";
@@ -22,6 +22,14 @@ import { useOffline } from "../offline/OfflineProvider";
 import { clientHeaders, nowLocalIso } from "../offline/queue";
 import { Button } from "../ui/Button";
 import { Modal } from "../ui/Dialog";
+
+function seenAgo(iso: string): string {
+  const min = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60_000));
+  if (min < 1) return "hace un momento";
+  if (min < 60) return `hace ${min} min`;
+  const h = Math.round(min / 60);
+  return h < 24 ? `hace ${h} h` : `el ${new Date(iso).toLocaleDateString("es-MX", { day: "numeric", month: "short" })}`;
+}
 
 /** En línea consulta al servidor; sin señal usa la copia del catálogo guardada en el dispositivo. */
 async function withOffline<T>(online: () => Promise<T>, offline: (c: Catalog) => T): Promise<T> {
@@ -66,8 +74,8 @@ export function PosPage() {
     queryKey: ["products", "pos", dq, category],
     queryFn: () =>
       withOffline(
-        () => api<{ products: Product[]; total: number }>(`/api/products?q=${encodeURIComponent(dq)}${category ? `&category=${category}` : ""}`),
-        (c) => filterCatalog(c, dq, category),
+        () => api<{ products: Product[]; total: number; cachedAt?: string }>(`/api/products?q=${encodeURIComponent(dq)}${category ? `&category=${category}` : ""}`),
+        (c) => ({ ...filterCatalog(c, dq, category), cachedAt: c.saved_at }),
       ),
     placeholderData: (prev) => prev,
   });
@@ -122,6 +130,8 @@ export function PosPage() {
 
   async function saveOffline(body: ReturnType<typeof salePayload>, payments: Payment[], clientTime: string): Promise<SaleResult> {
     markOffline();
+    if (payments.some((p) => p.method === "credit"))
+      throw new Error("El saldo a favor solo se puede usar con señal. Cobra con otra forma de pago.");
     const low = cart.lines.filter((l) => l.stock <= 2);
     if (low.length && !(await new Promise<boolean>((resolve) => setLowAsk({ names: low.map((l) => l.name), resolve }))))
       throw new Error("No se registró la venta. Revisa las piezas cuando vuelva la señal.");
@@ -179,6 +189,11 @@ export function PosPage() {
             </button>
           ))}
         </div>
+        {products.data?.cachedAt && (
+          <p role="status" className="mb-4 flex items-center gap-2 rounded-2xl bg-wine/10 px-4 py-2.5 text-sm font-semibold text-wine">
+            <CloudOff className="size-4 shrink-0" aria-hidden /> Sin señal · existencias vistas {seenAgo(products.data.cachedAt)}. Otro dispositivo pudo vender alguna pieza.
+          </p>
+        )}
         {products.isLoading ? (
           <p className="text-muted">Cargando productos…</p>
         ) : products.data && products.data.products.length > 0 ? (

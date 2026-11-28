@@ -27,7 +27,11 @@ def snapshot():
     from ..models import Product, StockMovement
 
     version = session.scalar(select(func.coalesce(func.max(StockMovement.id), 0)))
-    items = session.query(Product).filter(Product.active.is_(True)).order_by(Product.name, Product.id).limit(5000).all()
+    from sqlalchemy.orm import selectinload
+
+    items = (session.query(Product).options(selectinload(Product.variants), selectinload(Product.photos),
+                                            selectinload(Product.category))
+             .filter(Product.active.is_(True)).order_by(Product.name, Product.id).limit(5000).all())
     return ok(version=version, categories=catalog.category_tree(),
               products=[catalog.product_dict(p, False) for p in items])
 

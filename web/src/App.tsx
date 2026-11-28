@@ -31,7 +31,7 @@ function Routed() {
   const { expire } = useAuth();
   const [qc] = useState(() => {
     const retry = (n: number, e: unknown) => !(e instanceof AuthError) && n < 1;
-    const c = new QueryClient({ defaultOptions: { queries: { retry, staleTime: 15_000 }, mutations: { retry: false } } });
+    const c = new QueryClient({ defaultOptions: { queries: { retry, staleTime: 15_000, networkMode: "always" }, mutations: { retry: false, networkMode: "always" } } });
     const onError = (e: unknown) => e instanceof AuthError && expire();
     c.getQueryCache().config.onError = onError;
     c.getMutationCache().config.onError = onError;

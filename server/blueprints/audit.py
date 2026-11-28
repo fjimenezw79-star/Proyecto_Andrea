@@ -4,7 +4,7 @@ from __future__ import annotations
 from datetime import datetime
 
 from flask import Blueprint, request
-from flask_login import current_user
+from flask_login import current_user, login_required
 
 from ..api_util import fail, ok
 from ..db import begin_write, session
@@ -45,3 +45,22 @@ def review_alert(alert_id: int):
     a.reviewed_by, a.reviewed_at = current_user.id, datetime.now().replace(microsecond=0)
     session.commit()
     return ok("Alerta marcada como revisada.")
+
+
+@bp.post("/audit/discard")
+@login_required
+def discard():
+    """El dispositivo descartó una acción sin señal que no se pudo registrar: queda constancia en la bitácora."""
+    data = request.get_json(silent=True) or {}
+    label = str(data.get("label") or "").strip()[:150]
+    reason = str(data.get("reason") or "").strip()[:200]
+    if not label or not reason:
+        return fail("Escribe por qué se descarta.", 400, field="reason")
+    import json
+
+    payload = json.dumps(data.get("payload"), ensure_ascii=False)[:1500]
+    begin_write()
+    session.add(AuditLog(user_id=current_user.id, action="Descartó acción sin señal", entity_id=str(data.get("kind") or "")[:64],
+                         detail=f"{label} · Motivo: {reason} · Datos: {payload}"[:2000], offline=True))
+    session.commit()
+    return ok("Descarte registrado en la bitácora.")

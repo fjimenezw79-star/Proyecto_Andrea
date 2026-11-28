@@ -24,7 +24,7 @@ def current_or_auto(user_id: int) -> int:
 # ---------------------------------------------------------------------------
 from datetime import datetime  # noqa: E402
 
-from sqlalchemy import func  # noqa: E402
+from sqlalchemy import and_, func, or_  # noqa: E402
 
 from ..api_util import ConflictError, strict_int  # noqa: E402
 from ..db import begin_write  # noqa: E402
@@ -76,10 +76,15 @@ def summary(cs: CashSession) -> dict:
         movements.append({"at": e.created_at, "kind": "Gasto", "ref": e.description, "amount_cents": -e.amount_cents})
 
     def by_method(method: str) -> int:
+        # Por la caja que recibió el pago; los registros anteriores a la etapa 4 (sin caja) por su fecha.
+        in_sale = or_(SalePayment.cash_session_id == sid,
+                      and_(SalePayment.cash_session_id.is_(None), Sale.created_at.between(cs.opened_at, end)))
+        in_lay = or_(LayawayPayment.cash_session_id == sid,
+                     and_(LayawayPayment.cash_session_id.is_(None), LayawayPayment.created_at.between(cs.opened_at, end)))
         a = (session.query(func.coalesce(func.sum(SalePayment.amount_cents), 0)).join(Sale, Sale.id == SalePayment.sale_id)
-             .filter(SalePayment.method == method, Sale.status == "paid", Sale.created_at.between(cs.opened_at, end)).scalar())
+             .filter(SalePayment.method == method, Sale.status == "paid", in_sale).scalar())
         b = (session.query(func.coalesce(func.sum(LayawayPayment.amount_cents), 0))
-             .filter(LayawayPayment.method == method, LayawayPayment.created_at.between(cs.opened_at, end)).scalar())
+             .filter(LayawayPayment.method == method, in_lay).scalar())
         return int(a) + int(b)
 
     movements.sort(key=lambda m: m["at"])

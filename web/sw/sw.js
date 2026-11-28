@@ -28,12 +28,15 @@ self.addEventListener("fetch", (e) => {
 
   if (req.mode === "navigate") {
     e.respondWith((async () => {
+      const cached = async () => (await caches.match("/index.html")) || new Response("Sin señal", { status: 503 });
       try {
         const res = await fetch(req);
         if (res.ok) (await caches.open(APP)).put("/index.html", res.clone());
+        // Cloudflare responde con su página de error cuando la PC del negocio no contesta: se abre la copia
+        if (res.status >= 500) return cached();
         return res;
       } catch {
-        return (await caches.match("/index.html")) || new Response("Sin señal", { status: 503 });
+        return cached();
       }
     })());
     return;

@@ -55,7 +55,7 @@ def _add_payments(l: Layaway, parsed, payment_id: str, user) -> None:
         session.add(LayawayPayment(id=payment_id if i == 0 else f"{payment_id[:36]}-{i}", layaway_id=l.id,
                                    method=p.method, amount_cents=p.amount_cents, received_cents=p.received_cents,
                                    user_id=user.id, created_at=event_time(),
-                                   cash_session_id=cash_id if p.method == "cash" else None))
+                                   cash_session_id=cash_id))
     l.paid_cents += sum(p.amount_cents for p in parsed)
 
 

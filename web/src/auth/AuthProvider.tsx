@@ -1,6 +1,18 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 import { api, ApiError, AuthError, resetCsrf, setAuthExpiredHandler } from "../lib/api";
-import { loadMe, saveMe } from "../offline/cache";
+import { clearPrivate, loadMe, saveMe } from "../offline/cache";
+
+const LOGGED_OUT = "ma-cerro-sesion";
+const flag = (on?: boolean) => {
+  try {
+    if (on === undefined) return localStorage.getItem(LOGGED_OUT) === "1";
+    if (on) localStorage.setItem(LOGGED_OUT, "1");
+    else localStorage.removeItem(LOGGED_OUT);
+  } catch {
+    /* sin almacenamiento */
+  }
+  return false;
+};
 
 export type User = { id: number; username: string; full_name: string; role: "admin" | "seller" };
 type Ctx = {
@@ -26,12 +38,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     api<{ user: User }>("/api/auth/me")
-      .then((d) => {
+      .then(async (d) => {
+        if (flag()) {
+          // se salió sin señal: al volver la conexión se cierra también la sesión del servidor
+          await api("/api/auth/logout", { method: "POST" }).catch(() => {});
+          flag(false);
+          resetCsrf();
+          return setUser(null);
+        }
         setUser(d.user);
         saveMe(d.user);
       })
       // sin señal: se usa el último usuario guardado en el dispositivo para no sacarlo de la app
-      .catch(async (e) => setUser(e instanceof ApiError && e.status === 0 ? await loadMe() : null))
+      .catch(async (e) => setUser(e instanceof ApiError && e.status === 0 && !flag() ? await loadMe() : null))
       .finally(() => setReady(true));
   }, []);
 
@@ -39,6 +58,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     resetCsrf();
     const d = await api<{ user: User }>("/api/auth/login", { method: "POST", json: { username, password, remember: true } });
     resetCsrf(); // el token cambia con la sesión nueva
+    flag(false);
     setUser(d.user);
     saveMe(d.user);
     return d.user;
@@ -48,10 +68,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await api("/api/auth/logout", { method: "POST" });
     } catch (e) {
-      if (!(e instanceof AuthError)) throw e;
+      if (e instanceof ApiError && e.status === 0) flag(true); // sin señal: se sale en el dispositivo
+      else if (!(e instanceof AuthError)) throw e;
     }
     resetCsrf();
-    saveMe(null);
+    await clearPrivate(); // datos de clientes y catálogo no se quedan en un dispositivo compartido
     setUser(null);
   }, []);
 

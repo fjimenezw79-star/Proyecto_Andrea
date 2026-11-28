@@ -55,6 +55,11 @@ export type CachedClient = { id: string; name: string; phone: string; points: nu
 export const saveCatalog = (c: Omit<Catalog, "saved_at">) => set("catalog", { ...c, saved_at: new Date().toISOString() });
 export const loadCatalog = () => get<Catalog>("catalog");
 export const saveMe = (u: User | null) => set("me", u);
+
+/** Al salir: borra el usuario, los clientes y el catálogo guardados (la cola de pendientes es por usuario y se queda). */
+export async function clearPrivate(): Promise<void> {
+  await Promise.all([set("me", null), set("clients", null), set("catalog", null)]);
+}
 export const loadMe = () => get<User>("me");
 
 export async function saveClients(list: CachedClient[]): Promise<void> {

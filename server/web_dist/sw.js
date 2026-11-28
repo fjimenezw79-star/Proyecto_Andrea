@@ -3,8 +3,8 @@
  * - Miniaturas de fotos: se sirven de la copia y se actualizan en segundo plano.
  * - /api/* nunca pasa por aquí: los datos siempre son en vivo (y la cola sin señal vive en la app).
  */
-const VERSION = "0aafc4a4b63f";
-const PRECACHE = ["/","/index.html","/assets/index-CF_Z3ThP.js","/assets/hanken-grotesk-latin-ext-wght-normal-Dg-wlmqe.woff2","/assets/hanken-grotesk-latin-wght-normal-CaVRRdDk.woff2","/assets/hanken-grotesk-vietnamese-wght-normal-CHiFlh_0.woff2","/assets/index-Cb8v-RcH.css","/assets/instrument-serif-latin-400-italic-DKMiL14s.woff2","/assets/instrument-serif-latin-400-italic-u__WvvIK.woff","/assets/instrument-serif-latin-400-normal-BVbkICAY.woff","/assets/instrument-serif-latin-400-normal-DnYpCC2O.woff2","/assets/instrument-serif-latin-ext-400-italic-C9HzH3YL.woff2","/assets/instrument-serif-latin-ext-400-italic-D7-lnxEk.woff","/assets/instrument-serif-latin-ext-400-normal-C2je3j2s.woff2","/assets/instrument-serif-latin-ext-400-normal-CFCUzsTy.woff","/manifest.webmanifest","/favicon.svg","/icon-192.png","/icon-512.png"];
+const VERSION = "89be228f6a7b";
+const PRECACHE = ["/","/index.html","/assets/index-DeTuXdk9.js","/assets/hanken-grotesk-latin-ext-wght-normal-Dg-wlmqe.woff2","/assets/hanken-grotesk-latin-wght-normal-CaVRRdDk.woff2","/assets/hanken-grotesk-vietnamese-wght-normal-CHiFlh_0.woff2","/assets/index-Cb8v-RcH.css","/assets/instrument-serif-latin-400-italic-DKMiL14s.woff2","/assets/instrument-serif-latin-400-italic-u__WvvIK.woff","/assets/instrument-serif-latin-400-normal-BVbkICAY.woff","/assets/instrument-serif-latin-400-normal-DnYpCC2O.woff2","/assets/instrument-serif-latin-ext-400-italic-C9HzH3YL.woff2","/assets/instrument-serif-latin-ext-400-italic-D7-lnxEk.woff","/assets/instrument-serif-latin-ext-400-normal-C2je3j2s.woff2","/assets/instrument-serif-latin-ext-400-normal-CFCUzsTy.woff","/manifest.webmanifest","/favicon.svg","/icon-192.png","/icon-512.png"];
 const APP = `ma-app-${VERSION}`;
 const THUMBS = "ma-thumbs";
 
@@ -28,12 +28,15 @@ self.addEventListener("fetch", (e) => {
 
   if (req.mode === "navigate") {
     e.respondWith((async () => {
+      const cached = async () => (await caches.match("/index.html")) || new Response("Sin señal", { status: 503 });
       try {
         const res = await fetch(req);
         if (res.ok) (await caches.open(APP)).put("/index.html", res.clone());
+        // Cloudflare responde con su página de error cuando la PC del negocio no contesta: se abre la copia
+        if (res.status >= 500) return cached();
         return res;
       } catch {
-        return (await caches.match("/index.html")) || new Response("Sin señal", { status: 503 });
+        return cached();
       }
     })());
     return;

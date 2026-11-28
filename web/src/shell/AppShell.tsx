@@ -29,7 +29,7 @@ export function AppShell() {
   const [palette, setPalette] = useState(false);
   const [more, setMore] = useState(false);
   const items = navItems(user!.role);
-  useCatalogSync(!!user);
+  useCatalogSync(user?.id ?? null);
   const { pendingCount } = useOffline();
   const [askOut, setAskOut] = useState(false);
   const [account, setAccount] = useState(false);

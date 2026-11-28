@@ -116,7 +116,9 @@ La app sigue funcionando con la copia del catálogo guardada en el dispositivo:
 ![Venta sin señal](docs/img/13-sin-senal.webp)
 ![Pendientes](docs/img/14-pendientes.webp)
 
-Si una acción no se puede registrar (por ejemplo, un cliente con un teléfono repetido), queda marcada en **Pendientes** con el motivo para **Reintentar** o **Descartar**. Nada se envía dos veces aunque la señal se corte a la mitad. Al **Salir** con pendientes, la app avisa: se quedan guardados en el dispositivo y se envían cuando ese usuario vuelve a entrar.
+Lo mismo pasa si la computadora del negocio se apaga o se queda sin internet mientras los celulares usan el enlace por internet. Mientras no hay señal, Vender avisa **Sin señal · existencias vistas hace N min**, y el saldo a favor de los clientes solo se usa con señal. Un cliente registrado sin señal con un teléfono que ya existe se guarda sin teléfono y con una nota para que el administrador revise si es la misma persona.
+
+Si una acción no se puede registrar (por ejemplo, un abono a un apartado que ya se liquidó), queda marcada en **Pendientes** con el motivo para **Reintentar** o **Descartar**. Lo descartado queda en la **Bitácora** con el motivo y sus datos, y **Guardar respaldo de pendientes** descarga un archivo con todo lo que falta por enviar. Nada se envía dos veces aunque la señal se corte a la mitad. Al **Salir** con pendientes, la app avisa: se quedan guardados en el dispositivo y se envían cuando ese usuario vuelve a entrar. Al salir se borran del dispositivo los clientes y el catálogo guardados; también se puede salir sin señal.
 
 ### Alertas de stock y bitácora (administrador)
 

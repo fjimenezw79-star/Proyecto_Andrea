@@ -55,10 +55,20 @@ def create(data: dict) -> tuple[Client, bool]:
     name, phone = _name(data.get("name")), _phone(data.get("phone"))
     email = str(data.get("email") or "").strip()[:120]
     begin_write()
-    _check_phone_free(phone)
-    from ..offline import event_time
-    c = Client(id=cid, name=name, phone=phone, email=email, notes=str(data.get("notes") or "").strip()[:1000],
-               created_at=event_time())
+    from ..offline import event_time, is_offline
+    notes = str(data.get("notes") or "").strip()[:1000]
+    try:
+        _check_phone_free(phone)
+    except ConflictError:
+        if not is_offline():
+            raise
+        # Registrado sin señal con un teléfono que ya tiene otro cliente: se guarda igual para no perder la venta
+        # que depende de él, sin teléfono y con una nota para que el administrador revise si es la misma persona.
+        other = session.query(Client).filter(Client.phone == phone, Client.active.is_(True)).first()
+        notes = (f"Teléfono {phone} repetido: ya lo tiene {other.name if other else 'otro cliente'}. "
+                 f"Revisa si es la misma persona. {notes}").strip()[:1000]
+        phone = ""
+    c = Client(id=cid, name=name, phone=phone, email=email, notes=notes, created_at=event_time())
     session.add(c)
     session.commit()
     return c, True

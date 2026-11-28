@@ -23,7 +23,13 @@ from .models import AuditLog, OfflineOp
 UID_RE = re.compile(r"^[A-Za-z0-9_-]{8,64}$")
 MAX_AGE = timedelta(days=7)
 MAX_FUTURE = timedelta(minutes=10)
+# Tras 2 min se retoma una acción que quedó "procesando" (el proceso se cortó). Es seguro porque los servicios
+# son idempotentes por el id que genera el dispositivo (venta, apartado, abono y cliente).
 STALE = timedelta(minutes=2)
+# Una acción cuenta como hecha sin señal solo si el dispositivo la hizo hace más de esto: así X-Offline
+# no sirve para brincarse el stock ni para cambiar la fecha de una venta en vivo.
+OFFLINE_MIN_AGE = timedelta(seconds=30)
+KEEP_OPS = timedelta(days=30)
 QUEUEABLE = {"sales.create", "layaways.create", "layaways.payment", "clients.create"}
 
 AUDITED = {
@@ -57,14 +63,20 @@ AUDITED = {
 
 
 def event_time() -> datetime:
-    """Hora del hecho: la que mandó el dispositivo (acción sin señal) o la actual."""
-    return getattr(g, "client_time", None) or datetime.now().replace(microsecond=0)
+    """Hora del hecho: la que mandó el dispositivo si la acción se hizo sin señal; si no, la actual."""
+    try:
+        if getattr(g, "offline_ok", False) and g.client_time:
+            return g.client_time
+    except RuntimeError:  # fuera de una petición (scripts)
+        pass
+    return datetime.now().replace(microsecond=0)
 
 
 def is_offline() -> bool:
+    """La acción llegó de la cola del dispositivo y se hizo sin señal (permite stock negativo con alerta)."""
     try:
-        return request.headers.get("X-Offline") == "1"
-    except RuntimeError:  # fuera de una petición (scripts)
+        return bool(getattr(g, "offline_ok", False))
+    except RuntimeError:
         return False
 
 
@@ -84,15 +96,22 @@ def _parse_client_time(raw: str | None) -> datetime | None:
 def _before():
     g.client_uid = None
     g.client_time = None
+    g.offline_ok = False
     g.replayed = False
     if request.method != "POST" or request.endpoint not in QUEUEABLE or not current_user.is_authenticated:
         return None
     g.client_time = _parse_client_time(request.headers.get("X-Client-Time"))
+    g.offline_ok = (request.headers.get("X-Offline") == "1" and g.client_time is not None
+                    and datetime.now() - g.client_time > OFFLINE_MIN_AGE)
     uid = (request.headers.get("X-Client-Uid") or "").strip()
     if not uid or not UID_RE.match(uid):
         return None
     begin_write()
     row = session.get(OfflineOp, uid)
+    if row and (row.user_id != current_user.id or row.endpoint != request.endpoint):
+        session.rollback()
+        return current_app.response_class(
+            json.dumps({"ok": False, "message": "Identificador de acción repetido."}), status=409, mimetype="application/json")
     if row and row.status == "done":
         session.rollback()
         g.replayed = True
@@ -109,7 +128,7 @@ def _before():
         session.flush()
     session.add(OfflineOp(uid=uid, user_id=current_user.id, endpoint=request.endpoint, status="processing",
                           client_time=g.client_time, received_at=datetime.now().replace(microsecond=0),
-                          offline=is_offline()))
+                          offline=g.offline_ok))
     session.commit()
     g.client_uid = uid
     return None
@@ -159,10 +178,21 @@ def _audit(resp) -> None:
     session.rollback()
     begin_write()
     session.add(AuditLog(user_id=current_user.id, action=action, entity_id=str(entity)[:64] if entity else None,
-                         detail=str(detail)[:300], offline=is_offline(), client_time=getattr(g, "client_time", None)))
+                         detail=str(detail)[:300], offline=is_offline(),
+                         client_time=g.client_time if is_offline() else None))
     session.commit()
+
+
+def purge_old(app: Flask) -> None:
+    """Borra los registros de acciones de hace más de 30 días (sus respuestas ya no hacen falta)."""
+    with app.app_context():
+        begin_write()
+        session.query(OfflineOp).filter(OfflineOp.received_at < datetime.now() - KEEP_OPS).delete()
+        session.commit()
+        session.remove()
 
 
 def init_app(app: Flask) -> None:
     app.before_request(_before)
     app.after_request(_after)
+    purge_old(app)

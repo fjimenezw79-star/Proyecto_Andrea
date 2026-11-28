@@ -9,9 +9,12 @@ async function offlineSale(page: Page, code: string, qty: number) {
       const p = (await (await fetch(`/api/products?q=${code}`)).json()).products[0];
       const v = p.variants[0];
       const uid = `prueba-${Date.now()}`;
+      const d = new Date(Date.now() - 5 * 60_000);
+      const p2 = (n: number) => String(n).padStart(2, "0");
+      const when = `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())}T${p2(d.getHours())}:${p2(d.getMinutes())}:${p2(d.getSeconds())}`;
       const r = await fetch("/api/sales", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "X-CSRFToken": token, "X-Client-Uid": uid, "X-Offline": "1" },
+        headers: { "Content-Type": "application/json", "X-CSRFToken": token, "X-Client-Uid": uid, "X-Client-Time": when, "X-Offline": "1" },
         body: JSON.stringify({ id: crypto.randomUUID(), items: [{ variant_id: v.id, qty, discount_cents: 0 }], discount_cents: 0, payments: [{ method: "card", amount_cents: v.price_cents * qty }] }),
       });
       return r.status;

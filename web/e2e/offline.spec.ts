@@ -27,6 +27,7 @@ test("sin señal: vender, ver pendiente y enviarse solo al volver", async ({ pag
   await expect(page.getByText("Sin señal").first()).toBeVisible();
   await expect(page.getByRole("button", { name: /1 pendiente/ }).first()).toBeVisible();
   await expect(page.getByRole("button", { name: /^Agregar Colores de madera/ })).toContainText("Quedan 7");
+  await expect(page.getByText(/Sin señal · existencias vistas/)).toBeVisible();
 
   await context.setOffline(false);
   await expect(page.getByText("Todo enviado.")).toBeVisible({ timeout: 20_000 });
@@ -96,4 +97,46 @@ test("salir con pendientes pide confirmar", async ({ page, context }) => {
   await expect(page).toHaveURL(/\/vender/);
   await context.setOffline(false);
   await expect(page.getByText("Todo enviado.")).toBeVisible({ timeout: 20_000 });
+});
+
+test("si la PC del negocio no responde (error de Cloudflare) la venta se guarda en el dispositivo", async ({ page }) => {
+  await login(page, "vendedor", "12345");
+  await readyOffline(page);
+  const before = (await sales(page)).length;
+  const down = (route: import("@playwright/test").Route) => route.fulfill({ status: 530, contentType: "text/html", body: "<h1>error code: 1033</h1>" });
+  await page.route("**/api/**", down);
+  const pay = await sellCash(page, /^Agregar Juego de geometría/);
+  await expect(pay.getByText("Venta guardada en este dispositivo. Se enviará al volver la señal.")).toBeVisible();
+  await pay.getByRole("button", { name: "Nueva venta" }).click();
+  await expect(page.getByRole("button", { name: /1 pendiente/ }).first()).toBeVisible();
+  await page.reload(); // la sesión no se pierde
+  await expect(page.getByRole("heading", { name: "Vender" })).toBeVisible();
+  await page.unroute("**/api/**", down);
+  await expect(page.getByText("Todo enviado.")).toBeVisible({ timeout: 25_000 });
+  expect((await sales(page)).length).toBe(before + 1);
+});
+
+test("salir sin señal cierra la sesión en el dispositivo y borra los datos guardados", async ({ page, context }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await login(page, "vendedor", "12345");
+  await readyOffline(page);
+  await context.setOffline(true);
+  await page.getByRole("button", { name: "Salir" }).first().click();
+  await expect(page).toHaveURL(/\/entrar/);
+  const left = await page.evaluate(() => new Promise<unknown>((res) => {
+    const r = indexedDB.open("ma-cache");
+    r.onsuccess = () => {
+      const g = r.result.transaction("kv").objectStore("kv").get("clients");
+      const c = r.result.transaction("kv").objectStore("kv").get("catalog");
+      let n = 0;
+      const out: unknown[] = [];
+      const done = () => ++n === 2 && res(out);
+      g.onsuccess = () => { out.push(g.result ?? null); done(); };
+      c.onsuccess = () => { out.push(c.result ?? null); done(); };
+    };
+  }));
+  expect(left).toEqual([null, null]);
+  await context.setOffline(false);
+  await page.goto("/vender");
+  await expect(page).toHaveURL(/\/entrar/); // con señal tampoco regresa a la sesión anterior
 });
