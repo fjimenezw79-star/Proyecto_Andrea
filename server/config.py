@@ -63,6 +63,11 @@ class Config:
     # Botón "Buscar con IA" (Claude con visión). Sin clave, el botón no aparece.
     ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "").strip()
     ANTHROPIC_MODEL = os.environ.get("ANTHROPIC_MODEL", "").strip() or "claude-opus-5-5"
+    # Tienda en línea en Cloudflare Pages (opcional): sin estas claves la tienda se ve desde esta PC en /tienda/
+    CLOUDFLARE_ACCOUNT_ID = os.environ.get("CLOUDFLARE_ACCOUNT_ID", "").strip()
+    CLOUDFLARE_API_TOKEN = os.environ.get("CLOUDFLARE_API_TOKEN", "").strip()
+    CLOUDFLARE_PAGES_PROJECT = os.environ.get("CLOUDFLARE_PAGES_PROJECT", "").strip() or "modas-andrea-tienda"
+    STORE_URL = os.environ.get("STORE_URL", "").strip()
     TOOLS_DIR = str(BASE_DIR / "tools")
     MAX_CONTENT_LENGTH = 25 * 1024 * 1024
     SESSION_COOKIE_HTTPONLY = True
@@ -77,3 +82,6 @@ class TestConfig(Config):
     WTF_CSRF_ENABLED = False
     SECRET_KEY = "pruebas"
     ANTHROPIC_API_KEY = ""
+    CLOUDFLARE_ACCOUNT_ID = ""
+    CLOUDFLARE_API_TOKEN = ""
+    STORE_URL = ""

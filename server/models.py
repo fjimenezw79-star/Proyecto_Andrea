@@ -108,7 +108,8 @@ class StockMovement(Base):
     note: Mapped[str] = mapped_column(Text, default="")
     created_at: Mapped[datetime] = mapped_column(DateTime, default=now)
     __table_args__ = (CheckConstraint(
-        "reason IN ('sale','sale_cancel','purchase','adjustment','import','layaway','layaway_cancel','return')",
+        "reason IN ('sale','sale_cancel','purchase','adjustment','import','layaway','layaway_cancel','return',"
+        "'online','online_cancel')",
         name="ck_movements_reason"),)
 
 
@@ -144,10 +145,11 @@ class Sale(Base):
     source: Mapped[str] = mapped_column(String(10), default="pos")
     layaway_id: Mapped[str | None] = mapped_column(String(40), ForeignKey("layaways.id"), nullable=True)
     cancel_cash_session_id: Mapped[int | None] = mapped_column(ForeignKey("cash_sessions.id"), nullable=True)
+    shipping_cents: Mapped[int] = mapped_column(Integer, default=0)
     items: Mapped[list[SaleItem]] = relationship(back_populates="sale", order_by="SaleItem.id")
     payments: Mapped[list[SalePayment]] = relationship(back_populates="sale", order_by="SalePayment.id")
     __table_args__ = (CheckConstraint("status IN ('paid','cancelled')", name="ck_sales_status"),
-                      CheckConstraint("source IN ('pos','layaway','legacy')", name="ck_sales_source"))
+                      CheckConstraint("source IN ('pos','layaway','legacy','online')", name="ck_sales_source"))
 
 
 class SaleItem(Base):
@@ -345,3 +347,29 @@ class AiQuery(Base):
     input_tokens: Mapped[int] = mapped_column(Integer, default=0)
     output_tokens: Mapped[int] = mapped_column(Integer, default=0)
     __table_args__ = (CheckConstraint("status IN ('pending','ok','error')", name="ck_ai_queries_status"),)
+
+
+class OnlineOrder(Base):
+    """Pedido hecho en la tienda en línea. Llega pendiente; el personal lo confirma (aparta piezas), cobra o rechaza."""
+    __tablename__ = "online_orders"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    folio: Mapped[str] = mapped_column(String(12), unique=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=now, index=True)
+    source: Mapped[str] = mapped_column(String(12), default="local")
+    customer_name: Mapped[str] = mapped_column(String(120))
+    phone: Mapped[str] = mapped_column(String(20))
+    delivery: Mapped[str] = mapped_column(String(10), default="pickup")
+    address: Mapped[str] = mapped_column(Text, default="")
+    note: Mapped[str] = mapped_column(Text, default="")
+    items: Mapped[list] = mapped_column(JSON, default=list)
+    subtotal_cents: Mapped[int] = mapped_column(Integer, default=0)
+    shipping_cents: Mapped[int] = mapped_column(Integer, default=0)
+    status: Mapped[str] = mapped_column(String(10), default="pending", index=True)
+    client_id: Mapped[str | None] = mapped_column(ForeignKey("clients.id"), nullable=True)
+    sale_id: Mapped[str | None] = mapped_column(ForeignKey("sales.id"), nullable=True)
+    reason: Mapped[str] = mapped_column(Text, default="")
+    handled_by: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=now, onupdate=now)
+    __table_args__ = (CheckConstraint("status IN ('pending','confirmed','paid','rejected')", name="ck_online_status"),
+                      CheckConstraint("delivery IN ('pickup','shipping')", name="ck_online_delivery"),
+                      CheckConstraint("shipping_cents >= 0 AND subtotal_cents >= 0", name="ck_online_money"))

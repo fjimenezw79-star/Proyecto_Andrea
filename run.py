@@ -85,6 +85,12 @@ def main() -> None:
             "   Conecta celulares y tablets desde Conectar dispositivo (código QR).",
             "   La conexión es segura (HTTPS) y la app funciona aunque se vaya la señal.",
         ]
+    lines += ["  --------------------------------------------------------------",
+              f"   Tienda en línea     : {(tunnel.url if tunnel else url) + '/tienda/'}"]
+    from server.store import cloud
+    cloud.start(app)
+    if cloud.configured():
+        lines.append(f"   Tienda publicada en : {cloud.public_url()} (funciona aunque se apague la PC)")
     lines += ["   Para detener el servidor cierra esta ventana o presiona Ctrl+C", ""]
     print("\n".join(lines), flush=True)
 

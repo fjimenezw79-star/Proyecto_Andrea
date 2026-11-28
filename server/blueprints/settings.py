@@ -21,11 +21,16 @@ DEFAULT_SETTINGS = {
     "low_stock_threshold": 2,
     "ticket_footer": "¡Gracias por tu compra!",
     "ai_monthly_limit": 100,
+    "business_hours": "",
+    "store_tagline": "Para la escuela,\nla casa y\nlas noches frías.",
+    "store_intro": "Mochilas de tus personajes favoritos, termos, cobijas, relojes y útiles. Escoge aquí, pide por WhatsApp y recoge en la tienda.",
+    "store_hide_sold_out": False,
 }
 
 RANGES = {"ticket_width_mm": (40, 112), "low_stock_threshold": (0, 1000), "ai_monthly_limit": (0, 10_000)}
 CHOICES = {"label_size": ("50x25", "carta-30", "carta-20", "carta-10")}
-MAX_LEN = {"ticket_footer": 200, "business_name": 80, "business_subtitle": 80, "whatsapp": 20, "address": 200}
+MAX_LEN = {"ticket_footer": 200, "business_name": 80, "business_subtitle": 80, "whatsapp": 20, "address": 200,
+           "business_hours": 120, "store_tagline": 120, "store_intro": 300}
 
 
 def get_settings() -> dict:
@@ -52,7 +57,8 @@ def update():
         return fail(f"Configuración desconocida: {', '.join(unknown)}.", 400, unknown[0])
     begin_write()
     for k, v in data.items():
-        if isinstance(v, bool) or not isinstance(v, type(DEFAULT_SETTINGS[k])):
+        want = type(DEFAULT_SETTINGS[k])
+        if (want is not bool and isinstance(v, bool)) or not isinstance(v, want):
             return fail("Valor no válido.", 400, k)
         if k in RANGES and not RANGES[k][0] <= v <= RANGES[k][1]:
             return fail(f"El valor debe estar entre {RANGES[k][0]} y {RANGES[k][1]}.", 400, k)
