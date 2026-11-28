@@ -1,4 +1,4 @@
-import { BarChart3, Boxes, CalendarClock, FolderTree, LayoutDashboard, PackagePlus, QrCode, Receipt, Settings, ShoppingBag, Users, Wallet, WalletCards, type LucideIcon } from "lucide-react";
+import { BarChart3, Boxes, History, CalendarClock, FolderTree, LayoutDashboard, PackagePlus, QrCode, Receipt, Settings, ShoppingBag, Users, Wallet, WalletCards, type LucideIcon } from "lucide-react";
 
 export type NavItem = { to: string; label: string; short?: string; icon: LucideIcon; admin?: boolean; keywords?: string };
 
@@ -14,6 +14,7 @@ const ALL: NavItem[] = [
   { to: "/gastos", label: "Gastos", icon: WalletCards, admin: true, keywords: "renta luz sueldos" },
   { to: "/productos/nuevo", label: "Nuevo producto", icon: PackagePlus, admin: true, keywords: "alta agregar fotos" },
   { to: "/categorias", label: "Categorías", icon: FolderTree, admin: true, keywords: "departamentos" },
+  { to: "/bitacora", label: "Bitácora", icon: History, admin: true, keywords: "historial quién hizo auditoría sin señal" },
   { to: "/conectar", label: "Conectar dispositivo", icon: QrCode, admin: true, keywords: "qr enlace celular tablet internet whatsapp" },
   { to: "/configuracion", label: "Configuración", icon: Settings, admin: true, keywords: "negocio whatsapp ticket" },
 ];

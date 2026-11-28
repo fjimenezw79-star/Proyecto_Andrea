@@ -79,7 +79,7 @@ export function AppShell() {
             </div>
           )}
         </div>
-        <nav aria-label="Principal" className="flex flex-1 flex-col gap-1">
+        <nav aria-label="Principal" className="-mx-1 flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto px-1 [scrollbar-width:thin]">
           {items.map((i) => (
             <NavLink key={i.to} to={i.to} className={link(collapsed)} title={collapsed ? i.label : undefined}>
               {({ isActive }) => (
@@ -117,7 +117,7 @@ export function AppShell() {
           {!collapsed && (
             <button onClick={() => setAccount(true)} className="min-w-0 flex-1 rounded-2xl px-2 py-1 text-left hover:bg-surface" title="Mi cuenta">
               <span className="block truncate font-semibold">{user!.full_name || user!.username}</span>
-              <span className="block text-sm text-muted">{user!.role === "admin" ? "Administrador" : "Vendedor"} · Mi cuenta</span>
+              <span className="block truncate text-sm text-muted">Mi cuenta</span>
             </button>
           )}
           <button onClick={leave} className="grid size-10 place-items-center rounded-full hover:bg-surface" title="Salir">

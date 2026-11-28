@@ -150,8 +150,11 @@ def _audit(resp) -> None:
             obj = data.get(key)
             if isinstance(obj, dict):
                 entity = entity or obj.get("id")
-                if "folio" in obj:
-                    detail = f"{detail} #{obj['folio']}".strip()
+                parts = [f"#{obj['folio']}"] if obj.get("folio") is not None else [str(obj["name"])] if obj.get("name") else []
+                cents = next((obj[k] for k in ("total_cents", "amount_cents") if isinstance(obj.get(k), int)), None)
+                if cents is not None:
+                    parts.append(f"${cents / 100:,.2f}")
+                detail = " · ".join(parts) or detail
                 break
     session.rollback()
     begin_write()

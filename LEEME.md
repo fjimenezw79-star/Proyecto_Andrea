@@ -2,7 +2,7 @@
 
 Sistema de ventas para la tienda: catálogo con variantes y fotos, inventario con bitácora y punto de venta con carrito y pagos mixtos. La PC del negocio funciona como servidor y los demás dispositivos se conectan a ella.
 
-> **Etapa 3 de 6.** Ya incluye la app para vender desde PC, tablet o celular, y la operación diaria: clientes con puntos y saldo a favor, apartados, devoluciones, gastos, caja con corte, reportes y panel. La conexión sin internet, las etiquetas, la cámara para leer códigos y la tienda en línea llegan en las siguientes etapas (ver `docs/superpowers/plans/`).
+> **Etapa 4 de 6.** Ya incluye la app para vender desde PC, tablet o celular, la operación diaria (clientes, apartados, devoluciones, gastos, caja, reportes y panel) y la **conexión**: stock en vivo en todos los dispositivos, ventas sin señal que se envían solas, app instalable, acceso seguro por internet con código QR, alertas de stock y bitácora. Las etiquetas, la cámara para leer códigos y la tienda en línea llegan en las siguientes etapas (ver `docs/superpowers/plans/`).
 
 ## 1. Instalación (Windows)
 
@@ -54,7 +54,7 @@ Cuatro pasos: datos, precio (o variantes como colores y tallas), fotos y revisar
 
 ![Nuevo producto](docs/img/05-nuevo-producto.webp)
 
-> La cámara del navegador solo funciona en la misma computadora (`127.0.0.1`) o con un enlace seguro `https://` (etapa 4). Desde otros dispositivos en la red local usa **Elegir foto**, que abre la cámara del celular.
+> La cámara del navegador solo funciona en la misma computadora (`127.0.0.1`) o con el enlace seguro `https://` de `acceso_remoto.bat`. Desde otros dispositivos en la red local usa **Elegir foto**, que abre la cámara del celular.
 
 ### Ventas del día
 
@@ -91,18 +91,68 @@ Al empezar el turno, **Abrir caja** con el fondo inicial. La pantalla muestra en
 ![Reportes](docs/img/10-reportes.webp)
 ![Panel](docs/img/11-panel.webp)
 
-## 3. Archivos `.bat`
+### Conectar dispositivos (administrador)
+
+En **Conectar dispositivo** aparece un código QR y el enlace del sistema, con **Copiar** y **Enviar por WhatsApp**. El vendedor lo escanea con la cámara del celular, inicia sesión y, si el enlace es `https://`, instala la app desde el menú del navegador (Android: *Instalar app*; iPhone: *Compartir → Agregar a inicio*).
+
+![Conectar dispositivo](docs/img/12-conectar.webp)
+
+- **Enlace de red local** (`http://192.168…`): solo funciona en el mismo Wi-Fi del negocio y la app no trabaja sin señal.
+- **Enlace por internet** (`https://…`): funciona desde cualquier lugar, la app se instala y trabaja sin señal. Se obtiene con `acceso_remoto.bat` (ver abajo).
+
+### Stock en vivo
+
+Cada 3 segundos la app revisa si otro dispositivo vendió o apartó algo y actualiza las existencias en pantalla y en el carrito. Así dos vendedores no venden la misma última pieza.
+
+### Si se va el internet
+
+La app sigue funcionando con la copia del catálogo guardada en el dispositivo:
+
+1. Arriba aparece **Sin señal** en color vino.
+2. Las **ventas, apartados, abonos y clientes nuevos** se guardan en el dispositivo con un folio provisional (`P-1234`) y la nube muestra cuántos hay **pendientes**.
+3. Si quedan 2 piezas o menos, la app pide confirmar porque no puede revisar si otro dispositivo ya las vendió.
+4. Al volver la señal todo se envía solo y en orden, con la hora real en que se hizo. Aparece **Todo enviado.**
+
+![Venta sin señal](docs/img/13-sin-senal.webp)
+![Pendientes](docs/img/14-pendientes.webp)
+
+Si una acción no se puede registrar (por ejemplo, un cliente con un teléfono repetido), queda marcada en **Pendientes** con el motivo para **Reintentar** o **Descartar**. Nada se envía dos veces aunque la señal se corte a la mitad. Al **Salir** con pendientes, la app avisa: se quedan guardados en el dispositivo y se envían cuando ese usuario vuelve a entrar.
+
+### Alertas de stock y bitácora (administrador)
+
+Si una venta hecha sin señal deja el stock en negativo (otro dispositivo vendió la misma pieza), el **Panel** lo muestra en **Stock negativo por ventas sin señal**: cuenta las piezas, corrige con **Ajustar existencias** y toca **Marcar como revisada**.
+
+![Alerta de stock](docs/img/15-alerta.webp)
+
+La **Bitácora** muestra quién hizo cada venta, apartado, abono, gasto, ajuste o cambio, y cuándo. Lo hecho sin señal lleva la etiqueta **Sin señal** y la hora real.
+
+![Bitácora](docs/img/16-bitacora.webp)
+
+### Mi cuenta
+
+Toca tu nombre (abajo en el menú, o **Más → Mi cuenta** en el celular) para cambiar tu contraseña.
+
+## 3. Acceso desde internet
+
+1. Desde la computadora del negocio, entra con cada usuario y cambia su contraseña en **Mi cuenta**. Por internet **no** se puede entrar con las contraseñas iniciales (`admin123`, `12345`).
+2. Abre el sistema con **`acceso_remoto.bat`** en lugar de `aplicacion.bat`. La primera vez descarga la herramienta de Cloudflare (unos 50 MB).
+3. La ventana muestra la dirección **DESDE INTERNET** (`https://….trycloudflare.com`). En **Conectar dispositivo** aparece ya con su QR.
+
+No hace falta abrir puertos del módem: Cloudflare solo reenvía las visitas cifradas hasta la computadora. La dirección de prueba **cambia cada vez** que se inicia `acceso_remoto.bat`. Para una dirección fija, crea un túnel en tu cuenta de Cloudflare y escribe en `.env` su `CLOUDFLARE_TUNNEL_TOKEN` y tu dominio en `PUBLIC_URL`.
+
+## 4. Archivos `.bat`
 
 | Archivo | Para qué sirve |
 |---|---|
 | `instalar.bat` | Instala o actualiza todo. Puedes volver a ejecutarlo: no borra tus datos. |
 | `aplicacion.bat` | Inicia el servidor. Mientras la ventana esté abierta, el sistema funciona. |
+| `acceso_remoto.bat` | Inicia el servidor con acceso seguro desde internet (Cloudflare). |
 | `restablecer_contrasena.bat` | Cambia la contraseña de cualquier usuario. |
 | `cargar_datos_prueba.bat` | Carga los 58 productos de prueba (no duplica). |
 | `migrar_sistema_anterior.bat` | Pasa productos, fotos, ventas y apartados del sistema anterior (`bazarges_data.db`). |
 | `ejecutar_pruebas.bat` | Corre las pruebas automáticas con bases temporales; tus datos no se tocan. |
 
-## 4. Tus datos
+## 5. Tus datos
 
 - Todo vive en la carpeta `data`: la base de datos, las fotos de los productos y los respaldos.
 - Cada vez que se inicia el sistema se crea un **respaldo diario** en `data\respaldos` y se conservan los 15 más recientes.
@@ -123,7 +173,7 @@ Copia los productos con sus fotos, precio y existencias, las ventas y los aparta
 
 Carga los 58 productos de `datos_prueba\`. Puedes correrlo varias veces: no duplica nada.
 
-## 5. Configuración (`.env`)
+## 6. Configuración (`.env`)
 
 | Variable | Descripción |
 |---|---|
@@ -132,10 +182,13 @@ Carga los 58 productos de `datos_prueba\`. Puedes correrlo varias veces: no dupl
 | `POINTS_PER_PESOS` | Un punto de lealtad por cada N pesos (10 por defecto). |
 | `LAYAWAY_DAYS` | Días de plazo de un apartado si no se elige fecha (30). |
 | `BACKUPS_TO_KEEP` | Respaldos diarios que se conservan (15). |
+| `CLOUDFLARE_TUNNEL_TOKEN` | Token del túnel de Cloudflare para una dirección fija (opcional). |
+| `PUBLIC_URL` | La dirección fija del negocio, por ejemplo `https://ventas.modasandrea.com` (opcional). |
+| `BLOCK_DEFAULT_PASSWORDS_REMOTE` | Rechaza las contraseñas iniciales por internet (`true`). |
 
 Reinicia `aplicacion.bat` después de cambiar un valor.
 
-## 6. Para desarrolladores
+## 7. Para desarrolladores
 
 ```bash
 python -m venv .venv

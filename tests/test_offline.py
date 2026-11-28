@@ -87,6 +87,7 @@ def test_audit_records_offline_flag(admin, seller, v1):
     entries = admin.get("/api/audit").get_json()["entries"]
     e = next(x for x in entries if x["action"] == "Registró venta")
     assert e["offline"] is True and e["user"] == "Vendedor"
+    assert e["detail"].startswith("#") and "$" in e["detail"]
 
 
 def test_audit_records_admin_actions(admin, v1):

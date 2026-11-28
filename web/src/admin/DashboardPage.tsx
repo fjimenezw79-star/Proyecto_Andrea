@@ -6,6 +6,7 @@ import { api } from "../lib/api";
 import { formatMoney } from "../lib/money";
 import { dateMx } from "../lib/opTypes";
 import { CountUp } from "../ui/CountUp";
+import { AlertsPanel } from "./AlertsPanel";
 
 type Dash = {
   today_cents: number; today_tickets: number; month_cents: number; month_profit_cents?: number; month_net_profit_cents?: number;
@@ -34,6 +35,7 @@ export function DashboardPage() {
               <motion.div {...card(2)} className="rounded-3xl bg-surface p-6"><p className="text-muted">Utilidad del mes</p><CountUp cents={d.month_profit_cents} className="block font-serif text-5xl leading-none" /><p className="mt-2 text-sm text-muted">Después de gastos: {formatMoney(d.month_net_profit_cents ?? 0)}</p></motion.div>
             )}
           </div>
+          <AlertsPanel />
           <div className="mt-10 grid gap-10 lg:grid-cols-3">
             <section aria-label="Apartados por vencer">
               <h2 className="mb-3 font-serif text-3xl">Apartados por vencer</h2>
