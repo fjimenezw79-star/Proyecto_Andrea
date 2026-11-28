@@ -19,6 +19,8 @@ export function ExpensesPage() {
   const [amount, setAmount] = useState("");
   const [fromRegister, setFromRegister] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [busy, setBusy] = useState(false);
+  const [confirmId, setConfirmId] = useState<number | null>(null);
   const list = q.data?.expenses ?? [];
   const total = list.reduce((s, e) => s + e.amount_cents, 0);
 
@@ -30,7 +32,8 @@ export function ExpensesPage() {
     if (!cat) errs.category = "Elige una categoría.";
     if (cents === null || cents <= 0) errs.amount_cents = "Escribe el monto.";
     setErrors(errs);
-    if (Object.keys(errs).length) return;
+    if (Object.keys(errs).length || busy) return;
+    setBusy(true);
     try {
       await api("/api/expenses", { method: "POST", json: { description: desc, category: cat, amount_cents: cents, from_register: fromRegister } });
       toast("Gasto registrado.", "ok");
@@ -40,6 +43,8 @@ export function ExpensesPage() {
     } catch (err) {
       const a = err instanceof ApiError ? err : null;
       setErrors({ [a?.field ?? "form"]: a?.message ?? "No se pudo guardar." });
+    } finally {
+      setBusy(false);
     }
   }
   async function remove(x: Expense) {
@@ -71,7 +76,7 @@ export function ExpensesPage() {
           <input type="checkbox" checked={fromRegister} onChange={(e) => setFromRegister(e.target.checked)} className="size-5" />
           Se pagó con dinero de la caja
         </label>
-        <Button type="submit">Registrar gasto</Button>
+        <Button type="submit" disabled={busy}>{busy ? "Guardando…" : "Registrar gasto"}</Button>
         {errors.form && <p role="alert" className="text-sm text-danger sm:col-span-3">{errors.form}</p>}
       </form>
       <p className="mt-8 flex items-baseline justify-between"><span className="font-serif text-3xl">Este mes</span><span className="tnum font-serif text-3xl">{formatMoney(total)}</span></p>
@@ -80,9 +85,13 @@ export function ExpensesPage() {
           <li key={x.id} className="grid grid-cols-[1fr_auto_auto] items-center gap-3 bg-paper px-4 py-3">
             <span><span className="block font-semibold">{x.description}</span><span className="text-sm text-muted">{x.category} · {dateMx(x.day)}{x.from_register ? " · de la caja" : ""}</span></span>
             <span className="tnum font-bold">{formatMoney(x.amount_cents)}</span>
-            <button disabled={x.locked} onClick={() => remove(x)} className="grid size-10 place-items-center rounded-full hover:bg-surface disabled:opacity-30" aria-label={`Eliminar ${x.description}`} title={x.locked ? "Salió de una caja ya cortada" : undefined}>
+            {confirmId === x.id ? (
+              <span className="flex gap-1"><Button size="sm" variant="danger" onClick={() => { setConfirmId(null); remove(x); }}>Eliminar</Button><Button size="sm" variant="quiet" onClick={() => setConfirmId(null)}>No</Button></span>
+            ) : (
+            <button disabled={x.locked} onClick={() => setConfirmId(x.id)} className="grid size-10 place-items-center rounded-full hover:bg-surface disabled:opacity-30" aria-label={`Eliminar ${x.description}`} title={x.locked ? "Salió de una caja ya cortada" : undefined}>
               <Trash2 className="size-4" aria-hidden />
             </button>
+            )}
           </li>
         ))}
         {list.length === 0 && <li className="bg-paper px-4 py-10 text-center text-muted">Sin gastos este mes.</li>}

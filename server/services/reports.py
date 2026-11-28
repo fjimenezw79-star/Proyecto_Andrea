@@ -47,6 +47,9 @@ def summary(start: date, end: date) -> dict:
             t["amount_cents"] += vals[it.id]
     for r in returns:
         daily[r.created_at.date().isoformat()] -= r.refund_cents
+        sold_by = session.get(Sale, r.sale_id)
+        if sold_by:
+            by_seller[sold_by.user_id] -= r.refund_cents
         for ri in r.items:
             si = session.get(SaleItem, ri.sale_item_id)
             cost -= si.unit_cost_cents * ri.qty
@@ -83,6 +86,11 @@ def summary(start: date, end: date) -> dict:
     }
 
 
+def _cell(v):
+    """Evita que Excel interprete un nombre como fórmula (=, +, -, @)."""
+    return "'" + v if isinstance(v, str) and v[:1] in ("=", "+", "-", "@", "\t", "\r") else v
+
+
 def sales_csv(start: date, end: date) -> str:
     a, b = _range(start, end)
     names = _names()
@@ -93,8 +101,8 @@ def sales_csv(start: date, end: date) -> str:
     for s in (session.query(Sale).filter(Sale.status == "paid", Sale.created_at.between(a, b)).order_by(Sale.created_at)):
         vals = line_values(s)
         for it in s.items:
-            w.writerow([s.created_at.strftime("%Y-%m-%d %H:%M"), s.folio, names.get(s.user_id, ""), clients.get(s.client_id, ""),
-                        it.variant.sku, it.variant.product.name, it.qty, f"{it.unit_price_cents / 100:.2f}",
+            w.writerow([s.created_at.strftime("%Y-%m-%d %H:%M"), s.folio, _cell(names.get(s.user_id, "")),
+                        _cell(clients.get(s.client_id, "")), it.variant.sku, _cell(it.variant.product.name), it.qty, f"{it.unit_price_cents / 100:.2f}",
                         f"{(it.unit_price_cents * it.qty - vals[it.id]) / 100:.2f}", f"{vals[it.id] / 100:.2f}"])
     return "﻿" + out.getvalue()
 

@@ -10,9 +10,9 @@ from ..services import clients
 bp = Blueprint("clients", __name__, url_prefix="/api/clients")
 
 
-@bp.errorhandler(LookupError)
+@bp.errorhandler(clients.NotFound)
 def _missing(e):
-    return fail(str(e), 404)
+    return fail(e.message, 404)
 
 
 @bp.get("")

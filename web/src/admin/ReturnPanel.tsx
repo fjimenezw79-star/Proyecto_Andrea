@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { api, ApiError } from "../lib/api";
+import { newId } from "../lib/cart";
 import { formatMoney } from "../lib/money";
 import { Button } from "../ui/Button";
 import { Field } from "../ui/Input";
@@ -21,7 +22,7 @@ export function ReturnPanel({ saleId, items, saleDiscount, hasClient, onDone }: 
   const [method, setMethod] = useState<"cash" | "card" | "transfer" | "credit">("cash");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [opId] = useState(() => crypto.randomUUID());
+  const [opId] = useState(newId);
   const values = lineValues(items, saleDiscount);
   const chosen = items.map((it) => ({ it, n: Number(qty[it.id] || 0) })).filter((x) => x.n > 0);
   const invalid = items.some((it) => { const n = Number(qty[it.id] || 0); return !Number.isInteger(n) || n < 0 || n > it.qty - it.returned_qty; });

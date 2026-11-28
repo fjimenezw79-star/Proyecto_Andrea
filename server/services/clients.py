@@ -13,6 +13,12 @@ from ..models import Client, Layaway, Sale
 ID_RE = re.compile(r"^[A-Za-z0-9-]{8,36}$")
 
 
+class NotFound(Exception):
+    def __init__(self, message: str):
+        super().__init__(message)
+        self.message = message
+
+
 def _phone(value) -> str:
     digits = re.sub(r"\D", "", str(value or ""))
     if digits and len(digits) != 10:
@@ -79,7 +85,7 @@ def update(client_id: str, data: dict) -> Client:
 def get(client_id: str) -> Client:
     c = session.get(Client, client_id)
     if not c:
-        raise LookupError("El cliente no existe.")
+        raise NotFound("El cliente no existe.")
     return c
 
 

@@ -39,7 +39,7 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('layaways',
-    sa.Column('id', sa.String(length=36), nullable=False),
+    sa.Column('id', sa.String(length=40), nullable=False),
     sa.Column('folio', sa.Integer(), nullable=False),
     sa.Column('client_id', sa.String(length=36), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=False),
@@ -92,8 +92,8 @@ def upgrade() -> None:
         batch_op.create_index(batch_op.f('ix_expenses_day'), ['day'], unique=False)
 
     op.create_table('layaway_payments',
-    sa.Column('id', sa.String(length=40), nullable=False),
-    sa.Column('layaway_id', sa.String(length=36), nullable=False),
+    sa.Column('id', sa.String(length=48), nullable=False),
+    sa.Column('layaway_id', sa.String(length=40), nullable=False),
     sa.Column('method', sa.String(length=10), nullable=False),
     sa.Column('amount_cents', sa.Integer(), nullable=False),
     sa.Column('received_cents', sa.Integer(), nullable=True),
@@ -113,7 +113,7 @@ def upgrade() -> None:
 
     op.create_table('layaway_items',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('layaway_id', sa.String(length=36), nullable=False),
+    sa.Column('layaway_id', sa.String(length=40), nullable=False),
     sa.Column('variant_id', sa.Integer(), nullable=False),
     sa.Column('qty', sa.Integer(), nullable=False),
     sa.Column('unit_price_cents', sa.Integer(), nullable=False),
@@ -175,7 +175,9 @@ def upgrade() -> None:
 
     with op.batch_alter_table('sales', schema=None) as batch_op:
         batch_op.add_column(sa.Column('source', sa.String(length=10), nullable=False, server_default='pos'))
-        batch_op.add_column(sa.Column('layaway_id', sa.String(length=36), nullable=True))
+        batch_op.add_column(sa.Column('layaway_id', sa.String(length=40), nullable=True))
+        batch_op.add_column(sa.Column('cancel_cash_session_id', sa.Integer(), nullable=True))
+        batch_op.create_foreign_key('fk_sales_cancel_cash', 'cash_sessions', ['cancel_cash_session_id'], ['id'])
         batch_op.create_foreign_key('fk_sales_layaway', 'layaways', ['layaway_id'], ['id'])
         batch_op.create_check_constraint('ck_sales_source', "source IN ('pos','layaway','legacy')")
 

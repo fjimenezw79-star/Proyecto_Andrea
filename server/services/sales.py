@@ -156,20 +156,24 @@ def cancel_sale(sale_id: str, user, reason: str) -> Sale:
     sale = session.get(Sale, sale_id)
     if not sale:
         raise NotFound("La venta no existe.")
-    if sale.status == "cancelled":
-        raise ConflictError("Esta venta ya estaba cancelada.")
-    if session.query(Return).filter(Return.sale_id == sale.id).first():
-        raise ConflictError("Esta venta ya tiene devoluciones; registra la devolución de las piezas restantes.")
     begin_write()
-    sale = session.get(Sale, sale_id)
-    if sale.status == "cancelled":
-        raise ConflictError("Esta venta ya estaba cancelada.")
     try:
+        sale = session.get(Sale, sale_id)
+        if sale.status == "cancelled":
+            raise ConflictError("Esta venta ya estaba cancelada.")
+        if sale.source == "layaway":
+            raise ConflictError("Esta venta viene de un apartado liquidado; registra una devolución de piezas.")
+        if session.query(Return).filter(Return.sale_id == sale.id).first():
+            raise ConflictError("Esta venta ya tiene devoluciones; registra la devolución de las piezas restantes.")
         for it in sale.items:
             move(it.variant_id, it.qty, "sale_cancel", user.id, reason, ref_type="sale", ref_id=sale.id)
         if sale.client_id:
             c = session.get(Client, sale.client_id)
             c.points = max(0, c.points - _points(sale.total_cents))
+            c.credit_cents += sum(p.amount_cents for p in sale.payments if p.method == "credit")
+        if any(p.method == "cash" for p in sale.payments):
+            from .cash import current_or_auto
+            sale.cancel_cash_session_id = current_or_auto(user.id)  # el efectivo sale de la caja de hoy
         sale.status = "cancelled"
         sale.cancelled_at = datetime.now().replace(microsecond=0)
         sale.cancelled_by = user.id

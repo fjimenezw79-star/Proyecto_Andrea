@@ -49,8 +49,11 @@ def create_return(sale_id: str, payload: dict, user) -> Return:
         raise ValidationError("Elige qué piezas se devuelven.", "items")
     begin_write()
     try:
-        if session.get(Return, rid):
-            return session.get(Return, rid)
+        prev = session.get(Return, rid)
+        if prev:
+            if prev.sale_id != sale_id:
+                raise ConflictError("Ese identificador ya se usó en otra devolución.")
+            return prev
         sale = session.get(Sale, sale_id)
         if not sale:
             raise NotFound("La venta no existe.")
@@ -60,12 +63,15 @@ def create_return(sale_id: str, payload: dict, user) -> Return:
             raise ValidationError("Esta venta no tiene cliente; elige otra forma de reembolso.", "refund_method")
         values = line_values(sale)
         by_id = {it.id: it for it in sale.items}
-        rows, refund = [], 0
+        wanted: dict[int, int] = {}
         for x in raw:
-            it = by_id.get(strict_int(x.get("sale_item_id"), "sale_item_id"))
-            if it is None:
+            iid = strict_int(x.get("sale_item_id"), "sale_item_id")
+            if iid not in by_id:
                 raise ValidationError("Esa pieza no pertenece a la venta.", "items")
-            qty = strict_int(x.get("qty"), "qty", 1)
+            wanted[iid] = wanted.get(iid, 0) + strict_int(x.get("qty"), "qty", 1)
+        rows, refund = [], 0
+        for iid, qty in wanted.items():
+            it = by_id[iid]
             left = it.qty - returned_qty(it.id)
             if qty > left:
                 raise ValidationError(f"Solo quedan {left} piezas por devolver de {it.variant.product.name}.", "items")
@@ -81,7 +87,10 @@ def create_return(sale_id: str, payload: dict, user) -> Return:
             move(it.variant_id, qty, "return", user.id, reason, ref_type="return", ref_id=rid)
         if sale.client_id:
             c = session.get(Client, sale.client_id)
-            c.points = max(0, c.points - points_for(refund))
+            already = int(session.query(func.coalesce(func.sum(Return.refund_cents), 0))
+                          .filter(Return.sale_id == sale.id, Return.id != rid).scalar())
+            before, after = sale.total_cents - already, sale.total_cents - already - refund
+            c.points = max(0, c.points - (points_for(before) - points_for(max(0, after))))
             if method == "credit":
                 c.credit_cents += refund
         session.commit()

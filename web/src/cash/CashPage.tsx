@@ -37,6 +37,8 @@ export function CashPage() {
     e.preventDefault();
     const c = opening.trim() ? parsePesos(opening) : 0;
     if (c === null) return setErr("Escribe el fondo inicial, por ejemplo 500.");
+    if (busy) return;
+    setBusy(true);
     try {
       await api("/api/cash/open", { method: "POST", json: { opening_cents: c } });
       toast("Caja abierta.", "ok");
@@ -45,6 +47,8 @@ export function CashPage() {
       refresh();
     } catch (e2) {
       setErr(e2 instanceof ApiError ? e2.message : "No se pudo abrir la caja.");
+    } finally {
+      setBusy(false);
     }
   }
   async function close() {
@@ -76,7 +80,7 @@ export function CashPage() {
         <form onSubmit={open} className="mt-8 grid max-w-md gap-4 rounded-3xl bg-surface p-6" noValidate>
           <p>No hay caja abierta. Cuenta el dinero con el que empiezas el turno.</p>
           <Field label="Fondo inicial" inputMode="decimal" value={opening} onChange={(e) => setOpening(e.target.value)} error={err} placeholder="500.00" />
-          <Button type="submit" size="lg">Abrir caja</Button>
+          <Button type="submit" size="lg" disabled={busy}>Abrir caja</Button>
         </form>
       ) : s && (
         <>

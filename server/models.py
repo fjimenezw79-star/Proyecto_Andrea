@@ -142,7 +142,8 @@ class Sale(Base):
     cancelled_by: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
     cancel_reason: Mapped[str] = mapped_column(Text, default="")
     source: Mapped[str] = mapped_column(String(10), default="pos")
-    layaway_id: Mapped[str | None] = mapped_column(ForeignKey("layaways.id"), nullable=True)
+    layaway_id: Mapped[str | None] = mapped_column(String(40), ForeignKey("layaways.id"), nullable=True)
+    cancel_cash_session_id: Mapped[int | None] = mapped_column(ForeignKey("cash_sessions.id"), nullable=True)
     items: Mapped[list[SaleItem]] = relationship(back_populates="sale", order_by="SaleItem.id")
     payments: Mapped[list[SalePayment]] = relationship(back_populates="sale", order_by="SalePayment.id")
     __table_args__ = (CheckConstraint("status IN ('paid','cancelled')", name="ck_sales_status"),
@@ -192,7 +193,7 @@ class CashSession(Base):
 
 class Layaway(Base):
     __tablename__ = "layaways"
-    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    id: Mapped[str] = mapped_column(String(40), primary_key=True)
     folio: Mapped[int] = mapped_column(Integer, unique=True)
     client_id: Mapped[str] = mapped_column(ForeignKey("clients.id"))
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
@@ -234,7 +235,7 @@ class LayawayItem(Base):
 
 class LayawayPayment(Base):
     __tablename__ = "layaway_payments"
-    id: Mapped[str] = mapped_column(String(40), primary_key=True)
+    id: Mapped[str] = mapped_column(String(48), primary_key=True)
     layaway_id: Mapped[str] = mapped_column(ForeignKey("layaways.id"), index=True)
     method: Mapped[str] = mapped_column(String(10))
     amount_cents: Mapped[int] = mapped_column(Integer)

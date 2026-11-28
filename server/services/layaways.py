@@ -105,7 +105,10 @@ def add_payment(layaway_id: str, payload: dict, user) -> Layaway:
     begin_write()
     try:
         l = get(layaway_id)
-        if session.get(LayawayPayment, payment_id):
+        prev = session.get(LayawayPayment, payment_id)
+        if prev:
+            if prev.layaway_id != l.id:
+                raise ConflictError("Ese identificador de abono ya se usó en otro apartado.")
             return l
         if l.status != "pending":
             raise ConflictError("Este apartado ya no admite abonos.")
@@ -128,6 +131,12 @@ def settle(layaway_id: str, payload: dict, user) -> tuple[Layaway, Sale]:
     begin_write()
     try:
         l = get(layaway_id)
+        if l.status == "settled" and l.settled_sale_id:
+            pid = payload.get("payment_id")
+            prev = session.get(LayawayPayment, str(pid)) if pid else None
+            if not payload.get("payments") or (prev and prev.layaway_id == l.id):
+                session.rollback()
+                return l, session.get(Sale, l.settled_sale_id)  # reintento de algo que ya se hizo
         if l.status != "pending":
             raise ConflictError("Este apartado ya estaba liquidado o cancelado.")
         balance = l.total_cents - l.paid_cents
@@ -204,8 +213,12 @@ def list_(status: str | None) -> list[Layaway]:
     return q.order_by(order).limit(300).all()
 
 
-def layaway_dict(l: Layaway) -> dict:
-    sellers = {u.id: (u.full_name or u.username) for u in session.query(User).all()}
+def user_names() -> dict[int, str]:
+    return {u.id: (u.full_name or u.username) for u in session.query(User).all()}
+
+
+def layaway_dict(l: Layaway, sellers: dict[int, str] | None = None) -> dict:
+    sellers = sellers if sellers is not None else user_names()
     items = [{"variant_id": it.variant_id, "sku": it.variant.sku, "name": it.variant.product.name,
               "attrs": it.variant.attrs or {}, "qty": it.qty, "unit_price_cents": it.unit_price_cents,
               "discount_cents": it.discount_cents,

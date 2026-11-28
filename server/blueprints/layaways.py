@@ -27,7 +27,8 @@ def _body():
 @bp.get("")
 @login_required
 def list_():
-    return ok(layaways=[layaways.layaway_dict(l) for l in layaways.list_(request.args.get("status"))])
+    names = layaways.user_names()
+    return ok(layaways=[layaways.layaway_dict(l, names) for l in layaways.list_(request.args.get("status"))])
 
 
 @bp.get("/<layaway_id>")

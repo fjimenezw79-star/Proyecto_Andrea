@@ -62,9 +62,18 @@ def upgrade(app: Flask) -> None:
     cfg = AlembicConfig()
     cfg.set_main_option("script_location", str(MIGRATIONS))
     with engine_for(app).connect() as conn:
-        cfg.attributes["connection"] = conn
-        command.upgrade(cfg, "head")
-        conn.commit()
+        raw = conn.connection.driver_connection
+        # SQLite reconstruye tablas en las migraciones: sin esto, DROP TABLE falla si hay filas relacionadas.
+        raw.execute("PRAGMA foreign_keys=OFF")
+        try:
+            cfg.attributes["connection"] = conn
+            command.upgrade(cfg, "head")
+            conn.commit()
+            broken = raw.execute("PRAGMA foreign_key_check").fetchall()
+            if broken:
+                raise RuntimeError(f"La actualización de la base dejó referencias rotas: {broken[:5]}")
+        finally:
+            raw.execute("PRAGMA foreign_keys=ON")
 
 
 def init_app(app: Flask) -> None:

@@ -76,15 +76,6 @@ def run(app, ruta_db: Path) -> dict:
         con.close()
 
 
-if __name__ == "__main__":  # pragma: no cover
-    if len(sys.argv) != 2:
-        print("Uso: python -m scripts.migrar_sistema_anterior <ruta de bazarges_data.db>")
-        sys.exit(1)
-    from server import create_app
-
-    print(run(create_app(), Path(sys.argv[1])))
-
-
 def _rows(con: sqlite3.Connection, sql: str) -> list[sqlite3.Row]:
     try:
         return con.execute(sql).fetchall()
@@ -162,8 +153,10 @@ def _migrate_history(con: sqlite3.Connection) -> tuple[int, int]:
                                 note="Del sistema anterior", created_at=_when(r["date_created"])))
             session.flush()
             session.add(LayawayItem(layaway_id=lid, variant_id=v.id, qty=1, unit_price_cents=total, unit_cost_cents=v.cost_cents))
+            left = min(paid, total)
             for p in pays:
-                amount = round(float(p["amount"] or 0) * 100)
+                amount = min(round(float(p["amount"] or 0) * 100), left)
+                left -= max(0, amount)
                 if amount > 0:
                     session.add(LayawayPayment(id=f"legacy-lp-{p['id']}", layaway_id=lid, method="cash", amount_cents=amount,
                                                received_cents=amount, user_id=admin.id, created_at=_when(p["payment_date"])))
@@ -173,3 +166,12 @@ def _migrate_history(con: sqlite3.Connection) -> tuple[int, int]:
     except Exception:
         session.rollback()
         raise
+
+
+if __name__ == "__main__":  # pragma: no cover
+    if len(sys.argv) != 2:
+        print("Uso: python -m scripts.migrar_sistema_anterior <ruta de bazarges_data.db>")
+        sys.exit(1)
+    from server import create_app
+
+    print(run(create_app(), Path(sys.argv[1])))

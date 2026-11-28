@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 import { useAuth } from "../auth/AuthProvider";
 import { api, ApiError } from "../lib/api";
+import { newId } from "../lib/cart";
 import { formatMoney } from "../lib/money";
 import { dateMx, dateTimeMx, METHOD_LABEL, type Client, type Layaway } from "../lib/opTypes";
 import { Button } from "../ui/Button";
@@ -27,14 +28,14 @@ export function LayawayDetail() {
   const credit = client.data?.client.credit_cents ?? 0;
   const [dlg, setDlg] = useState<"pay" | "settle" | "cancel" | null>(null);
   const [pay, setPay] = useState<PayValue>(blank());
-  const [opId, setOpId] = useState(() => crypto.randomUUID());
+  const [opId, setOpId] = useState(newId);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [reason, setReason] = useState("");
   const [mode, setMode] = useState<"credit" | "refund">("credit");
   const [refundMethod, setRefundMethod] = useState<"cash" | "card" | "transfer">("cash");
   useEffect(() => {
-    if (dlg) { setError(null); setOpId(crypto.randomUUID()); setPay(blank(dlg === "settle" && l ? (l.balance_cents / 100).toFixed(2) : "")); setReason(""); }
+    if (dlg) { setError(null); setOpId(newId()); setPay(blank(dlg === "settle" && l ? (l.balance_cents / 100).toFixed(2) : "")); setReason(""); }
   }, [dlg]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const refresh = () => { qc.invalidateQueries({ queryKey: ["layaway", id] }); qc.invalidateQueries({ queryKey: ["layaways"] }); qc.invalidateQueries({ queryKey: ["client"] }); qc.invalidateQueries({ queryKey: ["products"] }); };

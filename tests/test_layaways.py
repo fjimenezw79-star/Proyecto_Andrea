@@ -64,7 +64,10 @@ def test_settle_creates_sale_without_moving_stock(seller, v1, client_id):
     assert sale["total_cents"] == 35000 and r.get_json()["layaway"]["status"] == "settled"
     assert stock(seller, v1) == 2
     assert seller.get(f"/api/clients/{client_id}").get_json()["client"]["points"] == 35
-    assert seller.post(f"/api/layaways/{lid}/settle", json={}).status_code == 409
+    again = seller.post(f"/api/layaways/{lid}/settle", json={})
+    assert again.status_code == 200 and again.get_json()["sale"]["id"] == sale["id"]  # reintento: misma venta
+    other = {"payment_id": "otro-pago-0001", "payments": [{"method": "card", "amount_cents": 100}]}
+    assert seller.post(f"/api/layaways/{lid}/settle", json=other).status_code == 409
 
 
 def test_cancel_refund_returns_stock_once_and_keeps_payments(admin, seller, v1, client_id):

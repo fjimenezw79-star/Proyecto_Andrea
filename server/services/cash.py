@@ -49,7 +49,7 @@ def summary(cs: CashSession) -> dict:
     movements = []
     cash_sales = 0
     for p, s in (session.query(SalePayment, Sale).join(Sale, Sale.id == SalePayment.sale_id)
-                 .filter(SalePayment.cash_session_id == sid, SalePayment.method == "cash", Sale.status == "paid")):
+                 .filter(SalePayment.cash_session_id == sid, SalePayment.method == "cash")):
         cash_sales += p.amount_cents
         movements.append({"at": s.created_at, "kind": "Venta", "ref": f"#{s.folio}", "amount_cents": p.amount_cents})
     lay_cash = 0
@@ -65,6 +65,11 @@ def summary(cs: CashSession) -> dict:
     for l in session.query(Layaway).filter(Layaway.refund_cash_session_id == sid):
         refunds += l.paid_cents
         movements.append({"at": l.cancelled_at, "kind": "Reembolso de apartado", "ref": f"#{l.folio}", "amount_cents": -l.paid_cents})
+    for s in session.query(Sale).filter(Sale.cancel_cash_session_id == sid):
+        back = sum(p.amount_cents for p in s.payments if p.method == "cash")
+        if back:
+            refunds += back
+            movements.append({"at": s.cancelled_at, "kind": "Venta cancelada", "ref": f"#{s.folio}", "amount_cents": -back})
     expenses = 0
     for e in session.query(Expense).filter(Expense.cash_session_id == sid):
         expenses += e.amount_cents
