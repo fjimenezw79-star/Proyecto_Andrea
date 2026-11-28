@@ -26,7 +26,8 @@ self.addEventListener("fetch", (e) => {
   const req = e.request;
   if (req.method !== "GET") return;
   const url = new URL(req.url);
-  if (url.origin !== self.location.origin || url.pathname.startsWith("/api/") || url.pathname === "/sw.js") return;
+  // la tienda en línea (/tienda/) es pública y siempre en vivo: no pasa por la copia de la app
+  if (url.origin !== self.location.origin || url.pathname.startsWith("/api/") || url.pathname.startsWith("/tienda") || url.pathname === "/sw.js") return;
 
   if (req.mode === "navigate") {
     e.respondWith((async () => {

@@ -4,6 +4,8 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { ArrowLeft, Camera, ImagePlus, Tags, Trash2 } from "lucide-react";
 import { ScanSheet } from "../scan/ScanSheet";
 import { prepareInBackground } from "../vision/prepare";
+import { useStoreStatus } from "../lib/settings";
+import { Share2 } from "lucide-react";
 import { useRef, useState } from "react";
 import { Link, useParams } from "react-router";
 import { useAuth } from "../auth/AuthProvider";
@@ -54,6 +56,7 @@ export function ProductDetail() {
   const [adjust, setAdjust] = useState(false);
   const [photoIdx, setPhotoIdx] = useState(0);
   const [scanFor, setScanFor] = useState<Variant | null>(null);
+  const store = useStoreStatus();
   const key = ["product", id];
   const product = useQuery({ queryKey: key, queryFn: () => api<{ product: Product }>(`/api/products/${id}`) });
   const p = product.data?.product;
@@ -140,6 +143,17 @@ export function ProductDetail() {
             <p data-testid="stock-total" className={`tnum rounded-full px-4 py-2 font-semibold ${p.stock_total <= 2 ? "bg-wine text-wine-ink" : "bg-surface"}`}>
               {p.stock_total} {p.stock_total === 1 ? "pieza" : "piezas"}
             </p>
+            {p.online && store.data && p.slug && (
+              <a
+                href={`https://wa.me/?text=${encodeURIComponent(`${p.name}\n${store.data.public_url}p/${p.slug}/`)}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex min-h-11 items-center gap-2 rounded-full border border-line px-5 font-semibold hover:bg-surface"
+                title={`${store.data.public_url}p/${p.slug}/`}
+              >
+                <Share2 className="size-5" aria-hidden /> Compartir de la tienda
+              </a>
+            )}
             <Link to={`/etiquetas?producto=${p.id}`} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-line px-5 font-semibold hover:bg-surface">
               <Tags className="size-5" aria-hidden /> Imprimir etiquetas
             </Link>

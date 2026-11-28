@@ -4,8 +4,8 @@
  * - Modelo de reconocimiento (/vision/*): se guarda la primera vez que se usa y sirve sin señal.
  * - /api/* nunca pasa por aquí: los datos siempre son en vivo (y la cola sin señal vive en la app).
  */
-const VERSION = "159a87d7043b";
-const PRECACHE = ["/","/index.html","/assets/index-CzD5XhEy.js","/assets/esm-DAg8Zty3.js","/assets/vision_bundle-57SJLsoe.js","/assets/hanken-grotesk-latin-ext-wght-normal-Dg-wlmqe.woff2","/assets/hanken-grotesk-latin-wght-normal-CaVRRdDk.woff2","/assets/hanken-grotesk-vietnamese-wght-normal-CHiFlh_0.woff2","/assets/index-_IX7NRqi.css","/assets/instrument-serif-latin-400-italic-DKMiL14s.woff2","/assets/instrument-serif-latin-400-italic-u__WvvIK.woff","/assets/instrument-serif-latin-400-normal-BVbkICAY.woff","/assets/instrument-serif-latin-400-normal-DnYpCC2O.woff2","/assets/instrument-serif-latin-ext-400-italic-C9HzH3YL.woff2","/assets/instrument-serif-latin-ext-400-italic-D7-lnxEk.woff","/assets/instrument-serif-latin-ext-400-normal-C2je3j2s.woff2","/assets/instrument-serif-latin-ext-400-normal-CFCUzsTy.woff","/manifest.webmanifest","/favicon.svg","/icon-192.png","/icon-512.png"];
+const VERSION = "d66c211f66ec";
+const PRECACHE = ["/","/index.html","/assets/index-YIDLiH4h.js","/assets/esm-DAg8Zty3.js","/assets/vision_bundle-57SJLsoe.js","/assets/hanken-grotesk-latin-ext-wght-normal-Dg-wlmqe.woff2","/assets/hanken-grotesk-latin-wght-normal-CaVRRdDk.woff2","/assets/hanken-grotesk-vietnamese-wght-normal-CHiFlh_0.woff2","/assets/index-BosxIaR1.css","/assets/instrument-serif-latin-400-italic-DKMiL14s.woff2","/assets/instrument-serif-latin-400-italic-u__WvvIK.woff","/assets/instrument-serif-latin-400-normal-BVbkICAY.woff","/assets/instrument-serif-latin-400-normal-DnYpCC2O.woff2","/assets/instrument-serif-latin-ext-400-italic-C9HzH3YL.woff2","/assets/instrument-serif-latin-ext-400-italic-D7-lnxEk.woff","/assets/instrument-serif-latin-ext-400-normal-C2je3j2s.woff2","/assets/instrument-serif-latin-ext-400-normal-CFCUzsTy.woff","/manifest.webmanifest","/favicon.svg","/icon-192.png","/icon-512.png"];
 const APP = `ma-app-${VERSION}`;
 const THUMBS = "ma-thumbs";
 const VISION = "ma-vision"; // modelo de reconocimiento (~19 MB): se guarda una vez y no cambia con cada versión
@@ -26,7 +26,8 @@ self.addEventListener("fetch", (e) => {
   const req = e.request;
   if (req.method !== "GET") return;
   const url = new URL(req.url);
-  if (url.origin !== self.location.origin || url.pathname.startsWith("/api/") || url.pathname === "/sw.js") return;
+  // la tienda en línea (/tienda/) es pública y siempre en vivo: no pasa por la copia de la app
+  if (url.origin !== self.location.origin || url.pathname.startsWith("/api/") || url.pathname.startsWith("/tienda") || url.pathname === "/sw.js") return;
 
   if (req.mode === "navigate") {
     e.respondWith((async () => {

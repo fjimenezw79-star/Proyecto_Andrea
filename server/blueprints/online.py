@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from flask import Blueprint, request
-from flask_login import current_user
+from flask_login import current_user, login_required
 
 from ..api_util import fail, ok
 from ..security import admin_required
@@ -63,7 +63,7 @@ store_bp = Blueprint("store_admin", __name__, url_prefix="/api/store")
 
 
 @store_bp.get("")
-@admin_required
+@login_required
 def store_status():
     from ..store import cloud
     from .connect import connection
