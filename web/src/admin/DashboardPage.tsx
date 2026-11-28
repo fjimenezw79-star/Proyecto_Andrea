@@ -50,7 +50,7 @@ export function DashboardPage() {
               {d.depletion.length === 0 ? <p className="text-muted">Al ritmo de venta actual, nada se agota en las próximas dos semanas.</p> : (
                 <ul className="grid gap-px overflow-hidden rounded-2xl border border-line bg-line">
                   {d.depletion.map((x) => (
-                    <li key={x.variant_id} className="flex justify-between gap-3 bg-paper px-4 py-3"><span><span className="font-semibold">{x.name}</span><span className="block text-sm text-muted">{x.stock} piezas · vendió {x.sold_30d} en 30 días</span></span><span className="text-right font-semibold text-wine">~{x.days_left} días</span></li>
+                    <li key={x.variant_id} className="flex justify-between gap-3 bg-paper px-4 py-3"><span><span className="font-semibold">{x.name}</span><span className="block text-sm text-muted">{x.stock} {x.stock === 1 ? "pieza" : "piezas"} · vendió {x.sold_30d} en 30 días</span></span><span className="text-right font-semibold text-wine">~{x.days_left} días</span></li>
                   ))}
                 </ul>
               )}
@@ -60,7 +60,7 @@ export function DashboardPage() {
               {d.low_stock.length === 0 ? <p className="text-muted">Todo con existencias suficientes.</p> : (
                 <ul className="grid gap-px overflow-hidden rounded-2xl border border-line bg-line">
                   {d.low_stock.map((x) => (
-                    <li key={x.variant_id} className="bg-paper"><Link to={`/inventario/${x.product_id}`} className="flex justify-between gap-3 px-4 py-3 hover:bg-surface"><span className="font-semibold">{x.name}</span><span className="tnum">{x.stock === 0 ? "Agotado" : `${x.stock} piezas`}</span></Link></li>
+                    <li key={x.variant_id} className="bg-paper"><Link to={`/inventario/${x.product_id}`} className="flex justify-between gap-3 px-4 py-3 hover:bg-surface"><span className="font-semibold">{x.name}</span><span className="tnum">{x.stock === 0 ? "Agotado" : `${x.stock} ${x.stock === 1 ? "pieza" : "piezas"}`}</span></Link></li>
                   ))}
                 </ul>
               )}

@@ -2,7 +2,7 @@
 
 Sistema de ventas para la tienda: catálogo con variantes y fotos, inventario con bitácora y punto de venta con carrito y pagos mixtos. La PC del negocio funciona como servidor y los demás dispositivos se conectan a ella.
 
-> **Etapa 2 de 6.** Ya incluye el servidor y la app para vender desde PC, tablet o celular. La conexión sin internet, las etiquetas, la cámara para leer códigos y la tienda en línea llegan en las siguientes etapas (ver `docs/superpowers/plans/`).
+> **Etapa 3 de 6.** Ya incluye la app para vender desde PC, tablet o celular, y la operación diaria: clientes con puntos y saldo a favor, apartados, devoluciones, gastos, caja con corte, reportes y panel. La conexión sin internet, las etiquetas, la cámara para leer códigos y la tienda en línea llegan en las siguientes etapas (ver `docs/superpowers/plans/`).
 
 ## 1. Instalación (Windows)
 
@@ -62,6 +62,35 @@ Lista de ventas con totales por forma de pago. El administrador puede **cancelar
 
 ![Ventas del día](docs/img/06-ventas.webp)
 
+### Clientes
+
+Toca **Cliente** en el carrito para buscarlo o registrarlo (nombre y teléfono). Cada compra suma 1 punto por cada $10. Si tiene **saldo a favor** (por una devolución o un apartado cancelado), aparece la pestaña **Saldo** al cobrar.
+
+### Apartados
+
+En Vender, agrega los productos, elige al cliente y toca **Apartar**: escribe el anticipo y la fecha límite (30 días por defecto). Las piezas salen del inventario para que nadie más las venda. En **Apartados** registras abonos, **liquidas** (se convierte en venta) o, como administrador, **cancelas**: las piezas regresan y el dinero se devuelve o queda como saldo a favor.
+
+![Apartado](docs/img/08-apartado.webp)
+
+### Devoluciones
+
+En **Ventas de hoy**, abre la venta y toca **Devolver piezas** (administrador): eliges cuántas piezas regresan y cómo se reembolsa. El monto se calcula con lo que se pagó por esas piezas.
+
+### Caja
+
+Al empezar el turno, **Abrir caja** con el fondo inicial. La pantalla muestra en vivo el efectivo que debe haber: fondo + ventas y abonos en efectivo − reembolsos − gastos pagados de la caja. Al terminar, **Hacer corte**: escribes lo que contaste y ves si cuadra, falta o sobra. Si alguien cobra en efectivo sin abrir caja, el sistema la abre solo con fondo $0.
+
+![Caja](docs/img/09-caja.webp)
+
+### Gastos, reportes y panel (administrador)
+
+- **Gastos:** renta, luz, sueldos… Marca *Se pagó con dinero de la caja* cuando sale del cajón.
+- **Reportes:** hoy, semana, mes o rango. Ventas netas, utilidad (con el costo de cada pieza al venderla), gastos, gráficas por día, categoría, forma de pago y vendedor, lo más vendido y **Descargar Excel (CSV)**.
+- **Panel:** ventas de hoy y del mes, apartados por vencer, stock bajo y **Se agota pronto** (días que quedan al ritmo de venta de los últimos 30 días).
+
+![Reportes](docs/img/10-reportes.webp)
+![Panel](docs/img/11-panel.webp)
+
 ## 3. Archivos `.bat`
 
 | Archivo | Para qué sirve |
@@ -81,7 +110,7 @@ Lista de ventas con totales por forma de pago. El administrador puede **cancelar
 .venv\Scripts\python -m scripts.migrar_sistema_anterior "C:\ruta\PROYECTO ANDREA_4\bazarges_data.db"
 ```
 
-Copia los productos con sus fotos, precio y existencias. El código anterior (por ejemplo `MOD001`) queda como código de barras del producto, así que se puede seguir escaneando. No se copian los usuarios ni las contraseñas. Las ventas y apartados viejos se pasarán en la etapa 3.
+Copia los productos con sus fotos, precio y existencias, las ventas y los apartados pendientes con sus abonos. El código anterior (por ejemplo `MOD001`) queda como código de barras del producto, así que se puede seguir escaneando. No se copian los usuarios ni las contraseñas. Se puede correr varias veces sin duplicar nada.
 
 ### Catálogo de prueba
 
@@ -98,6 +127,7 @@ Carga los 58 productos de `datos_prueba\`. Puedes correrlo varias veces: no dupl
 | `PORT` | Puerto del servidor (5000 por defecto). |
 | `SELLER_MAX_DISCOUNT_PCT` | Descuento máximo que puede dar un vendedor (10 % por defecto). |
 | `POINTS_PER_PESOS` | Un punto de lealtad por cada N pesos (10 por defecto). |
+| `LAYAWAY_DAYS` | Días de plazo de un apartado si no se elige fecha (30). |
 | `BACKUPS_TO_KEEP` | Respaldos diarios que se conservan (15). |
 
 Reinicia `aplicacion.bat` después de cambiar un valor.

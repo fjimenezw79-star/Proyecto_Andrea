@@ -9,7 +9,7 @@ export function LineChart({ title, points, height = 220 }: { title: string; poin
   const ref = useRef<SVGSVGElement>(null);
   const [hover, setHover] = useState<number | null>(null);
   const W = 720, H = height, L = 64, R = 16, T = 12, B = 28;
-  const max = Math.max(1, ...points.map((p) => p.value));
+  const max = Math.max(10000, ...points.map((p) => p.value));
   const min = Math.min(0, ...points.map((p) => p.value));
   const step = niceStep((max - min) / 4);
   const top = Math.ceil(max / step) * step;
