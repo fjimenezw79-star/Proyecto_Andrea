@@ -87,6 +87,9 @@ echo  ==========================================================
 echo    Para abrir el sistema ejecuta aplicacion.bat
 echo    o el acceso directo "Modas Andrea" del escritorio.
 echo.
+echo    Otros archivos: cargar_datos_prueba.bat, migrar_sistema_anterior.bat
+echo                    y ejecutar_pruebas.bat
+echo.
 echo    Usuarios iniciales:  admin / admin123
 echo                         vendedor / 12345
 echo    Cambia estas contrasenas antes de usarlo en la tienda.

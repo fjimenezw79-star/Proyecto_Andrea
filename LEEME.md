@@ -98,6 +98,9 @@ Al empezar el turno, **Abrir caja** con el fondo inicial. La pantalla muestra en
 | `instalar.bat` | Instala o actualiza todo. Puedes volver a ejecutarlo: no borra tus datos. |
 | `aplicacion.bat` | Inicia el servidor. Mientras la ventana esté abierta, el sistema funciona. |
 | `restablecer_contrasena.bat` | Cambia la contraseña de cualquier usuario. |
+| `cargar_datos_prueba.bat` | Carga los 58 productos de prueba (no duplica). |
+| `migrar_sistema_anterior.bat` | Pasa productos, fotos, ventas y apartados del sistema anterior (`bazarges_data.db`). |
+| `ejecutar_pruebas.bat` | Corre las pruebas automáticas con bases temporales; tus datos no se tocan. |
 
 ## 4. Tus datos
 

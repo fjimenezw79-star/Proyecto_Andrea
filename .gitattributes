@@ -2,3 +2,4 @@
 *.py text eol=lf
 *.webp binary
 *.db binary
+*.txt text eol=crlf
