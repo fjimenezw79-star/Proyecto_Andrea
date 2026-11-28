@@ -1,12 +1,14 @@
 /* Modas Andrea · Service worker (adaptado de AcuaGest DEMO 3.0).
  * - La app (index.html y assets) se guarda al instalar; las pantallas se piden a la red y, sin señal, salen de la copia.
  * - Miniaturas de fotos: se sirven de la copia y se actualizan en segundo plano.
+ * - Modelo de reconocimiento (/vision/*): se guarda la primera vez que se usa y sirve sin señal.
  * - /api/* nunca pasa por aquí: los datos siempre son en vivo (y la cola sin señal vive en la app).
  */
 const VERSION = "__VERSION__";
 const PRECACHE = __PRECACHE__;
 const APP = `ma-app-${VERSION}`;
 const THUMBS = "ma-thumbs";
+const VISION = "ma-vision"; // modelo de reconocimiento (~19 MB): se guarda una vez y no cambia con cada versión
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(APP).then((c) => c.addAll(PRECACHE)).then(() => self.skipWaiting()));
@@ -38,6 +40,18 @@ self.addEventListener("fetch", (e) => {
       } catch {
         return cached();
       }
+    })());
+    return;
+  }
+
+  if (url.pathname.startsWith("/vision/")) {
+    e.respondWith((async () => {
+      const cache = await caches.open(VISION);
+      const hit = await cache.match(req);
+      if (hit) return hit;
+      const res = await fetch(req);
+      if (res.ok) cache.put(req, res.clone());
+      return res;
     })());
     return;
   }

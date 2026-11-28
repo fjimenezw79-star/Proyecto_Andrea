@@ -11,6 +11,7 @@ import { Button } from "../ui/Button";
 import { Field } from "../ui/Input";
 import { useToast } from "../ui/Toast";
 import { CameraCapture } from "./CameraCapture";
+import { prepareInBackground } from "../vision/prepare";
 
 const STEPS = ["Datos", "Precio", "Fotos", "Revisar"];
 type Opt = { value: string; price: string; cost: string; barcode: string };
@@ -91,6 +92,7 @@ export function NewProductWizard() {
     try {
       const d = await api<{ product: Product }>("/api/products", { method: "POST", form: fd });
       qc.invalidateQueries({ queryKey: ["products"] });
+      prepareInBackground(d.product.id, qc); // huella para reconocerlo con la cámara
       toast("Producto creado. Ya aparece en el punto de venta.", "ok");
       navigate(`/inventario/${d.product.id}`);
     } catch (e) {

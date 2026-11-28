@@ -1,7 +1,9 @@
 import * as Switch from "@radix-ui/react-switch";
 import { useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { ArrowLeft, ImagePlus, Tags, Trash2 } from "lucide-react";
+import { ArrowLeft, Camera, ImagePlus, Tags, Trash2 } from "lucide-react";
+import { ScanSheet } from "../scan/ScanSheet";
+import { prepareInBackground } from "../vision/prepare";
 import { useRef, useState } from "react";
 import { Link, useParams } from "react-router";
 import { useAuth } from "../auth/AuthProvider";
@@ -51,6 +53,7 @@ export function ProductDetail() {
   const [entry, setEntry] = useState(false);
   const [adjust, setAdjust] = useState(false);
   const [photoIdx, setPhotoIdx] = useState(0);
+  const [scanFor, setScanFor] = useState<Variant | null>(null);
   const key = ["product", id];
   const product = useQuery({ queryKey: key, queryFn: () => api<{ product: Product }>(`/api/products/${id}`) });
   const p = product.data?.product;
@@ -121,7 +124,7 @@ export function ProductDetail() {
                     if (!f) return;
                     const fd = new FormData();
                     fd.append("photos", await compressImage(f), "foto.webp");
-                    run(() => api(`/api/products/${p.id}/photos`, { method: "POST", form: fd }), "Foto agregada.");
+                    run(async () => { await api(`/api/products/${p.id}/photos`, { method: "POST", form: fd }); prepareInBackground(p.id, qc); }, "Foto agregada.");
                   }}
                 />
               </li>
@@ -179,13 +182,19 @@ export function ProductDetail() {
                     <td className="tnum px-4 py-2.5 font-semibold">{sku(v)}</td>
                     <td className="px-4 py-2.5">
                       {isAdmin ? (
+                        <span className="flex items-center gap-1">
                         <input
+                          key={v.barcode ?? ""}
                           aria-label={`Código de fábrica de ${v.sku}`}
                           defaultValue={v.barcode ?? ""}
                           placeholder="Escanea o escribe"
                           onBlur={(e) => e.target.value !== (v.barcode ?? "") && run(() => api(`/api/variants/${v.id}`, { method: "PATCH", json: { barcode: e.target.value } }), "Código guardado.")}
                           className="min-h-10 w-40 rounded-lg border border-line bg-paper px-2.5"
                         />
+                        <button onClick={() => setScanFor(v)} className="grid size-10 place-items-center rounded-full hover:bg-surface" aria-label={`Escanear código de fábrica de ${v.sku}`}>
+                          <Camera className="size-5" aria-hidden />
+                        </button>
+                        </span>
                       ) : (v.barcode ?? "—")}
                     </td>
                     <td className="px-4 py-2.5 text-muted">{variantLabel(v.attrs) || "Única"}</td>
@@ -228,6 +237,23 @@ export function ProductDetail() {
       </div>
       {isAdmin && (
         <>
+          <ScanSheet
+            open={!!scanFor}
+            onOpenChange={(o) => !o && setScanFor(null)}
+            modes={["code"]}
+            onCode={async (code) => {
+              if (!scanFor) return false;
+              try {
+                await api(`/api/variants/${scanFor.id}`, { method: "PATCH", json: { barcode: code } });
+                toast(`Código ${code} asociado a ${scanFor.sku}.`, "ok");
+                refresh();
+                return true;
+              } catch (e) {
+                toast(e instanceof ApiError ? e.message : "No se pudo guardar el código.", "error");
+                return true;
+              }
+            }}
+          />
           <EntryDialog open={entry} onOpenChange={setEntry} variants={p.variants} onDone={() => { toast("Entrada registrada.", "ok"); refresh(); }} />
           <AdjustDialog open={adjust} onOpenChange={setAdjust} variants={p.variants} onDone={() => { toast("Ajuste registrado.", "ok"); refresh(); }} />
         </>

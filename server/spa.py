@@ -1,9 +1,13 @@
 """Sirve la app compilada (server/web_dist): archivos tal cual y cualquier ruta de la app → index.html."""
 from __future__ import annotations
 
+import mimetypes
 from pathlib import Path
 
 from flask import Blueprint, abort, send_from_directory
+
+# En Windows el registro a veces no conoce .wasm: sin este tipo el navegador carga el reconocimiento más lento
+mimetypes.add_type("application/wasm", ".wasm")
 
 DIST = Path(__file__).resolve().parent / "web_dist"
 ONE_YEAR = 365 * 24 * 3600

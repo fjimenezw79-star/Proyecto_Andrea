@@ -41,7 +41,7 @@ def index():
 def missing():
     """Fotos que todavía no tienen huella del modelo actual (para prepararlas desde el navegador)."""
     have = select(PhotoEmbedding.photo_id).where(PhotoEmbedding.model == MODEL)
-    q = (select(ProductPhoto.id, ProductPhoto.product_id, ProductPhoto.filename)
+    q = (select(ProductPhoto.id, ProductPhoto.product_id, ProductPhoto.filename, ProductPhoto.thumb_filename)
          .join(Product, Product.id == ProductPhoto.product_id)
          .where(Product.active.is_(True), ProductPhoto.id.not_in(have)))
     product = request.args.get("product", type=int)
@@ -49,7 +49,8 @@ def missing():
         q = q.where(ProductPhoto.product_id == product)
     rows = session.execute(q.order_by(ProductPhoto.id).limit(2000)).all()
     return ok(model=MODEL, dim=DIM,
-              photos=[{"photo_id": i, "product_id": p, "url": f"/uploads/{f}"} for i, p, f in rows])
+              photos=[{"photo_id": i, "product_id": p, "url": f"/uploads/{f}", "thumb_url": f"/uploads/{t}"}
+                      for i, p, f, t in rows])
 
 
 def _decode(v) -> bool:

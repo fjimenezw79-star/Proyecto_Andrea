@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { CloudOff, ScanLine, Search, ShoppingBag } from "lucide-react";
+import { Camera, CloudOff, ScanLine, Search, ShoppingBag } from "lucide-react";
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { useAuth } from "../auth/AuthProvider";
 import { api, ApiError } from "../lib/api";
@@ -16,7 +16,8 @@ import { PaymentSheet, type SaleResult } from "./PaymentSheet";
 import { ClientPicker } from "../clients/ClientPicker";
 import { NewLayawaySheet } from "../layaways/NewLayawaySheet";
 import { ProductGrid } from "./ProductGrid";
-import { filterCatalog, loadCatalog, provisionalFolio, type Catalog } from "../offline/cache";
+import { filterCatalog, findByCode, loadCatalog, provisionalFolio, type Catalog } from "../offline/cache";
+import { ScanSheet } from "../scan/ScanSheet";
 import { isNetworkError, queueAction } from "../offline/offlineAction";
 import { useOffline } from "../offline/OfflineProvider";
 import { clientHeaders, nowLocalIso } from "../offline/queue";
@@ -65,6 +66,7 @@ export function PosPage() {
   const [mobileCart, setMobileCart] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
   const { markOffline } = useOffline();
+  const [scanning, setScanning] = useState(false);
   const [lowAsk, setLowAsk] = useState<{ names: string[]; resolve: (ok: boolean) => void } | null>(null);
 
   const categories = useQuery({
@@ -94,19 +96,37 @@ export function PosPage() {
     [],
   );
 
+  /** Busca un código (lector USB o cámara) y agrega la pieza; sin señal busca en la copia del catálogo. */
+  const addByCode = useCallback(
+    async (code: string, quiet = false): Promise<boolean> => {
+      try {
+        const d = await withOffline(
+          () => api<{ product: Product; variant: Variant }>(`/api/variants/lookup?code=${encodeURIComponent(code)}`),
+          (c) => {
+            const hit = findByCode(c, code);
+            if (!hit) throw new ApiError(404, "No encontramos ese código.");
+            return hit;
+          },
+        );
+        addVariant(d.product, d.variant);
+        toast(`${d.product.name} agregado.`, "ok");
+        return true;
+      } catch (e) {
+        if (!quiet) toast(e instanceof ApiError ? e.message : "No se pudo leer el código.", "error");
+        return false;
+      }
+    },
+    [addVariant, toast],
+  );
+
   // Lector de códigos USB (y Ctrl+K desde la paleta)
   useEffect(() => {
     const detector = createScanDetector(async (code) => {
       if (document.activeElement === searchRef.current) setQ("");
-      try {
-        const d = await api<{ product: Product; variant: Variant }>(`/api/variants/lookup?code=${encodeURIComponent(code)}`);
-        addVariant(d.product, d.variant);
-      } catch (e) {
-        toast(e instanceof ApiError ? e.message : "No se pudo leer el código.", "error");
-      }
+      await addByCode(code);
     });
     const onKey = (e: KeyboardEvent) => {
-      if (paying || picking || laying) return;
+      if (paying || picking || laying || scanning) return;
       const el = document.activeElement as HTMLElement | null;
       const typing = el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.tagName === "SELECT") && el !== searchRef.current;
       if (typing) return;
@@ -124,7 +144,7 @@ export function PosPage() {
       window.removeEventListener("keydown", onKey);
       window.removeEventListener(ADD_PRODUCT_EVENT, onPick);
     };
-  }, [addVariant, paying, picking, laying, toast]);
+  }, [addVariant, addByCode, paying, picking, laying, scanning]);
 
   const inCart = useMemo(() => Object.fromEntries(cart.lines.map((l) => [l.variantId, l.qty])), [cart.lines]);
   const t = totals(cart);
@@ -177,12 +197,17 @@ export function PosPage() {
       <section className="min-w-0 px-4 pb-28 pt-6 md:px-8 lg:pb-8">
         <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
           <h1 className="font-serif text-5xl leading-none md:text-6xl">Vender</h1>
-          <label className="relative w-full max-w-md">
+          <div className="flex w-full max-w-xl gap-2">
+          <label className="relative min-w-0 flex-1">
             <Search className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-muted" aria-hidden />
             <span className="sr-only">Buscar producto</span>
             <input ref={searchRef} type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Busca por nombre o código" className="min-h-12 w-full rounded-full border border-line bg-paper pl-12 pr-12" />
             <ScanLine className="pointer-events-none absolute right-4 top-1/2 size-5 -translate-y-1/2 text-muted" aria-label="Acepta lector de códigos" />
           </label>
+          <Button variant="ghost" className="min-h-12 shrink-0 px-4" onClick={() => setScanning(true)} aria-label="Escanear con la cámara">
+            <Camera className="size-5" aria-hidden /> <span className="hidden sm:inline">Escanear</span>
+          </Button>
+          </div>
         </div>
         <div className="mb-5 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none]" role="group" aria-label="Categorías">
           {[{ id: null as number | null, name: "Todo" }, ...(categories.data?.categories ?? [])].map((c) => (
@@ -236,6 +261,7 @@ export function PosPage() {
 
       <ClientPicker open={picking} current={cart.client} onOpenChange={(o) => { setPicking(o); if (!o) setPendingLayaway(false); }} onPick={(c) => { dispatch({ type: "setClient", client: c }); if (c && pendingLayaway) setTimeout(() => setLaying(true), 50); }} />
       <NewLayawaySheet open={laying} cart={cart} onClose={() => setLaying(false)} onDone={() => { setLaying(false); newSale(); }} />
+      <ScanSheet open={scanning} onOpenChange={setScanning} onCode={(c) => addByCode(c, true)} onPick={(p, v) => { addVariant(p, v); toast(`${p.name} agregado.`, "ok"); }} />
       <PaymentSheet open={paying} total={t.total} creditCents={cart.client?.creditCents ?? 0} onClose={() => setPaying(false)} onConfirm={confirm} onNewSale={newSale} />
       <Modal open={!!lowAsk} onOpenChange={(o) => { if (!o) { lowAsk?.resolve(false); setLowAsk(null); } }} title="Quedan pocas piezas">
         <p className="mb-5 text-muted">

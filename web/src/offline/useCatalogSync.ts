@@ -3,9 +3,12 @@ import { api } from "../lib/api";
 import type { Category, Product } from "../lib/types";
 import { adjustCatalogStock, saveCatalog } from "./cache";
 import { pending } from "./queue";
+import { fetchVisionIndex } from "../vision/visionIndex";
+import { warmVisionFiles } from "../vision/embedder";
 
 const EVERY_MS = 5 * 60 * 1000;
 export const CATALOG_SYNC_EVENT = "ma:catalog-sync";
+let warmed = false;
 
 /** Mantiene en el dispositivo una copia del catálogo completo (al entrar, cada 5 min y al volver la señal). */
 export function useCatalogSync(userId: number | null) {
@@ -27,6 +30,12 @@ export function useCatalogSync(userId: number | null) {
         }
         if (Object.keys(delta).length) await adjustCatalogStock(delta);
         window.dispatchEvent(new Event(CATALOG_SYNC_EVENT));
+        // huellas y modelo de reconocimiento, para identificar productos por foto sin señal
+        const vision = await fetchVisionIndex().catch(() => []);
+        if (vision.length && navigator.serviceWorker?.controller && !warmed) {
+          warmed = true;
+          warmVisionFiles();
+        }
       } catch {
         /* se intenta en el siguiente ciclo */
       } finally {

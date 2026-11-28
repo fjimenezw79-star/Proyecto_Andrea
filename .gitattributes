@@ -3,3 +3,6 @@
 *.webp binary
 *.db binary
 *.txt text eol=crlf
+*.y4m binary
+*.wasm binary
+*.tflite binary
