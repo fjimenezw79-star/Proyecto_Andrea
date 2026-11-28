@@ -13,8 +13,8 @@ Sistema de ventas para la tienda: catálogo con variantes y fotos, inventario co
    - crea el archivo `.env` con una clave secreta aleatoria;
    - prepara la base de datos en `data\modas-andrea.db`;
    - te pregunta si quieres cargar el **catálogo de prueba** (58 productos con foto);
-   - crea el acceso directo **Modas Andrea** en el escritorio.
-3. Abre el sistema con **`aplicacion.bat`** o con el acceso directo.
+   - crea dos accesos directos en el escritorio: **Modas Andrea** (red del negocio) y **Modas Andrea (internet)** (celulares fuera del local y tienda en línea).
+3. Abre el sistema con el acceso directo **Modas Andrea** (o **Modas Andrea (internet)** para usarlo desde internet).
 
 ### Usuarios iniciales
 

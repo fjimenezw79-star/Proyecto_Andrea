@@ -79,13 +79,16 @@ if !errorlevel! equ 1 "%VPY%" -m scripts.importar_datos_prueba
 
 powershell -NoProfile -ExecutionPolicy Bypass -Command "$d=[Environment]::GetFolderPath('Desktop'); $s=(New-Object -ComObject WScript.Shell).CreateShortcut((Join-Path $d 'Modas Andrea.lnk')); $s.TargetPath='%~dp0aplicacion.bat'; $s.WorkingDirectory='%~dp0'; $s.IconLocation='%SystemRoot%\System32\shell32.dll,13'; $s.Description='Iniciar Modas Andrea'; $s.Save()" >nul 2>&1
 if not errorlevel 1 echo        Acceso directo "Modas Andrea" creado en el escritorio.
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$d=[Environment]::GetFolderPath('Desktop'); $s=(New-Object -ComObject WScript.Shell).CreateShortcut((Join-Path $d 'Modas Andrea (internet).lnk')); $s.TargetPath='%~dp0acceso_remoto.bat'; $s.WorkingDirectory='%~dp0'; $s.IconLocation='%SystemRoot%\System32\shell32.dll,14'; $s.Description='Modas Andrea con acceso desde internet y tienda en linea'; $s.Save()" >nul 2>&1
+if not errorlevel 1 echo        Acceso directo "Modas Andrea (internet)" creado en el escritorio.
 
 echo.
 echo  ==========================================================
 echo    INSTALACION COMPLETA
 echo  ==========================================================
-echo    Para abrir el sistema ejecuta aplicacion.bat
-echo    o el acceso directo "Modas Andrea" del escritorio.
+echo    Accesos directos en el escritorio:
+echo      "Modas Andrea"            solo en esta red (WiFi del negocio)
+echo      "Modas Andrea (internet)" celulares fuera del local y tienda en linea
 echo.
 echo    Otros archivos: cargar_datos_prueba.bat, migrar_sistema_anterior.bat
 echo                    y ejecutar_pruebas.bat
