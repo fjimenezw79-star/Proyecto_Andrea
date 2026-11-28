@@ -516,6 +516,7 @@
   <table>
     <tr><th>Archivo</th><th>Para qué sirve</th></tr>
     <tr><td><code>instalar.bat</code></td><td>Instala o actualiza todo. No borra datos.</td></tr>
+    <tr><td><code>actualizar.bat</code></td><td>Pasa a una versión nueva: copia tus datos y tu configuración desde la instalación anterior (ver abajo).</td></tr>
     <tr><td><code>aplicacion.bat</code></td><td>Inicia el sistema. Mientras su ventana esté abierta, todos pueden usarlo.</td></tr>
     <tr><td><code>acceso_remoto.bat</code></td><td>Inicia el sistema con acceso seguro desde internet (Cloudflare) y la app instalable sin señal.</td></tr>
     <tr><td><code>restablecer_contrasena.bat</code></td><td>Cambia la contraseña de cualquier usuario (también desbloquea).</td></tr>
@@ -523,6 +524,15 @@
     <tr><td><code>migrar_sistema_anterior.bat</code></td><td>Pasa productos, fotos, ventas y apartados del sistema anterior.</td></tr>
     <tr><td><code>ejecutar_pruebas.bat</code></td><td>Corre las pruebas automáticas sin tocar tus datos.</td></tr>
   </table>
+  <h3>Actualizar a una versión nueva</h3>
+  <ol class="steps">
+    <li>Cierra todas las ventanas negras del sistema.</li>
+    <li>Extrae el ZIP de la versión nueva en una carpeta <strong>nueva</strong> (por ejemplo <code>C:\ModasAndrea_v1.1</code>).</li>
+    <li>En esa carpeta, haz doble clic en <code>actualizar.bat</code>. Encuentra tu instalación anterior por los accesos directos del escritorio y te pregunta si es la correcta; si no, arrastra la carpeta anterior a la ventana.</li>
+    <li>Copia tus datos (productos, fotos, ventas, clientes, apartados y respaldos) y tu <code>.env</code>, guarda un respaldo de la base en <code>data\respaldos\antes_de_actualizar_…</code> e instala la versión nueva. No ofrece cargar datos de prueba.</li>
+    <li>Los accesos directos <strong>Modas Andrea</strong> y <strong>Modas Andrea (internet)</strong> quedan apuntando a la carpeta nueva. Las opciones nuevas del <code>.env</code> se agregan vacías al final.</li>
+  </ol>
+  <div class="note">La carpeta anterior no se toca: queda como respaldo hasta que confirmes que todo funciona. Los celulares y tablets no necesitan nada: cargan la versión nueva la siguiente vez que tienen señal.</div>
 </section>
 
 <section class="chapter">

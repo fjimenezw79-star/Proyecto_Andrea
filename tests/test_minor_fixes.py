@@ -131,3 +131,19 @@ def test_lookup_inactive_variant_is_404(admin, product):
     admin.patch(f"/api/variants/{vid}", json={"active": False})
     r = admin.get(f"/api/variants/lookup?code={product['variants'][0]['sku']}")
     assert r.status_code == 404 and r.get_json()["message"] == "Ese producto está dado de baja."
+
+
+def test_configurar_adds_new_options_to_an_old_env(tmp_path, repo_root):
+    """Al actualizar se copia el .env anterior: se conservan sus valores y se agregan las opciones nuevas."""
+    from scripts.configurar import run
+
+    (tmp_path / ".env.example").write_text((repo_root / ".env.example").read_text(encoding="utf-8"), encoding="utf-8")
+    old = "SECRET_KEY=" + "a" * 64 + "\nPORT=5010\nCLOUDFLARE_TUNNEL_TOKEN=tok-viejo\n"
+    (tmp_path / ".env").write_text(old, encoding="utf-8")
+    assert run(tmp_path) is True
+    text = (tmp_path / ".env").read_text(encoding="utf-8")
+    assert text.startswith(old)  # nada de lo anterior cambia
+    assert "\nANTHROPIC_API_KEY=\n" in text and "\nCLOUDFLARE_PAGES_PROJECT=modas-andrea-tienda\n" in text
+    assert "# Clave de la API de Anthropic" in text  # con su explicación
+    assert text.count("CLOUDFLARE_TUNNEL_TOKEN=") == 1 and text.count("SECRET_KEY=") == 1
+    assert run(tmp_path) is False  # la segunda vez ya no hay nada que agregar

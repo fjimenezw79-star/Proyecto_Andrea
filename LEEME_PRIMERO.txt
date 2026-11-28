@@ -11,6 +11,7 @@ MODAS ANDREA (YUDA) - SISTEMA DE VENTAS - VERSION 1.0
    Cambia esas contrasenas con  restablecer_contrasena.bat .
 
 Otros archivos:
+  actualizar.bat                pasa a una version nueva conservando tus datos
   cargar_datos_prueba.bat       58 productos de prueba con foto
   migrar_sistema_anterior.bat   pasa productos, ventas y apartados del sistema anterior
   ejecutar_pruebas.bat          pruebas automaticas (no tocan tus datos)
