@@ -57,6 +57,9 @@
       <li>Instalación en Windows</li>
       <li>Abrir el sistema y entrar</li>
       <li>Conectar otros dispositivos</li>
+      <li>Acceso desde internet</li>
+      <li>Stock en vivo y ventas sin señal</li>
+      <li>Alertas de stock y bitácora</li>
       <li>Usuarios y permisos</li>
       <li>Vender</li>
       <li>Cobrar</li>
@@ -77,7 +80,7 @@
       <li>Lo que viene</li>
     </ol>
   </div>
-  <p class="meta"><strong>Realizado por el I.S.C FRANCISCO JAVIER JIMENEZ WITRAGO</strong><br>Versión del sistema: etapas 1 a 3 de 6 (servidor, interfaz y operación diaria) · Noviembre de 2026</p>
+  <p class="meta"><strong>Realizado por el I.S.C FRANCISCO JAVIER JIMENEZ WITRAGO</strong><br>Versión del sistema: etapas 1 a 4 de 6 (servidor, interfaz, operación diaria y conexión) · Noviembre de 2026</p>
 </section>
 
 <section class="chapter">
@@ -89,7 +92,7 @@
   <ul>
     <li>Una computadora con <strong>Windows 10 u 11</strong> (será el servidor).</li>
     <li>Internet solo durante la instalación (para descargar Python y sus librerías).</li>
-    <li>Para conectar otros dispositivos: que estén en la <strong>misma red WiFi</strong> que la computadora del negocio.</li>
+    <li>Para conectar otros dispositivos: la <strong>misma red WiFi</strong> que la computadora del negocio, o internet usando <code>acceso_remoto.bat</code> (capítulo 5).</li>
     <li>Opcional: un lector de códigos de barras USB y una impresora de tickets.</li>
   </ul>
 </section>
@@ -129,23 +132,65 @@
     <tr><td><code>admin</code></td><td><code>admin123</code></td><td>Administrador</td></tr>
     <tr><td><code>vendedor</code></td><td><code>12345</code></td><td>Vendedor</td></tr>
   </table>
-  <div class="note warn">Cambia estas contraseñas antes de usar el sistema en la tienda con <code>restablecer_contrasena.bat</code>. Después de 5 intentos equivocados, el usuario se bloquea 5 minutos.</div>
+  <div class="note warn">Cambia estas contraseñas antes de usar el sistema en la tienda: cada usuario en <strong>Mi cuenta</strong> (toca tu nombre abajo en el menú) o el administrador con <code>restablecer_contrasena.bat</code>. Por internet no se puede entrar con las contraseñas iniciales. Después de 5 intentos equivocados, el usuario se bloquea 5 minutos.</div>
 </section>
 
 <section class="chapter">
   <h2>4. Conectar otros dispositivos</h2>
+  <p>El administrador abre <strong>Conectar dispositivo</strong> en el menú. Ahí aparece un <strong>código QR</strong> con el enlace del sistema y los botones <strong>Copiar</strong> y <strong>Enviar por WhatsApp</strong>.</p>
   <ol class="steps">
-    <li>Conecta la tablet, celular o laptop a la <strong>misma red WiFi</strong> que la computadora del negocio.</li>
-    <li>En el navegador escribe la dirección <strong>En la red local</strong> que aparece en la ventana negra (por ejemplo <code>http://192.168.1.20:5000</code>).</li>
-    <li>La primera vez, Windows puede preguntar si permite que Python use la red: elige <strong>Permitir</strong> (redes privadas).</li>
-    <li>Entra con tu usuario. Para tenerla como app: en Chrome, menú ⋮ → <em>Agregar a la pantalla principal</em>.</li>
+    <li>En el celular o tablet, abre la cámara y apunta al código QR (o abre el enlace que te enviaron por WhatsApp).</li>
+    <li>Entra con tu usuario y contraseña.</li>
+    <li>Instala la app: en Android (Chrome) menú ⋮ → <em>Instalar app</em>; en iPhone (Safari) <em>Compartir → Agregar a inicio</em>. Desde ese momento abres Modas Andrea desde su ícono.</li>
   </ol>
-  <div class="note">Si la dirección no abre en otro dispositivo, revisa la sección <em>Solución de problemas</em>. Mientras usen la red local, que se vaya el internet <strong>no</strong> afecta: los dispositivos siguen conectados a la computadora del negocio. La conexión desde fuera de la tienda y las ventas sin señal llegan en la etapa 4.</div>
+  <figure><img src="../img/12-conectar.webp" alt=""><figcaption>Conectar dispositivo: código QR, enlace, WhatsApp y pasos para instalar la app.</figcaption></figure>
+  <table>
+    <tr><th>Tipo de enlace</th><th>Cómo se obtiene</th><th>Qué permite</th></tr>
+    <tr><td><strong>Red local</strong> <code>http://192.168…:5000</code></td><td>Con <code>aplicacion.bat</code></td><td>Solo dispositivos en el mismo WiFi del negocio. La app no se guarda en el celular ni trabaja sin señal.</td></tr>
+    <tr><td><strong>Por internet</strong> <code>https://….trycloudflare.com</code></td><td>Con <code>acceso_remoto.bat</code> (capítulo 5)</td><td>Desde cualquier lugar con datos o WiFi. La app se instala y sigue vendiendo aunque se vaya la señal. Cambia en cada inicio.</td></tr>
+    <tr><td><strong>Fijo</strong> (tu dominio)</td><td><code>PUBLIC_URL</code> y <code>CLOUDFLARE_TUNNEL_TOKEN</code> en <code>.env</code></td><td>Lo mismo que el anterior, pero la dirección nunca cambia.</td></tr>
+  </table>
+  <div class="note">La primera vez, Windows puede preguntar si permite que Python use la red: elige <strong>Permitir</strong> (redes privadas).</div>
   <figure class="phone"><img src="../img/07-celular.webp" alt=""><figcaption>En el celular el menú queda abajo y el carrito se abre con "Ver carrito".</figcaption></figure>
 </section>
 
 <section class="chapter">
-  <h2>5. Usuarios y permisos</h2>
+  <h2>5. Acceso desde internet</h2>
+  <ol class="steps">
+    <li>Desde la computadora del negocio, entra con cada usuario y cambia su contraseña en <strong>Mi cuenta</strong> (toca tu nombre abajo en el menú; en el celular, <em>Más → Mi cuenta</em>). Por internet se rechazan <code>admin123</code> y <code>12345</code>.</li>
+    <li>Abre el sistema con <strong><code>acceso_remoto.bat</code></strong> en lugar de <code>aplicacion.bat</code>. La primera vez descarga la herramienta de Cloudflare (unos 50 MB).</li>
+    <li>La ventana negra muestra <strong>DESDE INTERNET</strong> con una dirección <code>https://</code>. En <strong>Conectar dispositivo</strong> aparece ya con su código QR.</li>
+  </ol>
+  <div class="note">No hace falta abrir puertos del módem: Cloudflare solo reenvía las visitas cifradas hasta la computadora del negocio. La dirección de prueba <strong>cambia cada vez</strong> que se inicia <code>acceso_remoto.bat</code>: después de reiniciar, comparte el QR nuevo. Para una dirección fija, crea un túnel en tu cuenta de Cloudflare y escribe en <code>.env</code> su <code>CLOUDFLARE_TUNNEL_TOKEN</code> y tu dominio en <code>PUBLIC_URL</code>.</div>
+</section>
+
+<section class="chapter">
+  <h2>6. Stock en vivo y ventas sin señal</h2>
+  <p>Cada 3 segundos la app revisa si otro dispositivo vendió o apartó algo y actualiza las existencias en pantalla y en el carrito. Así dos vendedores no venden la misma última pieza.</p>
+  <h3>Si se va el internet</h3>
+  <ol class="steps">
+    <li>Arriba aparece <strong>Sin señal</strong> en color vino, y Vender avisa con qué antigüedad se vieron las existencias.</li>
+    <li>Las <strong>ventas, apartados, abonos y clientes nuevos</strong> se guardan en el dispositivo con un folio provisional (<code>P-1234</code>). La nube muestra cuántos hay <strong>pendientes</strong>.</li>
+    <li>Si quedan 2 piezas o menos, la app pide confirmar, porque no puede revisar si otro dispositivo ya las vendió.</li>
+    <li>Al volver la señal todo se envía solo y en orden, con la hora real en que se hizo. Aparece <strong>Todo enviado.</strong> Nada se registra dos veces aunque la señal se corte a la mitad.</li>
+  </ol>
+  <figure><img src="../img/13-sin-senal.webp" alt=""><figcaption>Venta guardada en el dispositivo sin señal.</figcaption></figure>
+  <figure><img src="../img/14-pendientes.webp" alt=""><figcaption>Pendientes de enviar.</figcaption></figure>
+  <p>También funciona si la computadora del negocio se apaga o se queda sin internet mientras los celulares usan el enlace por internet. Sin señal no se pueden hacer gastos, cortes, devoluciones ni usar saldo a favor: la app dice <em>Necesitas conexión para hacer esto</em>.</p>
+  <div class="note">Si algo no se puede registrar (por ejemplo, un abono a un apartado que otra persona ya liquidó), queda marcado en <strong>Pendientes</strong> con el motivo, para <strong>Reintentar</strong> o <strong>Descartar</strong>. Lo descartado queda en la Bitácora con su motivo. <strong>Guardar respaldo de pendientes</strong> descarga un archivo con todo lo que falta por enviar. Un cliente registrado sin señal con un teléfono que ya existe se guarda sin teléfono y con una nota para revisarlo.</div>
+  <div class="note warn">Al <strong>Salir</strong> con pendientes, la app avisa: se quedan en el dispositivo y se envían cuando ese mismo usuario vuelve a entrar. Al salir se borran del dispositivo los clientes y el catálogo guardados.</div>
+</section>
+
+<section class="chapter">
+  <h2>7. Alertas de stock y bitácora</h2>
+  <p>Si una venta hecha sin señal deja el stock en negativo (porque otro dispositivo vendió la misma pieza), el <strong>Panel</strong> lo muestra en <strong>Stock negativo por ventas sin señal</strong>. Cuenta las piezas, corrige con <strong>Ajustar existencias</strong> y toca <strong>Marcar como revisada</strong>.</p>
+  <figure><img src="../img/15-alerta.webp" alt=""><figcaption>Alerta de stock negativo en el Panel.</figcaption></figure>
+  <p>La <strong>Bitácora</strong> (administrador) muestra quién hizo cada venta, apartado, abono, gasto, ajuste o cambio, y cuándo. Lo hecho sin señal lleva la etiqueta <strong>Sin señal</strong> y la hora real en que ocurrió.</p>
+  <figure><img src="../img/16-bitacora.webp" alt=""><figcaption>Bitácora.</figcaption></figure>
+</section>
+
+<section class="chapter">
+  <h2>8. Usuarios y permisos</h2>
   <table>
     <tr><th>Puede…</th><th>Vendedor</th><th>Administrador</th></tr>
     <tr><td>Vender, cobrar, buscar con Ctrl+K y escanear</td><td>Sí</td><td>Sí</td></tr>
@@ -158,11 +203,13 @@
     <tr><td>Cancelar ventas y registrar devoluciones</td><td>No</td><td>Sí</td></tr>
     <tr><td>Productos, precios, entradas y ajustes de inventario</td><td>No</td><td>Sí</td></tr>
     <tr><td>Gastos, reportes, panel, categorías y configuración</td><td>No</td><td>Sí</td></tr>
+    <tr><td>Bitácora, alertas de stock y Conectar dispositivo</td><td>No</td><td>Sí</td></tr>
+    <tr><td>Cambiar su propia contraseña (Mi cuenta)</td><td>Sí</td><td>Sí</td></tr>
   </table>
 </section>
 
 <section class="chapter">
-  <h2>6. Vender</h2>
+  <h2>9. Vender</h2>
   <figure><img src="../img/02-vender.webp" alt=""><figcaption>Vender: productos a la izquierda, carrito a la derecha.</figcaption></figure>
   <p>Hay tres formas de agregar un producto al carrito:</p>
   <ul>
@@ -175,7 +222,7 @@
 </section>
 
 <section class="chapter">
-  <h2>7. Cobrar</h2>
+  <h2>10. Cobrar</h2>
   <p>Toca <strong>Cobrar</strong>. Elige la forma de pago:</p>
   <ul>
     <li><strong>Efectivo:</strong> escribe lo recibido (o toca <em>Exacto</em>, $500 o $1,000) y el sistema muestra el <strong>cambio</strong>.</li>
@@ -189,7 +236,7 @@
 </section>
 
 <section class="chapter">
-  <h2>8. Clientes, puntos y saldo a favor</h2>
+  <h2>11. Clientes, puntos y saldo a favor</h2>
   <p>En el carrito toca <strong>Cliente</strong> para buscarlo por nombre o teléfono, o <strong>Registrar cliente nuevo</strong> (nombre y teléfono de 10 dígitos, opcional). No se permiten dos clientes con el mismo teléfono.</p>
   <ul>
     <li><strong>Puntos:</strong> cada compra suma 1 punto por cada $10 pagados. Si devuelve piezas, se restan.</li>
@@ -199,7 +246,7 @@
 </section>
 
 <section class="chapter">
-  <h2>9. Apartados</h2>
+  <h2>12. Apartados</h2>
   <ol class="steps">
     <li>En <strong>Vender</strong>, agrega los productos al carrito.</li>
     <li>Elige al <strong>cliente</strong> (el apartado siempre lleva cliente).</li>
@@ -216,7 +263,7 @@
 </section>
 
 <section class="chapter">
-  <h2>10. Ventas de hoy, cancelaciones y devoluciones</h2>
+  <h2>13. Ventas de hoy, cancelaciones y devoluciones</h2>
   <figure><img src="../img/06-ventas.webp" alt=""><figcaption>Ventas del día con totales por forma de pago.</figcaption></figure>
   <p>Arriba ves el total del día y cuánto entró en efectivo, tarjeta y transferencia. Con el selector de fecha consultas otros días. Toca una venta para ver su detalle.</p>
   <h3>Cancelar una venta (administrador)</h3>
@@ -226,7 +273,7 @@
 </section>
 
 <section class="chapter">
-  <h2>11. Caja y corte</h2>
+  <h2>14. Caja y corte</h2>
   <figure><img src="../img/09-caja.webp" alt=""><figcaption>Caja abierta: efectivo que debe haber y movimientos.</figcaption></figure>
   <ol class="steps">
     <li>Al empezar el turno: menú <strong>Caja</strong> → escribe el <strong>Fondo inicial</strong> → <strong>Abrir caja</strong>.</li>
@@ -237,7 +284,7 @@
 </section>
 
 <section class="chapter">
-  <h2>12. Inventario</h2>
+  <h2>15. Inventario</h2>
   <figure><img src="../img/04-ficha.webp" alt=""><figcaption>Ficha de producto: fotos, variantes, precios y bitácora.</figcaption></figure>
   <p>El menú <strong>Inventario</strong> lista todos los productos con su foto, piezas y precio. Puedes filtrar por categoría, por <strong>Stock bajo</strong> o buscar por nombre o código. En la ficha de cada producto:</p>
   <ul>
@@ -251,7 +298,7 @@
 </section>
 
 <section class="chapter">
-  <h2>13. Nuevo producto con fotos</h2>
+  <h2>16. Nuevo producto con fotos</h2>
   <figure><img src="../img/05-nuevo-producto.webp" alt=""><figcaption>Alta de producto en 4 pasos.</figcaption></figure>
   <ol class="steps">
     <li><strong>Datos:</strong> nombre, categoría y descripción.</li>
@@ -263,7 +310,7 @@
 </section>
 
 <section class="chapter">
-  <h2>14. Categorías y configuración</h2>
+  <h2>17. Categorías y configuración</h2>
   <h3>Categorías</h3>
   <p>Crea categorías y subcategorías (por ejemplo <em>Hogar › Termos</em>), renómbralas o desactívalas. Aparecen como filtros en Vender e Inventario y, más adelante, como secciones de la tienda en línea.</p>
   <h3>Configuración</h3>
@@ -271,12 +318,12 @@
 </section>
 
 <section class="chapter">
-  <h2>15. Gastos</h2>
+  <h2>18. Gastos</h2>
   <p>Menú <strong>Gastos</strong> (administrador): escribe el concepto, la categoría (Renta, Luz e internet, Sueldos, Mercancía, Insumos, Otros) y el monto. Marca <strong>Se pagó con dinero de la caja</strong> cuando el dinero salió del cajón: así el corte lo descuenta. Un gasto de una caja ya cortada no se puede borrar ni cambiar de monto.</p>
 </section>
 
 <section class="chapter">
-  <h2>16. Reportes y panel</h2>
+  <h2>19. Reportes y panel</h2>
   <figure><img src="../img/10-reportes.webp" alt=""><figcaption>Reportes del mes.</figcaption></figure>
   <ul>
     <li><strong>Periodo:</strong> Hoy, Semana, Mes o un rango de fechas.</li>
@@ -289,7 +336,7 @@
 </section>
 
 <section class="chapter">
-  <h2>17. Respaldos y datos</h2>
+  <h2>20. Respaldos y datos</h2>
   <ul>
     <li>Todo vive en la carpeta <code>data</code>: la base (<code>modas-andrea.db</code>), las fotos (<code>fotos</code>) y los respaldos (<code>respaldos</code>).</li>
     <li>Cada vez que se abre el sistema se crea un <strong>respaldo del día</strong>; se conservan los 15 más recientes.</li>
@@ -309,7 +356,7 @@
 </section>
 
 <section class="chapter">
-  <h2>18. Pasar el sistema anterior</h2>
+  <h2>21. Pasar el sistema anterior</h2>
   <p>Si tienes la carpeta <code>PROYECTO ANDREA</code> del sistema anterior:</p>
   <ol class="steps">
     <li>Haz doble clic en <strong><code>migrar_sistema_anterior.bat</code></strong>.</li>
@@ -324,7 +371,7 @@
 </section>
 
 <section class="chapter">
-  <h2>19. Datos y pruebas</h2>
+  <h2>22. Datos y pruebas</h2>
   <h3>Catálogo de prueba</h3>
   <p><strong><code>cargar_datos_prueba.bat</code></strong> carga 58 productos (mochilas, termos, cobijas, relojes inteligentes y útiles) con foto, precio y existencias, para practicar sin tocar productos reales. No duplica si lo ejecutas otra vez.</p>
   <div class="note warn">Si vas a usar el sistema con tus productos reales, empieza con una base limpia: no cargues el catálogo de prueba, o borra la carpeta <code>data</code> antes de empezar en serio (con el sistema cerrado).</div>
@@ -343,11 +390,12 @@
 </section>
 
 <section class="chapter">
-  <h2>20. Archivos .bat</h2>
+  <h2>23. Archivos .bat</h2>
   <table>
     <tr><th>Archivo</th><th>Para qué sirve</th></tr>
     <tr><td><code>instalar.bat</code></td><td>Instala o actualiza todo. No borra datos.</td></tr>
     <tr><td><code>aplicacion.bat</code></td><td>Inicia el sistema. Mientras su ventana esté abierta, todos pueden usarlo.</td></tr>
+    <tr><td><code>acceso_remoto.bat</code></td><td>Inicia el sistema con acceso seguro desde internet (Cloudflare) y la app instalable sin señal.</td></tr>
     <tr><td><code>restablecer_contrasena.bat</code></td><td>Cambia la contraseña de cualquier usuario (también desbloquea).</td></tr>
     <tr><td><code>cargar_datos_prueba.bat</code></td><td>Carga el catálogo de prueba (58 productos).</td></tr>
     <tr><td><code>migrar_sistema_anterior.bat</code></td><td>Pasa productos, fotos, ventas y apartados del sistema anterior.</td></tr>
@@ -356,7 +404,7 @@
 </section>
 
 <section class="chapter">
-  <h2>21. Solución de problemas</h2>
+  <h2>24. Solución de problemas</h2>
   <table>
     <tr><th>Qué pasa</th><th>Qué hacer</th></tr>
     <tr><td>"El puerto 5000 ya está en uso"</td><td>El sistema ya está abierto en otra ventana. Ciérrala, o cambia <code>PORT</code> en <code>.env</code>.</td></tr>
@@ -368,15 +416,18 @@
     <tr><td>La cámara no abre</td><td>Usa <em>Tomar foto con el celular</em> o <em>Elegir foto</em>.</td></tr>
     <tr><td>"No hay suficientes piezas"</td><td>Otro dispositivo vendió esas piezas. Revisa el producto o registra una Entrada si llegó mercancía.</td></tr>
     <tr><td>El corte no cuadra</td><td>Revisa los movimientos de la caja: ventas en efectivo, abonos, reembolsos y gastos de caja.</td></tr>
+    <tr><td>Por internet dice "Cambia la contraseña inicial…"</td><td>Entra desde la computadora del negocio, cambia la contraseña en Mi cuenta y vuelve a intentar.</td></tr>
+    <tr><td><code>acceso_remoto.bat</code> no muestra la dirección de internet</td><td>Revisa el internet de la computadora; el sistema sigue funcionando en la red local. Vuelve a abrir <code>acceso_remoto.bat</code>.</td></tr>
+    <tr><td>Se quedan ventas en "pendientes"</td><td>Se envían solas al volver la señal. Si alguna tiene problema, ábrela desde la nube de pendientes y reintenta o descarta con motivo.</td></tr>
+    <tr><td>El Panel muestra stock negativo</td><td>Se vendió sin señal una pieza que ya no había: cuenta y ajusta existencias, y marca la alerta como revisada.</td></tr>
     <tr><td>El instalador falla al descargar librerías</td><td>Revisa el internet y vuelve a ejecutar <code>instalar.bat</code>.</td></tr>
   </table>
 </section>
 
 <section class="chapter">
-  <h2>22. Lo que viene</h2>
+  <h2>25. Lo que viene</h2>
   <table>
     <tr><th>Etapa</th><th>Qué agrega</th></tr>
-    <tr><td>4 · Conexión y sin señal</td><td>Stock en vivo, ventas que se guardan en el dispositivo si se va el internet, app instalable, enlace seguro por internet (Cloudflare) y pantalla "Conectar dispositivo" con QR.</td></tr>
     <tr><td>5 · Cámara y etiquetas</td><td>Leer códigos con la cámara, imprimir etiquetas y tickets, reconocer productos sin etiqueta con la cámara y botón de IA.</td></tr>
     <tr><td>6 · Tienda en línea</td><td>Página pública con el estilo Revista conectada al inventario, links con vista previa para WhatsApp y Marketplace, y pedidos por WhatsApp que entran al sistema.</td></tr>
   </table>
