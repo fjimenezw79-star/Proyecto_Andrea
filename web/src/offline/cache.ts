@@ -99,3 +99,18 @@ export function filterCatalog(c: Catalog, q: string, category: number | null): {
   );
   return { products: products.slice(0, 60), total: products.length };
 }
+
+/** Descuenta (o suma) piezas en la copia local del catálogo: así el stock sin señal refleja lo pendiente. */
+export async function adjustCatalogStock(delta: Record<number, number>): Promise<void> {
+  const c = await loadCatalog();
+  if (!c) return;
+  const products = c.products.map((p) =>
+    p.variants.some((v) => v.id in delta) ? { ...p, variants: p.variants.map((v) => (v.id in delta ? { ...v, stock: v.stock + delta[v.id] } : v)) } : p,
+  );
+  await set("catalog", { ...c, products });
+}
+
+export function provisionalFolio(uid: string): string {
+  const digits = uid.replace(/\D/g, "");
+  return `P-${(digits.slice(-4) || "0000").padStart(4, "0")}`;
+}

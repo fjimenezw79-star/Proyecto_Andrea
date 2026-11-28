@@ -7,6 +7,7 @@ import { LoginPage } from "./auth/LoginPage";
 import { RequireAuth } from "./auth/RequireAuth";
 import { AuthError } from "./lib/api";
 import { AppShell } from "./shell/AppShell";
+import { OfflineProvider } from "./offline/OfflineProvider";
 import { ToastProvider } from "./ui/Toast";
 import { PosPage } from "./pos/PosPage";
 import { InventoryPage } from "./inventory/InventoryPage";
@@ -36,6 +37,7 @@ function Routed() {
   });
   return (
     <QueryClientProvider client={qc}>
+      <OfflineProvider>
       <Routes>
         <Route path="/entrar" element={<LoginPage />} />
         <Route element={<RequireAuth><AppShell /></RequireAuth>}>
@@ -58,6 +60,7 @@ function Routed() {
           <Route path="*" element={<Navigate to="/vender" replace />} />
         </Route>
       </Routes>
+      </OfflineProvider>
     </QueryClientProvider>
   );
 }

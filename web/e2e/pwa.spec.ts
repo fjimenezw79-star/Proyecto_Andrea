@@ -1,30 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { login } from "./helpers";
-
-async function readyOffline(page: import("@playwright/test").Page) {
-  await page.goto("/vender");
-  await expect(page.getByRole("button", { name: /^Agregar Princesas Disney/ })).toBeVisible();
-  await page.evaluate(async () => {
-    await navigator.serviceWorker.ready;
-    // espera a que la copia del catálogo quede guardada
-    for (let i = 0; i < 50; i++) {
-      const ok = await new Promise<boolean>((res) => {
-        const r = indexedDB.open("ma-cache");
-        r.onsuccess = () => {
-          const db = r.result;
-          if (!db.objectStoreNames.contains("kv")) return res(false);
-          const g = db.transaction("kv").objectStore("kv").get("catalog");
-          g.onsuccess = () => res(!!g.result);
-          g.onerror = () => res(false);
-        };
-        r.onerror = () => res(false);
-      });
-      if (ok && navigator.serviceWorker.controller) return;
-      await new Promise((r) => setTimeout(r, 200));
-    }
-    throw new Error("La app no quedó guardada en el dispositivo");
-  });
-}
+import { login, readyOffline } from "./helpers";
 
 test("sin señal la app abre y muestra el catálogo guardado", async ({ page, context }) => {
   await login(page, "vendedor", "12345");

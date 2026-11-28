@@ -41,11 +41,11 @@ async function getCsrf(): Promise<string> {
   return csrfToken;
 }
 
-type Opts = { method?: string; json?: unknown; form?: FormData };
+type Opts = { method?: string; json?: unknown; form?: FormData; headers?: Record<string, string> };
 
 export async function api<T = Record<string, unknown>>(path: string, opts: Opts = {}, retried = false): Promise<T> {
   const method = opts.method ?? "GET";
-  const headers: Record<string, string> = { Accept: "application/json" };
+  const headers: Record<string, string> = { Accept: "application/json", ...opts.headers };
   let body: BodyInit | undefined;
   if (opts.json !== undefined) {
     headers["Content-Type"] = "application/json";

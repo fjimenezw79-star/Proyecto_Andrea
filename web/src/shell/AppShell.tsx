@@ -4,6 +4,10 @@ import { useEffect, useState } from "react";
 import { NavLink, useLocation, useOutlet } from "react-router";
 import { useAuth } from "../auth/AuthProvider";
 import { useCatalogSync } from "../offline/useCatalogSync";
+import { ConnectionIndicator } from "../offline/ConnectionIndicator";
+import { useOffline } from "../offline/OfflineProvider";
+import { Button } from "../ui/Button";
+import { Modal } from "../ui/Dialog";
 import { CommandPalette } from "./CommandPalette";
 import { navItems } from "./nav";
 
@@ -25,6 +29,9 @@ export function AppShell() {
   const [more, setMore] = useState(false);
   const items = navItems(user!.role);
   useCatalogSync(!!user);
+  const { pendingCount } = useOffline();
+  const [askOut, setAskOut] = useState(false);
+  const leave = () => (pendingCount > 0 ? setAskOut(true) : void logout());
 
   useEffect(() => {
     try {
@@ -89,6 +96,9 @@ export function AppShell() {
             </NavLink>
           ))}
         </nav>
+        <div className={`mb-2 ${collapsed ? "flex justify-center" : "px-1"}`}>
+          <ConnectionIndicator compact={collapsed} />
+        </div>
         <button
           onClick={() => setPalette(true)}
           className={`mb-2 flex items-center gap-3 rounded-full border border-line px-3.5 py-2.5 text-muted hover:bg-surface ${collapsed ? "justify-center" : ""}`}
@@ -108,7 +118,7 @@ export function AppShell() {
               <p className="text-sm text-muted">{user!.role === "admin" ? "Administrador" : "Vendedor"}</p>
             </div>
           )}
-          <button onClick={() => logout()} className="grid size-10 place-items-center rounded-full hover:bg-surface" title="Salir">
+          <button onClick={leave} className="grid size-10 place-items-center rounded-full hover:bg-surface" title="Salir">
             <LogOut className="size-5" aria-hidden />
             <span className="sr-only">Salir</span>
           </button>
@@ -124,6 +134,7 @@ export function AppShell() {
         <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-line bg-paper/90 px-4 pb-3 pt-[calc(env(safe-area-inset-top,0px)+12px)] backdrop-blur md:hidden">
           <img src="/logo_ma.webp" alt="" className="size-9 rounded-full bg-night object-cover" />
           <p className="flex-1 font-serif text-2xl leading-none">Modas Andrea</p>
+          <ConnectionIndicator compact />
           <button onClick={() => setPalette(true)} className="grid size-11 place-items-center rounded-full hover:bg-surface">
             <Search className="size-5" aria-hidden />
             <span className="sr-only">Buscar</span>
@@ -194,7 +205,7 @@ export function AppShell() {
                     <i.icon className="size-5" aria-hidden /> {i.label}
                   </NavLink>
                 ))}
-                <button onClick={() => logout()} className="flex items-center gap-3 rounded-2xl px-3 py-3 text-left text-lg font-semibold hover:bg-surface">
+                <button onClick={leave} className="flex items-center gap-3 rounded-2xl px-3 py-3 text-left text-lg font-semibold hover:bg-surface">
                   <LogOut className="size-5" aria-hidden /> Salir
                 </button>
               </div>
@@ -204,6 +215,15 @@ export function AppShell() {
       </AnimatePresence>
 
       <CommandPalette open={palette} onOpenChange={setPalette} />
+      <Modal open={askOut} onOpenChange={setAskOut} title="¿Salir?">
+        <p className="mb-5 text-muted">
+          Tienes {pendingCount} {pendingCount === 1 ? "acción pendiente" : "acciones pendientes"} sin enviar. Se quedan guardadas en este dispositivo y se enviarán cuando vuelvas a entrar con tu usuario y haya señal.
+        </p>
+        <div className="grid gap-2 sm:grid-cols-2">
+          <Button variant="ghost" onClick={() => setAskOut(false)} autoFocus>Quedarme</Button>
+          <Button variant="wine" onClick={() => { setAskOut(false); logout(); }}>Salir de todos modos</Button>
+        </div>
+      </Modal>
     </div>
   );
 }

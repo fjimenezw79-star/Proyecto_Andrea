@@ -1,8 +1,14 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { UserPlus } from "lucide-react";
 import { useEffect, useState, type FormEvent } from "react";
 import { api, ApiError } from "../lib/api";
-import type { CartClient } from "../lib/cart";
+import { newId, type CartClient } from "../lib/cart";
+import { useAuth } from "../auth/AuthProvider";
+import { saveClients, searchClientsOffline } from "../offline/cache";
+import { isNetworkError, queueAction } from "../offline/offlineAction";
+import { useOffline } from "../offline/OfflineProvider";
+import { clientHeaders, nowLocalIso } from "../offline/queue";
+import { useToast } from "../ui/Toast";
 import { formatMoney } from "../lib/money";
 import type { Client } from "../lib/opTypes";
 import { Button } from "../ui/Button";
@@ -20,16 +26,46 @@ export function ClientPicker({ open, onOpenChange, onPick, current }: { open: bo
   const [errors, setErrors] = useState<Record<string, string>>({});
   useEffect(() => { const t = setTimeout(() => setDq(q.trim()), 180); return () => clearTimeout(t); }, [q]);
   useEffect(() => { if (open) { setQ(""); setCreating(false); setErrors({}); } }, [open]);
-  const list = useQuery({ queryKey: ["clients", dq], queryFn: () => api<{ clients: Client[] }>(`/api/clients?q=${encodeURIComponent(dq)}`), enabled: open });
+  const { user } = useAuth();
+  const qc = useQueryClient();
+  const toast = useToast();
+  const { markOffline } = useOffline();
+  const list = useQuery({
+    queryKey: ["clients", dq],
+    enabled: open,
+    queryFn: async () => {
+      try {
+        const d = await api<{ clients: Client[] }>(`/api/clients?q=${encodeURIComponent(dq)}`);
+        saveClients(d.clients.map((c) => ({ id: c.id, name: c.name, phone: c.phone, points: c.points, credit_cents: c.credit_cents })));
+        return d;
+      } catch (e) {
+        if (!isNetworkError(e)) throw e;
+        // sin señal: clientes guardados en el dispositivo (sin saldo a favor, que solo se usa en línea)
+        return { clients: (await searchClientsOffline(dq)).map((c) => ({ ...c, credit_cents: 0 }) as Client) };
+      }
+    },
+  });
 
   async function save(e: FormEvent) {
     e.preventDefault();
     if (!name.trim()) return setErrors({ name: "Escribe el nombre del cliente." });
+    const id = newId();
+    const clientTime = nowLocalIso();
+    const json = { id, name: name.trim(), phone: phone.trim() };
     try {
-      const d = await api<{ client: Client }>("/api/clients", { method: "POST", json: { name, phone } });
+      const d = await api<{ client: Client }>("/api/clients", { method: "POST", json, headers: clientHeaders(id, clientTime) });
       onPick(toCartClient(d.client));
       onOpenChange(false);
     } catch (err) {
+      if (isNetworkError(err)) {
+        markOffline();
+        await queueAction(qc, { uid: id, user: user!.id, kind: "client", label: `Cliente ${json.name}`, path: "/api/clients", json, clientTime });
+        await saveClients([{ id, name: json.name, phone: json.phone, points: 0, credit_cents: 0 }]);
+        onPick({ id, name: json.name, points: 0, creditCents: 0 });
+        onOpenChange(false);
+        toast("Cliente guardado en este dispositivo. Se enviará al volver la señal.");
+        return;
+      }
       const a = err instanceof ApiError ? err : null;
       setErrors({ [a?.field ?? "form"]: a?.message ?? "No se pudo guardar." });
     }

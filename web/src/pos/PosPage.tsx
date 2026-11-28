@@ -16,7 +16,12 @@ import { PaymentSheet, type SaleResult } from "./PaymentSheet";
 import { ClientPicker } from "../clients/ClientPicker";
 import { NewLayawaySheet } from "../layaways/NewLayawaySheet";
 import { ProductGrid } from "./ProductGrid";
-import { filterCatalog, loadCatalog, type Catalog } from "../offline/cache";
+import { filterCatalog, loadCatalog, provisionalFolio, type Catalog } from "../offline/cache";
+import { isNetworkError, queueAction } from "../offline/offlineAction";
+import { useOffline } from "../offline/OfflineProvider";
+import { clientHeaders, nowLocalIso } from "../offline/queue";
+import { Button } from "../ui/Button";
+import { Modal } from "../ui/Dialog";
 
 /** En línea consulta al servidor; sin señal usa la copia del catálogo guardada en el dispositivo. */
 async function withOffline<T>(online: () => Promise<T>, offline: (c: Catalog) => T): Promise<T> {
@@ -50,6 +55,8 @@ export function PosPage() {
   const [pendingLayaway, setPendingLayaway] = useState(false);
   const [mobileCart, setMobileCart] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
+  const { markOffline } = useOffline();
+  const [lowAsk, setLowAsk] = useState<{ names: string[]; resolve: (ok: boolean) => void } | null>(null);
 
   const categories = useQuery({
     queryKey: ["categories"],
@@ -113,13 +120,31 @@ export function PosPage() {
   const inCart = useMemo(() => Object.fromEntries(cart.lines.map((l) => [l.variantId, l.qty])), [cart.lines]);
   const t = totals(cart);
 
+  async function saveOffline(body: ReturnType<typeof salePayload>, payments: Payment[], clientTime: string): Promise<SaleResult> {
+    markOffline();
+    const low = cart.lines.filter((l) => l.stock <= 2);
+    if (low.length && !(await new Promise<boolean>((resolve) => setLowAsk({ names: low.map((l) => l.name), resolve }))))
+      throw new Error("No se registró la venta. Revisa las piezas cuando vuelva la señal.");
+    const folio = provisionalFolio(cart.id);
+    await queueAction(
+      qc,
+      { uid: cart.id, user: user!.id, kind: "sale", label: `Venta ${folio} · ${formatMoney(t.total)}`, path: "/api/sales", json: body, clientTime, stock: Object.fromEntries(cart.lines.map((l) => [l.variantId, l.qty])) },
+      Object.fromEntries(cart.lines.map((l) => [l.variantId, l.stock])),
+    );
+    const change = payments.reduce((s, p) => s + (p.method === "cash" ? (p.receivedCents ?? p.amountCents) - p.amountCents : 0), 0);
+    return { folio, total_cents: t.total, change_cents: change, offline: true };
+  }
+
   async function confirm(payments: Payment[]): Promise<SaleResult> {
+    const body = salePayload(cart, payments);
+    const clientTime = nowLocalIso();
     try {
-      const d = await api<{ sale: SaleResult }>("/api/sales", { method: "POST", json: salePayload(cart, payments) });
+      const d = await api<{ sale: SaleResult }>("/api/sales", { method: "POST", json: body, headers: clientHeaders(cart.id, clientTime) });
       if (d.sale.total_cents !== t.total)
         toast(`Esta venta ya se había registrado como #${d.sale.folio} por ${formatMoney(d.sale.total_cents)}. Revisa el carrito antes de cobrar otra vez.`, "error");
       return d.sale;
     } catch (e) {
+      if (isNetworkError(e)) return saveOffline(body, payments, clientTime);
       if (e instanceof ApiError && e.status === 409 && typeof e.data.variant_id === "number" && typeof e.data.available === "number")
         dispatch({ type: "refreshStock", stock: { [e.data.variant_id]: e.data.available } });
       throw e;
@@ -195,6 +220,15 @@ export function PosPage() {
       <ClientPicker open={picking} current={cart.client} onOpenChange={(o) => { setPicking(o); if (!o) setPendingLayaway(false); }} onPick={(c) => { dispatch({ type: "setClient", client: c }); if (c && pendingLayaway) setTimeout(() => setLaying(true), 50); }} />
       <NewLayawaySheet open={laying} cart={cart} onClose={() => setLaying(false)} onDone={() => { setLaying(false); newSale(); }} />
       <PaymentSheet open={paying} total={t.total} creditCents={cart.client?.creditCents ?? 0} onClose={() => setPaying(false)} onConfirm={confirm} onNewSale={newSale} />
+      <Modal open={!!lowAsk} onOpenChange={(o) => { if (!o) { lowAsk?.resolve(false); setLowAsk(null); } }} title="Quedan pocas piezas">
+        <p className="mb-5 text-muted">
+          Sin señal no se puede revisar si otro dispositivo ya vendió <strong className="text-ink">{lowAsk?.names.join(", ")}</strong>. Si la pieza está en tu mano, registra la venta; se avisará al administrador si el stock no alcanza.
+        </p>
+        <div className="grid gap-2 sm:grid-cols-2">
+          <Button variant="ghost" onClick={() => { lowAsk?.resolve(false); setLowAsk(null); }}>No registrar</Button>
+          <Button onClick={() => { lowAsk?.resolve(true); setLowAsk(null); }} autoFocus>Registrar venta</Button>
+        </div>
+      </Modal>
     </div>
   );
 }

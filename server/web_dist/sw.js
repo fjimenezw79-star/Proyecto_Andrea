@@ -3,8 +3,8 @@
  * - Miniaturas de fotos: se sirven de la copia y se actualizan en segundo plano.
  * - /api/* nunca pasa por aquí: los datos siempre son en vivo (y la cola sin señal vive en la app).
  */
-const VERSION = "ac93ef23f33d";
-const PRECACHE = ["/","/index.html","/assets/index-DrPIoHL2.js","/assets/hanken-grotesk-latin-ext-wght-normal-Dg-wlmqe.woff2","/assets/hanken-grotesk-latin-wght-normal-CaVRRdDk.woff2","/assets/hanken-grotesk-vietnamese-wght-normal-CHiFlh_0.woff2","/assets/index-B0a77FTY.css","/assets/instrument-serif-latin-400-italic-DKMiL14s.woff2","/assets/instrument-serif-latin-400-italic-u__WvvIK.woff","/assets/instrument-serif-latin-400-normal-BVbkICAY.woff","/assets/instrument-serif-latin-400-normal-DnYpCC2O.woff2","/assets/instrument-serif-latin-ext-400-italic-C9HzH3YL.woff2","/assets/instrument-serif-latin-ext-400-italic-D7-lnxEk.woff","/assets/instrument-serif-latin-ext-400-normal-C2je3j2s.woff2","/assets/instrument-serif-latin-ext-400-normal-CFCUzsTy.woff","/manifest.webmanifest","/favicon.svg","/icon-192.png","/icon-512.png"];
+const VERSION = "cc3daeaebaf4";
+const PRECACHE = ["/","/index.html","/assets/index-BLzXpj37.js","/assets/hanken-grotesk-latin-ext-wght-normal-Dg-wlmqe.woff2","/assets/hanken-grotesk-latin-wght-normal-CaVRRdDk.woff2","/assets/hanken-grotesk-vietnamese-wght-normal-CHiFlh_0.woff2","/assets/index-BQINPRMr.css","/assets/instrument-serif-latin-400-italic-DKMiL14s.woff2","/assets/instrument-serif-latin-400-italic-u__WvvIK.woff","/assets/instrument-serif-latin-400-normal-BVbkICAY.woff","/assets/instrument-serif-latin-400-normal-DnYpCC2O.woff2","/assets/instrument-serif-latin-ext-400-italic-C9HzH3YL.woff2","/assets/instrument-serif-latin-ext-400-italic-D7-lnxEk.woff","/assets/instrument-serif-latin-ext-400-normal-C2je3j2s.woff2","/assets/instrument-serif-latin-ext-400-normal-CFCUzsTy.woff","/manifest.webmanifest","/favicon.svg","/icon-192.png","/icon-512.png"];
 const APP = `ma-app-${VERSION}`;
 const THUMBS = "ma-thumbs";
 
