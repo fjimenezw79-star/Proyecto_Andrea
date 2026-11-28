@@ -43,7 +43,7 @@ def _secret_key() -> str:
 
 class Config:
     APP_NAME = "Modas Andrea"
-    APP_VERSION = "0.1.0"
+    APP_VERSION = "1.0.0"
     SECRET_KEY = _secret_key()
     DATA_DIR = str(BASE_DIR / "data")
     DATABASE = str(BASE_DIR / "data" / "modas-andrea.db")

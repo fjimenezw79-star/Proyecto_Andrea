@@ -1,5 +1,5 @@
-MODAS ANDREA (YUDA) - SISTEMA DE VENTAS
-=======================================
+MODAS ANDREA (YUDA) - SISTEMA DE VENTAS - VERSION 1.0
+=====================================================
 
 1. Extrae este ZIP en una carpeta fija, por ejemplo C:\ModasAndrea
    (clic derecho sobre el ZIP > Extraer todo...).
@@ -13,5 +13,8 @@ Otros archivos:
   cargar_datos_prueba.bat       58 productos de prueba con foto
   migrar_sistema_anterior.bat   pasa productos, ventas y apartados del sistema anterior
   ejecutar_pruebas.bat          pruebas automaticas (no tocan tus datos)
+
+Tienda en linea:  http://127.0.0.1:5000/tienda/  (comparte su enlace desde Configuracion)
+Internet:         acceso_remoto.bat  (celulares fuera de la tienda y la tienda en linea)
 
 Manual completo:  Manual_Modas_Andrea.pdf
