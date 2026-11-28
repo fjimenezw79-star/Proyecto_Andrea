@@ -3,6 +3,9 @@ setlocal EnableExtensions EnableDelayedExpansion
 chcp 65001 >nul
 title Instalador de Modas Andrea
 cd /d "%~dp0"
+REM actualizar.bat llama "instalar.bat /actualizar": no ofrece datos de prueba ni abrir el sistema
+set "UPDATE="
+if /i "%~1"=="/actualizar" set "UPDATE=1"
 
 echo.
 echo  ==========================================================
@@ -64,7 +67,7 @@ echo  [4/5] Configurando...
 
 REM 5. Base de datos
 if not exist "server\web_dist\index.html" (
-    echo  [!] Falta la app compilada (server\web_dist). Descarga de nuevo el sistema completo.
+    echo  [!] Falta la app compilada ^(server\web_dist^). Descarga de nuevo el sistema completo.
     goto :fallo
 )
 if not exist "data" mkdir data
@@ -74,18 +77,22 @@ if errorlevel 1 (
     goto :fallo
 )
 echo  [5/5] Base de datos lista en data\modas-andrea.db
-choice /c SN /n /m "        Cargar el catalogo de prueba (58 productos con foto)? [S/N]: "
-if !errorlevel! equ 1 "%VPY%" -m scripts.importar_datos_prueba
+if not defined UPDATE (
+    choice /c SN /n /m "        Cargar el catalogo de prueba (58 productos con foto)? [S/N]: "
+    if !errorlevel! equ 1 "%VPY%" -m scripts.importar_datos_prueba
+)
 
-powershell -NoProfile -ExecutionPolicy Bypass -Command "$d=[Environment]::GetFolderPath('Desktop'); $s=(New-Object -ComObject WScript.Shell).CreateShortcut((Join-Path $d 'Modas Andrea.lnk')); $s.TargetPath='%~dp0aplicacion.bat'; $s.WorkingDirectory='%~dp0'; $s.IconLocation='%SystemRoot%\System32\shell32.dll,13'; $s.Description='Iniciar Modas Andrea'; $s.Save()" >nul 2>&1
-if not errorlevel 1 echo        Acceso directo "Modas Andrea" creado en el escritorio.
+REM Accesos directos del escritorio (si fallan, se muestra el motivo y se puede repetir con crear_accesos_directos.bat)
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\accesos_directos.ps1" "%~dp0."
+if errorlevel 1 echo  [!] Ejecuta crear_accesos_directos.bat para intentarlo de nuevo.
 
 echo.
 echo  ==========================================================
 echo    INSTALACION COMPLETA
 echo  ==========================================================
-echo    Para abrir el sistema ejecuta aplicacion.bat
-echo    o el acceso directo "Modas Andrea" del escritorio.
+echo    Accesos directos en el escritorio:
+echo      "Modas Andrea"            solo en esta red (WiFi del negocio)
+echo      "Modas Andrea (internet)" celulares fuera del local y tienda en linea
 echo.
 echo    Otros archivos: cargar_datos_prueba.bat, migrar_sistema_anterior.bat
 echo                    y ejecutar_pruebas.bat
@@ -95,6 +102,10 @@ echo                         vendedor / 12345
 echo    Cambia estas contrasenas antes de usarlo en la tienda.
 echo  ==========================================================
 echo.
+if defined UPDATE (
+    endlocal
+    exit /b 0
+)
 choice /c SN /n /m "  Deseas iniciar Modas Andrea ahora? [S/N]: "
 if !errorlevel! equ 1 start "" "%~dp0aplicacion.bat"
 endlocal

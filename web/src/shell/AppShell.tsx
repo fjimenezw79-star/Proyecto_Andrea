@@ -11,6 +11,8 @@ import { AccountDialog } from "../auth/AccountDialog";
 import { Modal } from "../ui/Dialog";
 import { CommandPalette } from "./CommandPalette";
 import { navItems } from "./nav";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "../lib/api";
 
 function readCollapsed() {
   try {
@@ -29,6 +31,14 @@ export function AppShell() {
   const [palette, setPalette] = useState(false);
   const [more, setMore] = useState(false);
   const items = navItems(user!.role);
+  const counts = useQuery({
+    queryKey: ["online-counts"],
+    queryFn: () => api<{ counts: Record<string, number> }>("/api/online-orders/counts"),
+    enabled: user!.role === "admin",
+    refetchInterval: 30_000,
+    retry: false,
+  });
+  const pendingOrders = counts.data?.counts.pending ?? 0;
   useCatalogSync(user?.id ?? null);
   const { pendingCount } = useOffline();
   const [askOut, setAskOut] = useState(false);
@@ -93,6 +103,9 @@ export function AppShell() {
                   )}
                   <i.icon className="relative size-5 shrink-0" aria-hidden />
                   {collapsed ? <span className="sr-only">{i.label}</span> : <span className="relative truncate">{i.label}</span>}
+                  {i.to === "/pedidos" && pendingOrders > 0 && (
+                    <span className={`relative rounded-full bg-wine px-2 text-xs font-bold leading-5 text-wine-ink tnum ${collapsed ? "absolute right-1 top-1" : "ml-auto"}`} aria-label={`${pendingOrders} pendientes`}>{pendingOrders}</span>
+                  )}
                 </>
               )}
             </NavLink>
@@ -205,6 +218,7 @@ export function AppShell() {
                 {items.slice(3).map((i) => (
                   <NavLink key={i.to} to={i.to} className="flex items-center gap-3 rounded-2xl px-3 py-3 text-lg font-semibold hover:bg-surface">
                     <i.icon className="size-5" aria-hidden /> {i.label}
+                    {i.to === "/pedidos" && pendingOrders > 0 && <span className="ml-auto rounded-full bg-wine px-2 text-sm text-wine-ink tnum">{pendingOrders}</span>}
                   </NavLink>
                 ))}
                 <button onClick={() => { setMore(false); setAccount(true); }} className="flex items-center gap-3 rounded-2xl px-3 py-3 text-left text-lg font-semibold hover:bg-surface">

@@ -7,6 +7,7 @@ import { useToast } from "../ui/Toast";
 import { useBusinessSettings, type BusinessSettings } from "../lib/settings";
 import { LABEL_SIZES } from "../print/Labels";
 import { VisionSettings } from "./VisionSettings";
+import { StoreSettings } from "./StoreSettings";
 
 type Settings = BusinessSettings;
 
@@ -19,7 +20,7 @@ export function SettingsPage() {
   const [busy, setBusy] = useState(false);
   useEffect(() => { if (q.data && !form) setForm(q.data); }, [q.data, form]);
   if (!form) return <p className="p-8 text-muted">Cargando…</p>;
-  const set = (k: keyof Settings, v: string | number) => setForm({ ...form, [k]: v });
+  const set = (k: keyof Settings, v: string | number | boolean) => setForm({ ...form, [k]: v });
 
   async function save(e: FormEvent) {
     e.preventDefault();
@@ -69,6 +70,10 @@ export function SettingsPage() {
             <Field label="Avisar stock bajo con" inputMode="numeric" value={String(form.low_stock_threshold)} onChange={(e) => set("low_stock_threshold", e.target.value.replace(/\D/g, ""))} error={errors.low_stock_threshold} hint="piezas o menos" />
           </div>
           <Field label="Pie del ticket" value={form.ticket_footer} maxLength={200} onChange={(e) => set("ticket_footer", e.target.value)} error={errors.ticket_footer} hint="Por ejemplo: Cambios en 7 días con ticket." />
+        </fieldset>
+        <fieldset className="grid gap-4">
+          <legend className="mb-2 font-serif text-3xl">Tienda en línea</legend>
+          <StoreSettings form={form} set={set} errors={errors} />
         </fieldset>
         <fieldset className="grid gap-4">
           <legend className="mb-2 font-serif text-3xl">Reconocimiento con la cámara</legend>

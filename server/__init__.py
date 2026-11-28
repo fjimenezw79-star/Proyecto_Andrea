@@ -28,11 +28,19 @@ def create_app(config_class: type[Config] = Config) -> Flask:
     offline.init_app(app)
 
     from .blueprints import (audit, auth, cash, catalog, clients, connect, expenses, inventory, layaways, reports, returns,
-                             sales, settings, vision)
+                             sales, settings, users, vision, online)
     for module in (auth, settings, catalog, inventory, sales, clients, layaways, returns, expenses, cash, reports, audit,
-                   connect, vision):
+                   connect, vision, users):
         app.register_blueprint(module.bp)
+    for module in (online,):
+        app.register_blueprint(module.bp)
+        app.register_blueprint(module.store_bp)
     app.register_blueprint(catalog.uploads)
+
+    from . import store
+    store.init_app(app)  # tienda pública en /tienda/
+    from .store import cloud
+    cloud.bind(app)
 
     from . import spa
     app.register_blueprint(spa.bp)  # al final: atrapa las rutas de la app web

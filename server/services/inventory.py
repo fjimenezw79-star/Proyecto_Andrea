@@ -7,7 +7,8 @@ from ..api_util import ConflictError, ValidationError, strict_int
 from ..db import begin_write, session
 from ..models import StockAlert, StockMovement, Variant
 
-REASONS = {"sale", "sale_cancel", "purchase", "adjustment", "import", "layaway", "layaway_cancel", "return"}
+REASONS = {"sale", "sale_cancel", "purchase", "adjustment", "import", "layaway", "layaway_cancel", "return",
+           "online", "online_cancel"}
 
 
 class InsufficientStock(ConflictError):

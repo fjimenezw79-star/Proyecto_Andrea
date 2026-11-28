@@ -19,6 +19,7 @@ def build_app(tmp: Path):
         UPLOAD_DIR = str(tmp / "fotos")
         BACKUP_DIR = str(tmp / "respaldos")
         SECRET_KEY = "e2e"
+        STORE_ORDER_LIMIT = 1000
 
     app = create_app(E2EConfig)
     from scripts.importar_datos_prueba import run

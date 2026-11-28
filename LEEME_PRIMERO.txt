@@ -1,17 +1,25 @@
-MODAS ANDREA (YUDA) - SISTEMA DE VENTAS
-=======================================
+MODAS ANDREA (YUDA) - SISTEMA DE VENTAS - VERSION 1.0
+=====================================================
 
 1. Extrae este ZIP en una carpeta fija, por ejemplo C:\ModasAndrea
    (clic derecho sobre el ZIP > Extraer todo...).
 2. Doble clic en  instalar.bat  (necesita internet solo esta vez).
-3. Abre el sistema con el acceso directo "Modas Andrea" del escritorio
+3. Abre el sistema con el acceso directo "Modas Andrea" del escritorio,
+   o con "Modas Andrea (internet)" para celulares fuera del local y la tienda,
    o con  aplicacion.bat .
 4. Entra con  admin / admin123  (administrador) o  vendedor / 12345 .
-   Cambia esas contrasenas con  restablecer_contrasena.bat .
+   Cambia esas contrasenas en el menu Usuarios (administrador).
+   Nuevos vendedores: menu Usuarios > Nuevo usuario.
+   Si se olvida la del administrador:  restablecer_contrasena.bat
 
 Otros archivos:
+  actualizar.bat                pasa a una version nueva conservando tus datos
+  crear_accesos_directos.bat    vuelve a crear los accesos directos del escritorio
   cargar_datos_prueba.bat       58 productos de prueba con foto
   migrar_sistema_anterior.bat   pasa productos, ventas y apartados del sistema anterior
   ejecutar_pruebas.bat          pruebas automaticas (no tocan tus datos)
+
+Tienda en linea:  http://127.0.0.1:5000/tienda/  (comparte su enlace desde Configuracion)
+Internet:         acceso_remoto.bat  (celulares fuera de la tienda y la tienda en linea)
 
 Manual completo:  Manual_Modas_Andrea.pdf

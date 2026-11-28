@@ -33,6 +33,12 @@ KEEP_OPS = timedelta(days=30)
 QUEUEABLE = {"sales.create", "layaways.create", "layaways.payment", "clients.create"}
 
 AUDITED = {
+    "users.create": "Dio de alta usuario",
+    "users.update": "Cambió usuario",
+    "users.reset_password": "Restableció contraseña",
+    "online_orders.confirm": "Confirmó pedido en línea",
+    "online_orders.charge": "Cobró pedido en línea",
+    "online_orders.reject": "Rechazó pedido en línea",
     "sales.create": "Registró venta",
     "sales.cancel": "Canceló venta",
     "returns.create": "Registró devolución",
@@ -165,7 +171,7 @@ def _audit(resp) -> None:
     detail, entity = "", next(iter((request.view_args or {}).values()), None)
     if isinstance(data, dict):
         detail = data.get("message") or ""
-        for key in ("sale", "layaway", "client", "expense", "product", "return", "session", "variant", "category"):
+        for key in ("user", "order", "sale", "layaway", "client", "expense", "product", "return", "session", "variant", "category"):
             obj = data.get(key)
             if isinstance(obj, dict):
                 entity = entity or obj.get("id")

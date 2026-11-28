@@ -21,6 +21,7 @@ export type TicketData = {
   totalCents: number;
   payments: TicketPayment[];
   changeCents: number;
+  shippingCents?: number;
   pending?: boolean;
   status?: "cancelled" | "settled" | "pending" | "paid";
   layaway?: { paidCents: number; balanceCents: number; deadline: string };
@@ -28,7 +29,7 @@ export type TicketData = {
 
 export type SaleForTicket = {
   folio: number | string; created_at: string; status: string; user_name?: string | null; client_name?: string | null; client_phone?: string | null;
-  subtotal_cents: number; discount_cents: number; total_cents: number; change_cents: number;
+  subtotal_cents: number; discount_cents: number; total_cents: number; change_cents: number; shipping_cents?: number;
   items: { name: string; attrs: Record<string, string>; qty: number; unit_price_cents: number; discount_cents: number }[];
   payments: { method: Method; amount_cents: number }[];
 };
@@ -41,7 +42,7 @@ export function saleTicket(s: SaleForTicket): TicketData {
     lines: s.items.map((i) => ({ name: i.name, variant: attrsText(i.attrs), qty: i.qty, unitCents: i.unit_price_cents, discountCents: i.discount_cents })),
     subtotalCents: s.subtotal_cents, discountCents: s.discount_cents, totalCents: s.total_cents,
     payments: s.payments.map((p) => ({ label: METHOD_LABEL[p.method] ?? p.method, amountCents: p.amount_cents })),
-    changeCents: s.change_cents, status: s.status === "cancelled" ? "cancelled" : "paid",
+    changeCents: s.change_cents, shippingCents: s.shipping_cents ?? 0, status: s.status === "cancelled" ? "cancelled" : "paid",
   };
 }
 
@@ -84,6 +85,7 @@ export function ticketText(t: TicketData, s: Pick<BusinessSettings, "business_na
   }
   out.push("");
   if (t.discountCents > 0) out.push(`Descuento: −${formatMoney(t.discountCents)}`);
+  if (t.shippingCents) out.push(`Envío: ${formatMoney(t.shippingCents)}`);
   out.push(`*Total: ${formatMoney(t.totalCents)}*`);
   if (t.layaway) {
     for (const p of t.payments) out.push(`Abono ${p.date ? shortDate(p.date) : ""} (${p.label}): ${formatMoney(p.amountCents)}`.replace("  ", " "));

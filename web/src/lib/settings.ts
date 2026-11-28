@@ -13,11 +13,16 @@ export type BusinessSettings = {
   low_stock_threshold: number;
   ticket_footer: string;
   ai_monthly_limit: number;
+  business_hours: string;
+  store_tagline: string;
+  store_intro: string;
+  store_hide_sold_out: boolean;
 };
 
 export const DEFAULT_SETTINGS: BusinessSettings = {
   business_name: "Modas Andrea", business_subtitle: "Yuda", whatsapp: "", address: "", ticket_width_mm: 58,
   label_size: "50x25", low_stock_threshold: 2, ticket_footer: "¡Gracias por tu compra!", ai_monthly_limit: 100,
+  business_hours: "", store_tagline: "", store_intro: "", store_hide_sold_out: false,
 };
 
 /** Configuración del negocio; sin señal usa la última copia guardada en el dispositivo. */
@@ -34,4 +39,15 @@ export async function fetchSettings(): Promise<BusinessSettings> {
 
 export function useBusinessSettings() {
   return useQuery({ queryKey: ["settings"], queryFn: fetchSettings, staleTime: 5 * 60_000 });
+}
+
+export type StoreStatus = {
+  local_url: string;
+  public_url: string;
+  cloud: { configured: boolean; url: string | null; publishing: boolean; last_publish: string | null; last_error: string | null; last_pull: string | null };
+};
+
+/** Dirección de la tienda en línea (la de Cloudflare si está configurada; si no, la de esta PC). */
+export function useStoreStatus() {
+  return useQuery({ queryKey: ["store-status"], queryFn: () => api<StoreStatus>("/api/store"), staleTime: 60_000, retry: false });
 }

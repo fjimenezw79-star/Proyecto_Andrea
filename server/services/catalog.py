@@ -357,7 +357,7 @@ def variant_dict(v: Variant, with_cost: bool) -> dict:
 
 def product_dict(p: Product, with_cost: bool = False) -> dict:
     variants = [variant_dict(v, with_cost) for v in p.variants]
-    return {"id": p.id, "name": p.name, "description": p.description, "category_id": p.category_id,
+    return {"id": p.id, "name": p.name, "slug": f"{slugify(p.name)}-{p.id}", "description": p.description, "category_id": p.category_id,
             "category": p.category.name if p.category else "", "online": p.online, "active": p.active,
             "photos": [{"id": ph.id, "url": f"/uploads/{ph.filename}", "thumb_url": f"/uploads/{ph.thumb_filename}"}
                        for ph in p.photos],

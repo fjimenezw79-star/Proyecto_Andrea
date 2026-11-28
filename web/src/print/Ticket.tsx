@@ -37,6 +37,7 @@ export function Ticket({ t, s }: { t: TicketData; s: BusinessSettings }) {
           <p className={row}><span>Descuento</span><span className="tnum">−{formatMoney(t.discountCents)}</span></p>
         </>
       )}
+      {!!t.shippingCents && <p className={row}><span>Envío</span><span className="tnum">{formatMoney(t.shippingCents)}</span></p>}
       <p className={row} style={{ fontSize: "1.45em", fontWeight: 800 }}><span>Total</span><span className="tnum">{formatMoney(t.totalCents)}</span></p>
       {t.layaway ? (
         <>

@@ -221,7 +221,7 @@ def sale_dict(s: Sale, with_cost: bool) -> dict:
             "user_name": (seller.full_name or seller.username) if seller else None,
             "client_name": client.name if client else None, "client_phone": client.phone if client else None,
             "subtotal_cents": s.subtotal_cents, "discount_cents": s.discount_cents, "total_cents": s.total_cents,
-            "change_cents": change, "note": s.note, "created_at": s.created_at.isoformat(),
+            "change_cents": change, "shipping_cents": s.shipping_cents or 0, "note": s.note, "created_at": s.created_at.isoformat(),
             "cancel_reason": s.cancel_reason or None, "items": items, "payments": pays, "source": s.source,
             "fully_returned": bool(items) and all(i["returned_qty"] >= i["qty"] for i in items),
             "returns": [{"id": r.id, "refund_cents": r.refund_cents, "refund_method": r.refund_method, "reason": r.reason,
