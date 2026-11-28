@@ -60,6 +60,9 @@ class Config:
     PUBLIC_URL = os.environ.get("PUBLIC_URL", "").strip()
     CLOUDFLARE_TUNNEL_TOKEN = os.environ.get("CLOUDFLARE_TUNNEL_TOKEN", "").strip()
     BLOCK_DEFAULT_PASSWORDS_REMOTE = os.environ.get("BLOCK_DEFAULT_PASSWORDS_REMOTE", "true").strip().lower() not in ("0", "false", "no")
+    # Botón "Buscar con IA" (Claude con visión). Sin clave, el botón no aparece.
+    ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "").strip()
+    ANTHROPIC_MODEL = os.environ.get("ANTHROPIC_MODEL", "").strip() or "claude-opus-5-5"
     TOOLS_DIR = str(BASE_DIR / "tools")
     MAX_CONTENT_LENGTH = 25 * 1024 * 1024
     SESSION_COOKIE_HTTPONLY = True
@@ -73,3 +76,4 @@ class TestConfig(Config):
     TESTING = True
     WTF_CSRF_ENABLED = False
     SECRET_KEY = "pruebas"
+    ANTHROPIC_API_KEY = ""

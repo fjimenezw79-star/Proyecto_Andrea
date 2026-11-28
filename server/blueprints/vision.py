@@ -83,3 +83,78 @@ def save_embeddings():
         session.merge(PhotoEmbedding(photo_id=it["photo_id"], model=MODEL, dim=DIM, vector=it["v"]))
     session.commit()
     return ok("Huellas guardadas.", saved=len(items))
+
+
+# ---------- Botón "✨ Buscar con IA" ----------
+
+def _ai_status() -> dict:
+    from flask import current_app
+    from sqlalchemy import func
+
+    from .. import ai
+    from ..models import AiQuery
+    from .settings import get_settings
+
+    limit = int(get_settings()["ai_monthly_limit"])
+    used = session.scalar(select(func.count(AiQuery.id)).where(
+        AiQuery.at >= ai.month_start(), AiQuery.status.in_(("pending", "ok")))) or 0
+    has_key = bool(current_app.config.get("ANTHROPIC_API_KEY"))
+    return {"enabled": has_key and used < limit, "configured": has_key, "used": used, "limit": limit,
+            "model": current_app.config.get("ANTHROPIC_MODEL")}
+
+
+@bp.get("/ai")
+@login_required
+def ai_status():
+    return ok(**_ai_status())
+
+
+@bp.post("/ai")
+@login_required
+def ai_search():
+    from flask import current_app
+    from flask_login import current_user
+    from sqlalchemy.orm import selectinload
+
+    from .. import ai
+    from ..models import AiQuery
+
+    if not current_app.config.get("ANTHROPIC_API_KEY"):
+        return fail("La búsqueda con IA no está activada en este negocio.", 503)
+    d = request.get_json(silent=True) or {}
+    jpeg = ai.clean_query_image(d.get("image"))
+    ids = d.get("candidates")
+    if (not isinstance(ids, list) or not 1 <= len(ids) <= ai.MAX_CANDIDATES
+            or not all(isinstance(i, int) and not isinstance(i, bool) for i in ids)):
+        return fail(f"Envía de 1 a {ai.MAX_CANDIDATES} productos candidatos.", 400, "candidates")
+    ids = list(dict.fromkeys(ids))
+    products = {p.id: p for p in session.query(Product).options(selectinload(Product.photos), selectinload(Product.variants))
+                .filter(Product.id.in_(ids), Product.active.is_(True))}
+    if len(products) != len(ids):
+        return fail("Uno de los productos ya no existe.", 400, "candidates")
+    ordered = [products[i] for i in ids]
+
+    # Se aparta el lugar antes de llamar a la API: dos dispositivos a la vez no pasan el límite
+    begin_write()
+    st = _ai_status()
+    if st["used"] >= st["limit"]:
+        session.rollback()
+        return fail("Ya se usaron las consultas de IA de este mes. El administrador puede subir el límite en Configuración.", 429)
+    q = AiQuery(user_id=current_user.id, status="pending")
+    session.add(q)
+    session.commit()
+    qid = q.id
+
+    try:
+        idx, reason, tin, tout = ai.ask(current_app, jpeg, ordered)
+    except ai.AiUnavailable:
+        begin_write()
+        session.get(AiQuery, qid).status = "error"
+        session.commit()
+        return fail("La IA no respondió. Revisa el internet e inténtalo de nuevo.", 502)
+    match = ordered[idx].id if idx is not None else None
+    begin_write()
+    row = session.get(AiQuery, qid)
+    row.status, row.matched_product_id, row.input_tokens, row.output_tokens = "ok", match, tin, tout
+    session.commit()
+    return ok(match=match, reason=reason, **{k: v for k, v in _ai_status().items() if k in ("used", "limit")})
