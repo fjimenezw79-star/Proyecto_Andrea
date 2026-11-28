@@ -190,3 +190,36 @@ def test_by_seller_net_of_returns(admin, v1):
     admin.post(f"/api/sales/{s['id']}/returns", json={"items": [{"sale_item_id": iid, "qty": 1}], "refund_method": "card", "reason": "x"})
     d = date.today().isoformat()
     assert admin.get(f"/api/reports/summary?from={d}&to={d}").get_json()["by_seller"][0]["sales_cents"] == 0
+
+
+def test_upgrade_from_0002_keeps_data(tmp_path):
+    from alembic import command
+    from alembic.config import Config
+
+    db = tmp_path / "s3.db"
+    cfg = Config()
+    cfg.set_main_option("script_location", "server/migrations")
+    cfg.set_main_option("sqlalchemy.url", f"sqlite:///{db}")
+    command.upgrade(cfg, "0002")
+    c = sqlite3.connect(db)
+    c.executescript("""
+    INSERT INTO categories(id,name,slug,sort,active) VALUES(1,'C','c',0,1);
+    INSERT INTO products(id,name,description,category_id,online,active,created_at,updated_at) VALUES(1,'P','',1,1,1,'2026-01-01','2026-01-01');
+    INSERT INTO variants(id,product_id,sku,attrs,price_cents,cost_cents,stock,hidden,active) VALUES(1,1,'MA000001','{}',100,50,3,1,1);
+    INSERT INTO stock_movements(variant_id,qty_delta,reason,note,created_at) VALUES(1,3,'import','','2026-01-01');
+    """)
+    c.commit()
+    c.close()
+    from server import create_app
+    from server.config import TestConfig
+
+    class Cfg(TestConfig):
+        DATABASE = str(db)
+        UPLOAD_DIR = str(tmp_path / "f")
+        BACKUP_DIR = str(tmp_path / "r")
+
+    create_app(Cfg)
+    c = sqlite3.connect(db)
+    assert c.execute("SELECT stock FROM variants").fetchone() == (3,)
+    c.execute("UPDATE variants SET stock = -1")
+    assert c.execute("SELECT stock FROM variants").fetchone() == (-1,)

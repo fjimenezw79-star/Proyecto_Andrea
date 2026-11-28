@@ -45,3 +45,22 @@ def test_move_never_negative(app, stocked_variant):
 def test_seller_cannot_enter_stock(seller, product):
     v = product["variants"][0]["id"]
     assert seller.post("/api/inventory/entries", json={"items": [{"variant_id": v, "qty": 1}]}).status_code == 403
+
+
+def test_move_negative_only_when_allowed(app, stocked_variant):
+    from server.db import session
+    from server.models import StockAlert, Variant
+    from server.services.inventory import InsufficientStock, move
+
+    with app.app_context():
+        with pytest.raises(InsufficientStock):
+            move(stocked_variant, -6, "sale", None)
+        session.rollback()
+        move(stocked_variant, -6, "sale", None, ref_type="sale", ref_id="s-offline", allow_negative=True)
+        session.commit()
+        assert session.get(Variant, stocked_variant).stock == -1
+        alert = session.query(StockAlert).one()
+        assert alert.stock_after == -1 and alert.ref_id == "s-offline" and alert.reviewed_at is None
+        move(stocked_variant, 3, "purchase", None, allow_negative=True)
+        session.commit()
+        assert session.query(StockAlert).count() == 1

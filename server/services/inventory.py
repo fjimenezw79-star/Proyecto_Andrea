@@ -5,7 +5,7 @@ from sqlalchemy import update
 
 from ..api_util import ConflictError, ValidationError, strict_int
 from ..db import begin_write, session
-from ..models import StockMovement, Variant
+from ..models import StockAlert, StockMovement, Variant
 
 REASONS = {"sale", "sale_cancel", "purchase", "adjustment", "import", "layaway", "layaway_cancel", "return"}
 
@@ -18,13 +18,17 @@ class InsufficientStock(ConflictError):
 
 
 def move(variant_id: int, qty_delta: int, reason: str, user_id: int | None, note: str = "",
-         ref_type: str | None = None, ref_id: str | None = None) -> StockMovement:
-    """Aplica un movimiento de stock sin hacer commit (lo hace quien llama)."""
+         ref_type: str | None = None, ref_id: str | None = None, allow_negative: bool = False) -> StockMovement:
+    """Aplica un movimiento de stock sin hacer commit (lo hace quien llama).
+
+    ``allow_negative`` solo lo usan las ventas que llegan hechas sin señal: la venta ya ocurrió, así que se
+    acepta aunque el stock quede negativo y se deja una alerta para el administrador."""
     if reason not in REASONS:
         raise ValueError(f"Razón de movimiento desconocida: {reason}")
     if qty_delta == 0:
         raise ValidationError("La cantidad no puede ser cero.", "qty")
-    res = session.execute(update(Variant).where(Variant.id == variant_id, Variant.stock + qty_delta >= 0)
+    cond = [Variant.id == variant_id] if allow_negative else [Variant.id == variant_id, Variant.stock + qty_delta >= 0]
+    res = session.execute(update(Variant).where(*cond)
                           .values(stock=Variant.stock + qty_delta).execution_options(synchronize_session="fetch"))
     if res.rowcount != 1:
         v = session.get(Variant, variant_id)
@@ -34,6 +38,10 @@ def move(variant_id: int, qty_delta: int, reason: str, user_id: int | None, note
     mv = StockMovement(variant_id=variant_id, qty_delta=qty_delta, reason=reason, user_id=user_id,
                        note=(note or "").strip()[:500], ref_type=ref_type, ref_id=ref_id)
     session.add(mv)
+    if allow_negative and qty_delta < 0:
+        after = session.get(Variant, variant_id).stock
+        if after < 0:
+            session.add(StockAlert(variant_id=variant_id, stock_after=after, ref_type=ref_type, ref_id=ref_id))
     return mv
 
 
