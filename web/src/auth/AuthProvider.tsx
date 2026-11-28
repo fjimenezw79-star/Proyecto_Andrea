@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
-import { api, AuthError, resetCsrf, setAuthExpiredHandler } from "../lib/api";
+import { api, ApiError, AuthError, resetCsrf, setAuthExpiredHandler } from "../lib/api";
+import { loadMe, saveMe } from "../offline/cache";
 
 export type User = { id: number; username: string; full_name: string; role: "admin" | "seller" };
 type Ctx = {
@@ -25,8 +26,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     api<{ user: User }>("/api/auth/me")
-      .then((d) => setUser(d.user))
-      .catch(() => setUser(null))
+      .then((d) => {
+        setUser(d.user);
+        saveMe(d.user);
+      })
+      // sin señal: se usa el último usuario guardado en el dispositivo para no sacarlo de la app
+      .catch(async (e) => setUser(e instanceof ApiError && e.status === 0 ? await loadMe() : null))
       .finally(() => setReady(true));
   }, []);
 
@@ -35,6 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const d = await api<{ user: User }>("/api/auth/login", { method: "POST", json: { username, password, remember: true } });
     resetCsrf(); // el token cambia con la sesión nueva
     setUser(d.user);
+    saveMe(d.user);
     return d.user;
   }, []);
 
@@ -45,11 +51,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!(e instanceof AuthError)) throw e;
     }
     resetCsrf();
+    saveMe(null);
     setUser(null);
   }, []);
 
   const expire = useCallback(() => {
     resetCsrf();
+    saveMe(null);
     setUser(null);
   }, []);
 

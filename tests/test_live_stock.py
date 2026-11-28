@@ -20,3 +20,11 @@ def test_changes_old_since_asks_for_full_reload(admin, v1):
 
 def test_changes_requires_login(client):
     assert client.get("/api/stock/changes").status_code == 401
+
+
+def test_snapshot_has_all_products_without_cost(admin, v1, v2):
+    d = admin.get("/api/catalog/snapshot").get_json()
+    assert isinstance(d["version"], int) and d["categories"]
+    names = {p["name"] for p in d["products"]}
+    assert len(names) >= 1
+    assert all("cost_cents" not in v for p in d["products"] for v in p["variants"])

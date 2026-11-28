@@ -7,6 +7,7 @@ from flask import Blueprint, abort, send_from_directory
 
 DIST = Path(__file__).resolve().parent / "web_dist"
 ONE_YEAR = 365 * 24 * 3600
+NO_CACHE = {"sw.js", "manifest.webmanifest"}
 
 bp = Blueprint("spa", __name__)
 
@@ -30,8 +31,10 @@ def app_route(path: str):
         abort(404)
     target = (DIST / path).resolve()
     if DIST in target.parents and target.is_file():
-        max_age = ONE_YEAR if path.startswith("assets/") else 3600
+        max_age = ONE_YEAR if path.startswith("assets/") else 0 if path in NO_CACHE else 3600
         resp = send_from_directory(DIST, path, max_age=max_age)
+        if path in NO_CACHE:
+            resp.headers["Cache-Control"] = "no-cache"
         if max_age == ONE_YEAR:
             resp.headers["Cache-Control"] = f"public, max-age={ONE_YEAR}, immutable"
         return resp

@@ -3,6 +3,7 @@ import { LogOut, Menu, PanelLeftClose, PanelLeftOpen, Search, X } from "lucide-r
 import { useEffect, useState } from "react";
 import { NavLink, useLocation, useOutlet } from "react-router";
 import { useAuth } from "../auth/AuthProvider";
+import { useCatalogSync } from "../offline/useCatalogSync";
 import { CommandPalette } from "./CommandPalette";
 import { navItems } from "./nav";
 
@@ -23,6 +24,7 @@ export function AppShell() {
   const [palette, setPalette] = useState(false);
   const [more, setMore] = useState(false);
   const items = navItems(user!.role);
+  useCatalogSync(!!user);
 
   useEffect(() => {
     try {

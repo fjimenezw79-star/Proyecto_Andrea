@@ -16,6 +16,19 @@ import { PaymentSheet, type SaleResult } from "./PaymentSheet";
 import { ClientPicker } from "../clients/ClientPicker";
 import { NewLayawaySheet } from "../layaways/NewLayawaySheet";
 import { ProductGrid } from "./ProductGrid";
+import { filterCatalog, loadCatalog, type Catalog } from "../offline/cache";
+
+/** En línea consulta al servidor; sin señal usa la copia del catálogo guardada en el dispositivo. */
+async function withOffline<T>(online: () => Promise<T>, offline: (c: Catalog) => T): Promise<T> {
+  try {
+    return await online();
+  } catch (e) {
+    if (!(e instanceof ApiError) || e.status !== 0) throw e;
+    const c = await loadCatalog();
+    if (!c) throw e;
+    return offline(c);
+  }
+}
 
 export function PosPage() {
   const { user } = useAuth();
@@ -38,10 +51,17 @@ export function PosPage() {
   const [mobileCart, setMobileCart] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
 
-  const categories = useQuery({ queryKey: ["categories"], queryFn: () => api<{ categories: Category[] }>("/api/categories") });
+  const categories = useQuery({
+    queryKey: ["categories"],
+    queryFn: () => withOffline(() => api<{ categories: Category[] }>("/api/categories"), (c) => ({ categories: c.categories })),
+  });
   const products = useQuery({
     queryKey: ["products", "pos", dq, category],
-    queryFn: () => api<{ products: Product[]; total: number }>(`/api/products?q=${encodeURIComponent(dq)}${category ? `&category=${category}` : ""}`),
+    queryFn: () =>
+      withOffline(
+        () => api<{ products: Product[]; total: number }>(`/api/products?q=${encodeURIComponent(dq)}${category ? `&category=${category}` : ""}`),
+        (c) => filterCatalog(c, dq, category),
+      ),
     placeholderData: (prev) => prev,
   });
 

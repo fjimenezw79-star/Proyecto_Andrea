@@ -18,6 +18,20 @@ def list_categories():
     return ok(categories=catalog.category_tree())
 
 
+@bp.get("/catalog/snapshot")
+@login_required
+def snapshot():
+    """Catálogo completo para la copia del dispositivo (trabajar sin señal)."""
+    from sqlalchemy import func, select
+
+    from ..models import Product, StockMovement
+
+    version = session.scalar(select(func.coalesce(func.max(StockMovement.id), 0)))
+    items = session.query(Product).filter(Product.active.is_(True)).order_by(Product.name, Product.id).limit(5000).all()
+    return ok(version=version, categories=catalog.category_tree(),
+              products=[catalog.product_dict(p, False) for p in items])
+
+
 @bp.post("/categories")
 @admin_required
 def create_category():
