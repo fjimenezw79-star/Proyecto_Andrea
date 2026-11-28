@@ -11,7 +11,7 @@ export type CartLine = {
   photo: string;
 };
 
-export type CartClient = { id: string; name: string; points: number; creditCents: number };
+export type CartClient = { id: string; name: string; points: number; creditCents: number; phone?: string };
 export type Cart = { id: string; lines: CartLine[]; discountCents: number; client?: CartClient; clientId?: string; error?: string };
 
 export type CartAction =

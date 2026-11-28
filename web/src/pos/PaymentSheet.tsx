@@ -5,6 +5,8 @@ import { useEffect, useRef, useState } from "react";
 import { validatePayments, type Payment } from "../lib/cart";
 import { formatMoney, parsePesos } from "../lib/money";
 import { Button } from "../ui/Button";
+import type { TicketData } from "../lib/ticket";
+import { TicketActions } from "../print/TicketActions";
 
 type Mode = "cash" | "card" | "transfer" | "credit" | "mixed";
 const MODES: { id: Mode; label: string }[] = [
@@ -15,7 +17,7 @@ const MODES: { id: Mode; label: string }[] = [
 ];
 const METHOD_LABEL = { cash: "Efectivo", card: "Tarjeta", transfer: "Transferencia", credit: "Saldo a favor" } as const;
 
-export type SaleResult = { folio: number | string; total_cents: number; change_cents: number; offline?: boolean };
+export type SaleResult = { folio: number | string; total_cents: number; change_cents: number; offline?: boolean; ticket?: TicketData };
 
 type MixedRow = { method: Payment["method"]; amount: string; received: string };
 
@@ -110,7 +112,8 @@ export function PaymentSheet({
                   <span className="tnum font-serif text-6xl">{formatMoney(done.change_cents)}</span>
                 </p>
               )}
-              <Button size="lg" className="mt-4 w-full" onClick={onNewSale} autoFocus>
+              <TicketActions ticket={done.ticket ?? null} className="mt-2 w-full" />
+              <Button size="lg" className="mt-2 w-full" onClick={onNewSale} autoFocus>
                 Nueva venta
               </Button>
             </motion.div>

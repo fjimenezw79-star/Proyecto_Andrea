@@ -322,3 +322,26 @@ class StockAlert(Base):
     reviewed_by: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
     reviewed_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     variant: Mapped[Variant] = relationship()
+
+
+class PhotoEmbedding(Base):
+    """Huella de una foto de producto (vector int8 en base64) para reconocerlo con la cámara."""
+    __tablename__ = "photo_embeddings"
+    photo_id: Mapped[int] = mapped_column(ForeignKey("product_photos.id", ondelete="CASCADE"), primary_key=True)
+    model: Mapped[str] = mapped_column(String(60))
+    dim: Mapped[int] = mapped_column(Integer)
+    vector: Mapped[str] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=now)
+
+
+class AiQuery(Base):
+    """Consulta a la IA (botón "Buscar con IA"): se registra antes de llamar para respetar el límite del mes."""
+    __tablename__ = "ai_queries"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    at: Mapped[datetime] = mapped_column(DateTime, default=now, index=True)
+    user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
+    status: Mapped[str] = mapped_column(String(10), default="pending")
+    matched_product_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    input_tokens: Mapped[int] = mapped_column(Integer, default=0)
+    output_tokens: Mapped[int] = mapped_column(Integer, default=0)
+    __table_args__ = (CheckConstraint("status IN ('pending','ok','error')", name="ck_ai_queries_status"),)

@@ -22,6 +22,7 @@
   figure { margin: 3mm 0 5mm; break-inside: avoid; }
   figure img { width: 100%; border: 1px solid var(--line); border-radius: 3mm; display: block; }
   figure.phone img { width: 48%; }
+  figure.ticket img { width: 58mm; }
   figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.5mm; }
   table { width: 100%; border-collapse: collapse; margin: 2mm 0 4mm; font-size: 9.8pt; break-inside: avoid; }
   th, td { text-align: left; vertical-align: top; padding: 1.8mm 2.4mm; border-bottom: 1px solid var(--line); }
@@ -69,6 +70,10 @@
       <li>Caja y corte</li>
       <li>Inventario</li>
       <li>Nuevo producto con fotos</li>
+      <li>Escanear con la cámara</li>
+      <li>Reconocer un producto sin etiqueta</li>
+      <li>Etiquetas con código de barras</li>
+      <li>Tickets</li>
       <li>Categorías y configuración</li>
       <li>Gastos</li>
       <li>Reportes y panel</li>
@@ -80,7 +85,7 @@
       <li>Lo que viene</li>
     </ol>
   </div>
-  <p class="meta"><strong>Realizado por el I.S.C FRANCISCO JAVIER JIMENEZ WITRAGO</strong><br>Versión del sistema: etapas 1 a 4 de 6 (servidor, interfaz, operación diaria y conexión) · Noviembre de 2026</p>
+  <p class="meta"><strong>Realizado por el I.S.C FRANCISCO JAVIER JIMENEZ WITRAGO</strong><br>Versión del sistema: etapas 1 a 5 de 6 (servidor, interfaz, operación diaria, conexión, y cámara y etiquetas) · Noviembre de 2026</p>
 </section>
 
 <section class="chapter">
@@ -232,7 +237,7 @@
     <li><strong>Mixto:</strong> combina formas, por ejemplo parte en tarjeta y parte en efectivo. Los montos deben sumar el total.</li>
   </ul>
   <figure><img src="../img/03-cobrar.webp" alt=""><figcaption>Cobro en efectivo con cambio.</figcaption></figure>
-  <p>Al confirmar aparece <strong>Venta #folio</strong> con el cambio en grande. Toca <strong>Nueva venta</strong> para empezar otra. Tocar dos veces "Confirmar cobro" no crea dos ventas.</p>
+  <p>Al confirmar aparece <strong>Venta #folio</strong> con el cambio en grande. Desde ahí puedes <strong>imprimir el ticket</strong> o <strong>enviarlo por WhatsApp</strong> (capítulo Tickets). Toca <strong>Nueva venta</strong> para empezar otra. Tocar dos veces "Confirmar cobro" no crea dos ventas.</p>
 </section>
 
 <section class="chapter">
@@ -310,20 +315,83 @@
 </section>
 
 <section class="chapter">
-  <h2>17. Categorías y configuración</h2>
-  <h3>Categorías</h3>
-  <p>Crea categorías y subcategorías (por ejemplo <em>Hogar › Termos</em>), renómbralas o desactívalas. Aparecen como filtros en Vender e Inventario y, más adelante, como secciones de la tienda en línea.</p>
-  <h3>Configuración</h3>
-  <p>Nombre y subtítulo del negocio, WhatsApp (para los pedidos en línea), dirección, ancho del ticket (58 u 80 mm), tamaño de etiqueta y a partir de cuántas piezas se avisa "stock bajo".</p>
+  <h2>17. Escanear con la cámara</h2>
+  <p>En <strong>Vender</strong>, junto al buscador, toca <strong>Escanear</strong>. Se abre la cámara trasera del celular, tablet o laptop.</p>
+  <ol class="steps">
+    <li>En <strong>Código de barras</strong>, apunta al código dentro del recuadro. Sirve con los códigos del sistema (<code>MA000123</code>) y con los de fábrica (EAN-13, UPC).</li>
+    <li>Al leerlo, el recuadro da un pequeño salto, el celular vibra y el producto se agrega al carrito.</li>
+    <li>Si el código no está dado de alta, la hoja lo dice y sigue escaneando.</li>
+  </ol>
+  <figure><img src="../img/17-escanear.webp" alt=""><figcaption>Escáner con la cámara en Vender.</figcaption></figure>
+  <p>Sin señal también funciona: el código se busca en la copia del catálogo guardada en el dispositivo. El lector USB de la computadora sigue funcionando igual que antes.</p>
+  <h3>Asociar el código de fábrica</h3>
+  <p>En <strong>Inventario</strong>, abre el producto y, en la tabla de variantes, toca el ícono de cámara junto a <em>De fábrica</em>. Escanea el código que trae el artículo y queda asociado: desde ese momento se puede vender escaneándolo.</p>
+  <div class="note">La cámara solo abre por el enlace con candado (<code>https://</code>, el del QR) o en la misma computadora del negocio. Por la dirección <code>http://192.168…</code> el navegador no la permite: usa el lector USB o escribe el código.</div>
 </section>
 
 <section class="chapter">
-  <h2>18. Gastos</h2>
+  <h2>18. Reconocer un producto sin etiqueta</h2>
+  <p>Si a un artículo se le cayó la etiqueta, abre <strong>Escanear</strong> y elige <strong>Por foto</strong>. Centra el producto con buena luz y toca <strong>Identificar producto</strong> (o <strong>Elegir foto</strong> si la cámara no abre).</p>
+  <ol class="steps">
+    <li>La app compara la foto con las fotos del catálogo <strong>en el mismo dispositivo</strong>, sin internet y sin costo.</li>
+    <li>Muestra los <strong>3 productos más parecidos</strong> con foto, existencias y precio.</li>
+    <li><strong>Toca el correcto</strong> para agregarlo (si tiene variantes, toca la variante). Nunca se agrega nada sin que lo toques.</li>
+  </ol>
+  <figure><img src="../img/18-por-foto.webp" alt=""><figcaption>Productos parecidos y la sugerencia de la IA.</figcaption></figure>
+  <h3>Botón “Buscar con IA”</h3>
+  <p>Si ninguno de los tres es el correcto y hay internet, toca <strong>Buscar con IA</strong>. La foto y los 8 productos más parecidos se envían a la inteligencia artificial de Anthropic (Claude), que marca el que coincide como <strong>Sugerido por IA</strong> con una frase de por qué. También hay que tocarlo para agregarlo.</p>
+  <ul>
+    <li>El botón aparece solo si el administrador puso la clave <code>ANTHROPIC_API_KEY</code> en el archivo <code>.env</code> de la computadora del negocio.</li>
+    <li>Cada consulta cuesta unos centavos de dólar (alrededor de 2 centavos con el modelo de fábrica). En <strong>Configuración › Consultas de IA al mes</strong> se pone el límite (100 de fábrica; 0 lo apaga). Al llegar al límite el botón desaparece hasta el mes siguiente.</li>
+    <li>El modelo se cambia con <code>ANTHROPIC_MODEL</code> en <code>.env</code>.</li>
+  </ul>
+  <h3>Preparar las fotos</h3>
+  <p>Para reconocer un producto, sus fotos necesitan una “huella”. Las fotos nuevas se preparan solas al guardar el producto. Las que ya existían (por ejemplo, las del sistema anterior o los datos de prueba) se preparan una sola vez en <strong>Configuración › Reconocimiento con la cámara › Preparar fotos ahora</strong>, desde la computadora del administrador.</p>
+  <figure><img src="../img/21-config-camara.webp" alt=""><figcaption>Fotos listas para reconocer y estado de la IA.</figcaption></figure>
+  <div class="note">La primera vez que un dispositivo usa el reconocimiento descarga el modelo (unos 19 MB) desde la computadora del negocio. Después queda guardado y funciona sin señal.</div>
+</section>
+
+<section class="chapter">
+  <h2>19. Etiquetas con código de barras</h2>
+  <p>Abre <strong>Etiquetas</strong> en el menú, o en la ficha de un producto toca <strong>Imprimir etiquetas</strong>.</p>
+  <ol class="steps">
+    <li>Busca y agrega productos. Por cada variante se propone <strong>una etiqueta por pieza en existencia</strong>; cambia la cantidad con − y +.</li>
+    <li>Elige el <strong>tipo de etiqueta</strong>: térmica de 50 × 25 mm, u hoja carta de 30, 20 o 10 etiquetas adhesivas.</li>
+    <li>Revisa la vista previa y toca <strong>Imprimir</strong>.</li>
+  </ol>
+  <figure><img src="../img/19-etiquetas.webp" alt=""><figcaption>Etiquetas en hoja carta de 30.</figcaption></figure>
+  <p>Cada etiqueta lleva nombre, variante, precio y el código del sistema (<code>MA######</code>) en Code 128, que leen la cámara y el lector USB. El tipo de etiqueta de fábrica se elige en <strong>Configuración</strong>.</p>
+  <div class="note">En la impresora térmica elige el papel de 50 × 25 mm y márgenes “Ninguno”. En hoja carta imprime en escala 100 % (sin “ajustar a la página”).</div>
+</section>
+
+<section class="chapter">
+  <h2>20. Tickets</h2>
+  <p>Al terminar un cobro aparecen <strong>Imprimir ticket</strong> y <strong>Enviar por WhatsApp</strong>.</p>
+  <figure><img src="../img/20-venta-ticket.webp" alt=""><figcaption>Venta registrada con sus botones de ticket.</figcaption></figure>
+  <ul>
+    <li><strong>Imprimir ticket</strong>: para impresora térmica de 58 u 80 mm (se elige en Configuración). Lleva nombre del negocio, dirección, folio, fecha, quién atendió, artículos, descuentos, total, pagos, cambio y el <strong>pie del ticket</strong> que escribas en Configuración.</li>
+    <li><strong>Enviar por WhatsApp</strong>: abre WhatsApp con el mismo ticket en texto, dirigido al teléfono del cliente si se eligió uno.</li>
+    <li>Una venta hecha sin señal sale con su folio provisional (<code>P-1234</code>) y una nota.</li>
+  </ul>
+  <figure class="ticket"><img src="../img/20b-ticket.webp" alt=""><figcaption>Ticket de 58 mm.</figcaption></figure>
+  <p>Para <strong>reimprimir</strong>, abre la venta en <strong>Ventas de hoy</strong>. En un <strong>apartado</strong>, el ticket incluye los abonos con su fecha, lo pagado, lo que resta y la fecha límite.</p>
+</section>
+
+<section class="chapter">
+  <h2>21. Categorías y configuración</h2>
+  <h3>Categorías</h3>
+  <p>Crea categorías y subcategorías (por ejemplo <em>Hogar › Termos</em>), renómbralas o desactívalas. Aparecen como filtros en Vender e Inventario y, más adelante, como secciones de la tienda en línea.</p>
+  <h3>Configuración</h3>
+  <p>Nombre y subtítulo del negocio, WhatsApp (para los pedidos en línea), dirección, ancho del ticket (58 u 80 mm), pie del ticket, tipo de etiqueta, a partir de cuántas piezas se avisa "stock bajo", las fotos listas para reconocer con la cámara y el límite mensual de consultas de IA.</p>
+</section>
+
+<section class="chapter">
+  <h2>22. Gastos</h2>
   <p>Menú <strong>Gastos</strong> (administrador): escribe el concepto, la categoría (Renta, Luz e internet, Sueldos, Mercancía, Insumos, Otros) y el monto. Marca <strong>Se pagó con dinero de la caja</strong> cuando el dinero salió del cajón: así el corte lo descuenta. Un gasto de una caja ya cortada no se puede borrar ni cambiar de monto.</p>
 </section>
 
 <section class="chapter">
-  <h2>19. Reportes y panel</h2>
+  <h2>23. Reportes y panel</h2>
   <figure><img src="../img/10-reportes.webp" alt=""><figcaption>Reportes del mes.</figcaption></figure>
   <ul>
     <li><strong>Periodo:</strong> Hoy, Semana, Mes o un rango de fechas.</li>
@@ -336,7 +404,7 @@
 </section>
 
 <section class="chapter">
-  <h2>20. Respaldos y datos</h2>
+  <h2>24. Respaldos y datos</h2>
   <ul>
     <li>Todo vive en la carpeta <code>data</code>: la base (<code>modas-andrea.db</code>), las fotos (<code>fotos</code>) y los respaldos (<code>respaldos</code>).</li>
     <li>Cada vez que se abre el sistema se crea un <strong>respaldo del día</strong>; se conservan los 15 más recientes.</li>
@@ -356,7 +424,7 @@
 </section>
 
 <section class="chapter">
-  <h2>21. Pasar el sistema anterior</h2>
+  <h2>25. Pasar el sistema anterior</h2>
   <p>Si tienes la carpeta <code>PROYECTO ANDREA</code> del sistema anterior:</p>
   <ol class="steps">
     <li>Haz doble clic en <strong><code>migrar_sistema_anterior.bat</code></strong>.</li>
@@ -371,7 +439,7 @@
 </section>
 
 <section class="chapter">
-  <h2>22. Datos y pruebas</h2>
+  <h2>26. Datos y pruebas</h2>
   <h3>Catálogo de prueba</h3>
   <p><strong><code>cargar_datos_prueba.bat</code></strong> carga 58 productos (mochilas, termos, cobijas, relojes inteligentes y útiles) con foto, precio y existencias, para practicar sin tocar productos reales. No duplica si lo ejecutas otra vez.</p>
   <div class="note warn">Si vas a usar el sistema con tus productos reales, empieza con una base limpia: no cargues el catálogo de prueba, o borra la carpeta <code>data</code> antes de empezar en serio (con el sistema cerrado).</div>
@@ -390,7 +458,7 @@
 </section>
 
 <section class="chapter">
-  <h2>23. Archivos .bat</h2>
+  <h2>27. Archivos .bat</h2>
   <table>
     <tr><th>Archivo</th><th>Para qué sirve</th></tr>
     <tr><td><code>instalar.bat</code></td><td>Instala o actualiza todo. No borra datos.</td></tr>
@@ -404,7 +472,7 @@
 </section>
 
 <section class="chapter">
-  <h2>24. Solución de problemas</h2>
+  <h2>28. Solución de problemas</h2>
   <table>
     <tr><th>Qué pasa</th><th>Qué hacer</th></tr>
     <tr><td>"El puerto 5000 ya está en uso"</td><td>El sistema ya está abierto en otra ventana. Ciérrala, o cambia <code>PORT</code> en <code>.env</code>.</td></tr>
@@ -413,7 +481,11 @@
     <tr><td>"La sesión de seguridad expiró"</td><td>Recarga la página (F5) y vuelve a intentar.</td></tr>
     <tr><td>El lector USB no agrega productos</td><td>Debe estar configurado para terminar con Enter. Haz clic en un espacio vacío de la pantalla Vender y vuelve a escanear.</td></tr>
     <tr><td>"No encontramos ningún producto con ese código"</td><td>Ese código no está dado de alta: agrégalo en la ficha del producto como <em>Código de fábrica</em>.</td></tr>
-    <tr><td>La cámara no abre</td><td>Usa <em>Tomar foto con el celular</em> o <em>Elegir foto</em>.</td></tr>
+    <tr><td>La cámara no abre</td><td>Entra por el enlace con candado (<code>https://</code>) y permite la cámara en el navegador. Mientras tanto usa <em>Tomar foto con el celular</em>, <em>Elegir foto</em> o el lector USB.</td></tr>
+    <tr><td>La cámara no lee el código</td><td>Acerca o aleja el celular hasta que el código quede nítido dentro del recuadro y con buena luz. Si es un código de fábrica nuevo, asócialo en la ficha del producto.</td></tr>
+    <tr><td>"Por foto" dice que no hay fotos preparadas</td><td>El administrador toca <em>Preparar fotos ahora</em> en Configuración (una sola vez).</td></tr>
+    <tr><td>No aparece "Buscar con IA"</td><td>Falta la clave <code>ANTHROPIC_API_KEY</code> en <code>.env</code>, no hay internet o ya se usaron las consultas del mes.</td></tr>
+    <tr><td>La etiqueta o el ticket salen cortados o pequeños</td><td>En la ventana de impresión elige el papel correcto, márgenes "Ninguno" y escala 100 %.</td></tr>
     <tr><td>"No hay suficientes piezas"</td><td>Otro dispositivo vendió esas piezas. Revisa el producto o registra una Entrada si llegó mercancía.</td></tr>
     <tr><td>El corte no cuadra</td><td>Revisa los movimientos de la caja: ventas en efectivo, abonos, reembolsos y gastos de caja.</td></tr>
     <tr><td>Por internet dice "Cambia la contraseña inicial…"</td><td>Entra desde la computadora del negocio, cambia la contraseña en Mi cuenta y vuelve a intentar.</td></tr>
@@ -425,10 +497,9 @@
 </section>
 
 <section class="chapter">
-  <h2>25. Lo que viene</h2>
+  <h2>29. Lo que viene</h2>
   <table>
     <tr><th>Etapa</th><th>Qué agrega</th></tr>
-    <tr><td>5 · Cámara y etiquetas</td><td>Leer códigos con la cámara, imprimir etiquetas y tickets, reconocer productos sin etiqueta con la cámara y botón de IA.</td></tr>
     <tr><td>6 · Tienda en línea</td><td>Página pública con el estilo Revista conectada al inventario, links con vista previa para WhatsApp y Marketplace, y pedidos por WhatsApp que entran al sistema.</td></tr>
   </table>
 </section>

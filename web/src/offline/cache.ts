@@ -55,6 +55,12 @@ export type CachedClient = { id: string; name: string; phone: string; points: nu
 export const saveCatalog = (c: Omit<Catalog, "saved_at">) => set("catalog", { ...c, saved_at: new Date().toISOString() });
 export const loadCatalog = () => get<Catalog>("catalog");
 export const saveMe = (u: User | null) => set("me", u);
+/** Datos del negocio para tickets y etiquetas (no son privados: se quedan al cerrar sesión). */
+export const saveSettingsCache = (s: unknown) => set("settings", s);
+export const loadSettingsCache = <T,>() => get<T>("settings");
+/** Índice de huellas de fotos (reconocimiento visual sin señal). */
+export const saveVisionCache = (v: unknown) => set("vision", v);
+export const loadVisionCache = <T,>() => get<T>("vision");
 
 /** Al salir: borra el usuario, los clientes y el catálogo guardados (la cola de pendientes es por usuario y se queda). */
 export async function clearPrivate(): Promise<void> {
@@ -118,4 +124,15 @@ export async function adjustCatalogStock(delta: Record<number, number>): Promise
 export function provisionalFolio(uid: string): string {
   const digits = uid.replace(/\D/g, "");
   return `P-${(digits.slice(-4) || "0000").padStart(4, "0")}`;
+}
+
+/** Busca un código (interno MA###### o de fábrica) en la copia local del catálogo: para escanear sin señal. */
+export function findByCode(c: Catalog, code: string): { product: Product; variant: Product["variants"][number] } | null {
+  const up = code.trim().toUpperCase();
+  if (!up) return null;
+  for (const p of c.products) {
+    const v = p.variants.find((x) => x.active && (x.sku.toUpperCase() === up || (x.barcode ?? "").toUpperCase() === up));
+    if (v) return { product: p, variant: v };
+  }
+  return null;
 }

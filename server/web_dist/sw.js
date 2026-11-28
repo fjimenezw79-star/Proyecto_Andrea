@@ -1,12 +1,14 @@
 /* Modas Andrea · Service worker (adaptado de AcuaGest DEMO 3.0).
  * - La app (index.html y assets) se guarda al instalar; las pantallas se piden a la red y, sin señal, salen de la copia.
  * - Miniaturas de fotos: se sirven de la copia y se actualizan en segundo plano.
+ * - Modelo de reconocimiento (/vision/*): se guarda la primera vez que se usa y sirve sin señal.
  * - /api/* nunca pasa por aquí: los datos siempre son en vivo (y la cola sin señal vive en la app).
  */
-const VERSION = "89be228f6a7b";
-const PRECACHE = ["/","/index.html","/assets/index-DeTuXdk9.js","/assets/hanken-grotesk-latin-ext-wght-normal-Dg-wlmqe.woff2","/assets/hanken-grotesk-latin-wght-normal-CaVRRdDk.woff2","/assets/hanken-grotesk-vietnamese-wght-normal-CHiFlh_0.woff2","/assets/index-Cb8v-RcH.css","/assets/instrument-serif-latin-400-italic-DKMiL14s.woff2","/assets/instrument-serif-latin-400-italic-u__WvvIK.woff","/assets/instrument-serif-latin-400-normal-BVbkICAY.woff","/assets/instrument-serif-latin-400-normal-DnYpCC2O.woff2","/assets/instrument-serif-latin-ext-400-italic-C9HzH3YL.woff2","/assets/instrument-serif-latin-ext-400-italic-D7-lnxEk.woff","/assets/instrument-serif-latin-ext-400-normal-C2je3j2s.woff2","/assets/instrument-serif-latin-ext-400-normal-CFCUzsTy.woff","/manifest.webmanifest","/favicon.svg","/icon-192.png","/icon-512.png"];
+const VERSION = "159a87d7043b";
+const PRECACHE = ["/","/index.html","/assets/index-CzD5XhEy.js","/assets/esm-DAg8Zty3.js","/assets/vision_bundle-57SJLsoe.js","/assets/hanken-grotesk-latin-ext-wght-normal-Dg-wlmqe.woff2","/assets/hanken-grotesk-latin-wght-normal-CaVRRdDk.woff2","/assets/hanken-grotesk-vietnamese-wght-normal-CHiFlh_0.woff2","/assets/index-_IX7NRqi.css","/assets/instrument-serif-latin-400-italic-DKMiL14s.woff2","/assets/instrument-serif-latin-400-italic-u__WvvIK.woff","/assets/instrument-serif-latin-400-normal-BVbkICAY.woff","/assets/instrument-serif-latin-400-normal-DnYpCC2O.woff2","/assets/instrument-serif-latin-ext-400-italic-C9HzH3YL.woff2","/assets/instrument-serif-latin-ext-400-italic-D7-lnxEk.woff","/assets/instrument-serif-latin-ext-400-normal-C2je3j2s.woff2","/assets/instrument-serif-latin-ext-400-normal-CFCUzsTy.woff","/manifest.webmanifest","/favicon.svg","/icon-192.png","/icon-512.png"];
 const APP = `ma-app-${VERSION}`;
 const THUMBS = "ma-thumbs";
+const VISION = "ma-vision"; // modelo de reconocimiento (~19 MB): se guarda una vez y no cambia con cada versión
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(APP).then((c) => c.addAll(PRECACHE)).then(() => self.skipWaiting()));
@@ -38,6 +40,18 @@ self.addEventListener("fetch", (e) => {
       } catch {
         return cached();
       }
+    })());
+    return;
+  }
+
+  if (url.pathname.startsWith("/vision/")) {
+    e.respondWith((async () => {
+      const cache = await caches.open(VISION);
+      const hit = await cache.match(req);
+      if (hit) return hit;
+      const res = await fetch(req);
+      if (res.ok) cache.put(req, res.clone());
+      return res;
     })());
     return;
   }

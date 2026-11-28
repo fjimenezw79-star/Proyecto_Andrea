@@ -2,7 +2,7 @@
 
 Sistema de ventas para la tienda: catálogo con variantes y fotos, inventario con bitácora y punto de venta con carrito y pagos mixtos. La PC del negocio funciona como servidor y los demás dispositivos se conectan a ella.
 
-> **Etapa 4 de 6.** Ya incluye la app para vender desde PC, tablet o celular, la operación diaria (clientes, apartados, devoluciones, gastos, caja, reportes y panel) y la **conexión**: stock en vivo en todos los dispositivos, ventas sin señal que se envían solas, app instalable, acceso seguro por internet con código QR, alertas de stock y bitácora. Las etiquetas, la cámara para leer códigos y la tienda en línea llegan en las siguientes etapas (ver `docs/superpowers/plans/`).
+> **Etapa 5 de 6.** Ya incluye la app para vender desde PC, tablet o celular, la operación diaria (clientes, apartados, devoluciones, gastos, caja, reportes y panel), la **conexión** (stock en vivo, ventas sin señal, app instalable, acceso por internet con QR, alertas y bitácora) y la **cámara y etiquetas**: lector de códigos con la cámara, reconocimiento de productos sin etiqueta (con botón opcional de IA), etiquetas con código de barras y tickets impresos o por WhatsApp. La tienda en línea llega en la etapa 6 (ver `docs/superpowers/plans/`).
 
 ## 1. Instalación (Windows)
 
@@ -55,6 +55,28 @@ Cuatro pasos: datos, precio (o variantes como colores y tallas), fotos y revisar
 ![Nuevo producto](docs/img/05-nuevo-producto.webp)
 
 > La cámara del navegador solo funciona en la misma computadora (`127.0.0.1`) o con el enlace seguro `https://` de `acceso_remoto.bat`. Desde otros dispositivos en la red local usa **Elegir foto**, que abre la cámara del celular.
+
+### Escanear con la cámara
+
+En **Vender**, toca **Escanear**: en **Código de barras** apunta al código (del sistema o de fábrica) y el producto se agrega solo, también sin señal. En **Por foto**, si el artículo perdió su etiqueta, toma una foto: la app muestra los **3 productos más parecidos** (calculado en el mismo dispositivo, sin costo) y tú tocas el correcto. Con internet aparece **Buscar con IA** si se configuró la clave (ver abajo).
+
+![Escáner](docs/img/17-escanear.webp)
+
+![Por foto](docs/img/18-por-foto.webp)
+
+Las fotos nuevas se preparan solas para el reconocimiento; las de antes se preparan una vez en **Configuración › Preparar fotos ahora**. El código de fábrica de una variante se asocia escaneándolo desde la ficha del producto.
+
+**Búsqueda con IA (opcional):** pon tu clave de Anthropic en `.env` (`ANTHROPIC_API_KEY=...`) y reinicia. Cada consulta cuesta unos centavos de dólar; el límite mensual se cambia en Configuración (100 de fábrica, 0 lo apaga). El modelo se elige con `ANTHROPIC_MODEL`.
+
+### Etiquetas y tickets
+
+**Etiquetas** (menú, o **Imprimir etiquetas** en la ficha): una etiqueta por pieza en existencia, con nombre, precio y código de barras, en impresora térmica de 50 × 25 mm u hojas carta de 30, 20 o 10 etiquetas.
+
+![Etiquetas](docs/img/19-etiquetas.webp)
+
+Al cobrar aparecen **Imprimir ticket** (58 u 80 mm) y **Enviar por WhatsApp** (al teléfono del cliente). Se reimprime desde **Ventas de hoy**, y los apartados tienen su ticket con abonos y saldo.
+
+![Ticket](docs/img/20-venta-ticket.webp)
 
 ### Ventas del día
 

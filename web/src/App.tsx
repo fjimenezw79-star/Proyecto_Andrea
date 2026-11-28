@@ -26,6 +26,7 @@ import { ExpensesPage } from "./admin/ExpensesPage";
 import { ReportsPage } from "./admin/ReportsPage";
 import { ConnectPage } from "./admin/ConnectPage";
 import { AuditPage } from "./admin/AuditPage";
+import { LabelsPage } from "./labels/LabelsPage";
 
 function Routed() {
   const { expire } = useAuth();
@@ -53,6 +54,7 @@ function Routed() {
           <Route path="clientes" element={<ClientsPage />} />
           <Route path="clientes/:id" element={<ClientDetail />} />
           <Route path="caja" element={<CashPage />} />
+          <Route path="etiquetas" element={<LabelsPage />} />
           <Route path="panel" element={<RequireAuth admin><DashboardPage /></RequireAuth>} />
           <Route path="reportes" element={<RequireAuth admin><ReportsPage /></RequireAuth>} />
           <Route path="gastos" element={<RequireAuth admin><ExpensesPage /></RequireAuth>} />

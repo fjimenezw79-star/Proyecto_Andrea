@@ -7,7 +7,7 @@ export const Field = forwardRef<HTMLInputElement, Props>(function Field({ label,
   const inputId = id ?? auto;
   const msgId = `${inputId}-msg`;
   return (
-    <div className={`grid gap-1.5 ${className}`}>
+    <div className={`grid content-start gap-1.5 ${className}`}>
       <label htmlFor={inputId} className="text-sm font-semibold">
         {label}
       </label>

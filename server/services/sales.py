@@ -219,7 +219,7 @@ def sale_dict(s: Sale, with_cost: bool) -> dict:
     client = session.get(Client, s.client_id) if s.client_id else None
     return {"id": s.id, "folio": s.folio, "status": s.status, "user_id": s.user_id, "client_id": s.client_id,
             "user_name": (seller.full_name or seller.username) if seller else None,
-            "client_name": client.name if client else None,
+            "client_name": client.name if client else None, "client_phone": client.phone if client else None,
             "subtotal_cents": s.subtotal_cents, "discount_cents": s.discount_cents, "total_cents": s.total_cents,
             "change_cents": change, "note": s.note, "created_at": s.created_at.isoformat(),
             "cancel_reason": s.cancel_reason or None, "items": items, "payments": pays, "source": s.source,

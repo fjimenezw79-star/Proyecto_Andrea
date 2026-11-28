@@ -19,15 +19,21 @@ DEFAULT_SETTINGS = {
     "ticket_width_mm": 58,
     "label_size": "50x25",
     "low_stock_threshold": 2,
+    "ticket_footer": "¡Gracias por tu compra!",
+    "ai_monthly_limit": 100,
 }
 
-
-RANGES = {"ticket_width_mm": (40, 112), "low_stock_threshold": (0, 1000)}
+RANGES = {"ticket_width_mm": (40, 112), "low_stock_threshold": (0, 1000), "ai_monthly_limit": (0, 10_000)}
+CHOICES = {"label_size": ("50x25", "carta-30", "carta-20", "carta-10")}
+MAX_LEN = {"ticket_footer": 200, "business_name": 80, "business_subtitle": 80, "whatsapp": 20, "address": 200}
 
 
 def get_settings() -> dict:
     out = dict(DEFAULT_SETTINGS)
     out.update({s.key: s.value for s in session.query(Setting).all() if s.key in DEFAULT_SETTINGS})
+    for k, options in CHOICES.items():
+        if out[k] not in options:  # valor de una versión anterior (por ejemplo "carta")
+            out[k] = DEFAULT_SETTINGS[k]
     return out
 
 
@@ -50,6 +56,10 @@ def update():
             return fail("Valor no válido.", 400, k)
         if k in RANGES and not RANGES[k][0] <= v <= RANGES[k][1]:
             return fail(f"El valor debe estar entre {RANGES[k][0]} y {RANGES[k][1]}.", 400, k)
+        if k in CHOICES and v not in CHOICES[k]:
+            return fail("Elige una de las opciones.", 400, k)
+        if k in MAX_LEN and len(v) > MAX_LEN[k]:
+            return fail(f"Máximo {MAX_LEN[k]} caracteres.", 400, k)
         session.merge(Setting(key=k, value=v))
     session.commit()
     return ok("Configuración guardada.", settings=get_settings())

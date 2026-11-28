@@ -15,7 +15,7 @@ import { Button } from "../ui/Button";
 import { Modal } from "../ui/Dialog";
 import { Field } from "../ui/Input";
 
-export const toCartClient = (c: Client): CartClient => ({ id: c.id, name: c.name, points: c.points, creditCents: c.credit_cents });
+export const toCartClient = (c: Client): CartClient => ({ id: c.id, name: c.name, points: c.points, creditCents: c.credit_cents, phone: c.phone });
 
 export function ClientPicker({ open, onOpenChange, onPick, current }: { open: boolean; onOpenChange: (o: boolean) => void; onPick: (c: CartClient | null) => void; current?: CartClient }) {
   const [q, setQ] = useState("");
@@ -61,7 +61,7 @@ export function ClientPicker({ open, onOpenChange, onPick, current }: { open: bo
         markOffline();
         await queueAction(qc, { uid: id, user: user!.id, kind: "client", label: `Cliente ${json.name}`, path: "/api/clients", json, clientTime });
         await saveClients([{ id, name: json.name, phone: json.phone, points: 0, credit_cents: 0 }]);
-        onPick({ id, name: json.name, points: 0, creditCents: 0 });
+        onPick({ id, name: json.name, points: 0, creditCents: 0, phone: json.phone });
         onOpenChange(false);
         toast("Cliente guardado en este dispositivo. Se enviará al volver la señal.");
         return;
