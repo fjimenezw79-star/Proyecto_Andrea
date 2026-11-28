@@ -19,6 +19,10 @@ import { ClientDetail } from "./clients/ClientDetail";
 import { ClientsPage } from "./clients/ClientsPage";
 import { LayawayDetail } from "./layaways/LayawayDetail";
 import { LayawaysPage } from "./layaways/LayawaysPage";
+import { CashPage } from "./cash/CashPage";
+import { DashboardPage } from "./admin/DashboardPage";
+import { ExpensesPage } from "./admin/ExpensesPage";
+import { ReportsPage } from "./admin/ReportsPage";
 
 function Routed() {
   const { expire } = useAuth();
@@ -44,6 +48,10 @@ function Routed() {
           <Route path="apartados/:id" element={<LayawayDetail />} />
           <Route path="clientes" element={<ClientsPage />} />
           <Route path="clientes/:id" element={<ClientDetail />} />
+          <Route path="caja" element={<CashPage />} />
+          <Route path="panel" element={<RequireAuth admin><DashboardPage /></RequireAuth>} />
+          <Route path="reportes" element={<RequireAuth admin><ReportsPage /></RequireAuth>} />
+          <Route path="gastos" element={<RequireAuth admin><ExpensesPage /></RequireAuth>} />
           <Route path="productos/nuevo" element={<RequireAuth admin><NewProductWizard /></RequireAuth>} />
           <Route path="categorias" element={<RequireAuth admin><CategoriesPage /></RequireAuth>} />
           <Route path="configuracion" element={<RequireAuth admin><SettingsPage /></RequireAuth>} />

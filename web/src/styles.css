@@ -15,17 +15,18 @@
   --night: #070d1a;
   --ok: #1f7a4d;
   --danger: #b42318;
+  --chart: #a3324d;
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --paper: #12100d; --surface: #1d1a16; --ink: #f4f1ec; --muted: #a8a196; --line: #2f2a24;
-    --wine: #c2566e; --wine-ink: #12100d; --ok: #4cc38a; --danger: #ff8a80; color-scheme: dark;
+    --wine: #c2566e; --wine-ink: #12100d; --ok: #4cc38a; --danger: #ff8a80; --chart: #c2566e; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --paper: #12100d; --surface: #1d1a16; --ink: #f4f1ec; --muted: #a8a196; --line: #2f2a24;
-  --wine: #c2566e; --wine-ink: #12100d; --ok: #4cc38a; --danger: #ff8a80; color-scheme: dark;
+  --wine: #c2566e; --wine-ink: #12100d; --ok: #4cc38a; --danger: #ff8a80; --chart: #c2566e; color-scheme: dark;
 }
 
 @theme {
@@ -39,6 +40,7 @@
   --color-night: var(--night);
   --color-ok: var(--ok);
   --color-danger: var(--danger);
+  --color-chart: var(--chart);
   --font-serif: "Instrument Serif", Georgia, "Times New Roman", serif;
   --font-sans: "Hanken Grotesk Variable", "Helvetica Neue", Arial, sans-serif;
 }

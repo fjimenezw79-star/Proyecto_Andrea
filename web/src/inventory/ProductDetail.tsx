@@ -158,7 +158,7 @@ export function ProductDetail() {
           )}
 
           <h2 className="mb-3 mt-10 font-serif text-3xl">Variantes</h2>
-          <div className="overflow-x-auto rounded-2xl border border-line">
+          <div tabIndex={0} className="overflow-x-auto rounded-2xl border border-line">
             <table className="w-full min-w-[560px] text-left">
               <thead className="bg-surface text-sm text-muted">
                 <tr>
