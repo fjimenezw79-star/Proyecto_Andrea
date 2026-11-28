@@ -24,6 +24,7 @@ import { CashPage } from "./cash/CashPage";
 import { DashboardPage } from "./admin/DashboardPage";
 import { ExpensesPage } from "./admin/ExpensesPage";
 import { ReportsPage } from "./admin/ReportsPage";
+import { ConnectPage } from "./admin/ConnectPage";
 
 function Routed() {
   const { expire } = useAuth();
@@ -56,6 +57,7 @@ function Routed() {
           <Route path="gastos" element={<RequireAuth admin><ExpensesPage /></RequireAuth>} />
           <Route path="productos/nuevo" element={<RequireAuth admin><NewProductWizard /></RequireAuth>} />
           <Route path="categorias" element={<RequireAuth admin><CategoriesPage /></RequireAuth>} />
+          <Route path="conectar" element={<RequireAuth admin><ConnectPage /></RequireAuth>} />
           <Route path="configuracion" element={<RequireAuth admin><SettingsPage /></RequireAuth>} />
           <Route path="*" element={<Navigate to="/vender" replace />} />
         </Route>

@@ -1,5 +1,5 @@
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { LogOut, Menu, PanelLeftClose, PanelLeftOpen, Search, X } from "lucide-react";
+import { LogOut, Menu, PanelLeftClose, PanelLeftOpen, Search, UserRound, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { NavLink, useLocation, useOutlet } from "react-router";
 import { useAuth } from "../auth/AuthProvider";
@@ -7,6 +7,7 @@ import { useCatalogSync } from "../offline/useCatalogSync";
 import { ConnectionIndicator } from "../offline/ConnectionIndicator";
 import { useOffline } from "../offline/OfflineProvider";
 import { Button } from "../ui/Button";
+import { AccountDialog } from "../auth/AccountDialog";
 import { Modal } from "../ui/Dialog";
 import { CommandPalette } from "./CommandPalette";
 import { navItems } from "./nav";
@@ -31,6 +32,7 @@ export function AppShell() {
   useCatalogSync(!!user);
   const { pendingCount } = useOffline();
   const [askOut, setAskOut] = useState(false);
+  const [account, setAccount] = useState(false);
   const leave = () => (pendingCount > 0 ? setAskOut(true) : void logout());
 
   useEffect(() => {
@@ -113,10 +115,10 @@ export function AppShell() {
         </button>
         <div className={`flex items-center gap-2 border-t border-line pt-4 ${collapsed ? "flex-col" : ""}`}>
           {!collapsed && (
-            <div className="min-w-0 flex-1 px-2">
-              <p className="truncate font-semibold">{user!.full_name || user!.username}</p>
-              <p className="text-sm text-muted">{user!.role === "admin" ? "Administrador" : "Vendedor"}</p>
-            </div>
+            <button onClick={() => setAccount(true)} className="min-w-0 flex-1 rounded-2xl px-2 py-1 text-left hover:bg-surface" title="Mi cuenta">
+              <span className="block truncate font-semibold">{user!.full_name || user!.username}</span>
+              <span className="block text-sm text-muted">{user!.role === "admin" ? "Administrador" : "Vendedor"} · Mi cuenta</span>
+            </button>
           )}
           <button onClick={leave} className="grid size-10 place-items-center rounded-full hover:bg-surface" title="Salir">
             <LogOut className="size-5" aria-hidden />
@@ -205,6 +207,9 @@ export function AppShell() {
                     <i.icon className="size-5" aria-hidden /> {i.label}
                   </NavLink>
                 ))}
+                <button onClick={() => { setMore(false); setAccount(true); }} className="flex items-center gap-3 rounded-2xl px-3 py-3 text-left text-lg font-semibold hover:bg-surface">
+                  <UserRound className="size-5" aria-hidden /> Mi cuenta
+                </button>
                 <button onClick={leave} className="flex items-center gap-3 rounded-2xl px-3 py-3 text-left text-lg font-semibold hover:bg-surface">
                   <LogOut className="size-5" aria-hidden /> Salir
                 </button>
@@ -215,6 +220,7 @@ export function AppShell() {
       </AnimatePresence>
 
       <CommandPalette open={palette} onOpenChange={setPalette} />
+      <AccountDialog open={account} onOpenChange={setAccount} />
       <Modal open={askOut} onOpenChange={setAskOut} title="¿Salir?">
         <p className="mb-5 text-muted">
           Tienes {pendingCount} {pendingCount === 1 ? "acción pendiente" : "acciones pendientes"} sin enviar. Se quedan guardadas en este dispositivo y se enviarán cuando vuelvas a entrar con tu usuario y haya señal.
