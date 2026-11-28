@@ -5,6 +5,7 @@ from flask import Blueprint, request
 from flask_login import login_required
 
 from ..api_util import ok
+from ..db import session
 from ..security import admin_required
 from ..services import catalog
 
@@ -122,3 +123,22 @@ uploads = Blueprint("uploads", __name__)
 @login_required
 def uploaded(filename: str):
     return send_from_directory(current_app.config["UPLOAD_DIR"], filename, max_age=86400)
+
+
+@bp.get("/stock/changes")
+@login_required
+def stock_changes():
+    """Stock en vivo: qué variantes cambiaron desde la última versión que vio el dispositivo."""
+    from sqlalchemy import func, select
+
+    from ..models import StockMovement, Variant
+
+    version = session.scalar(select(func.coalesce(func.max(StockMovement.id), 0)))
+    since = request.args.get("since", "")
+    if not since.isdigit() or int(since) > version:
+        return ok(version=version, full=True)
+    ids = select(StockMovement.variant_id).where(StockMovement.id > int(since)).distinct().limit(501)
+    rows = session.execute(select(Variant.id, Variant.stock).where(Variant.id.in_(ids))).all()
+    if len(rows) > 500:
+        return ok(version=version, full=True)
+    return ok(version=version, changes=[{"variant_id": i, "stock": s} for i, s in sorted(rows)])

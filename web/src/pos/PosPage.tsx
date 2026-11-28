@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "r
 import { useAuth } from "../auth/AuthProvider";
 import { api, ApiError } from "../lib/api";
 import { cartReducer, loadCart, salePayload, saveCart, totals, type Payment } from "../lib/cart";
+import { useLiveStock } from "../lib/liveStock";
 import { formatMoney } from "../lib/money";
 import { createScanDetector } from "../lib/scanner";
 import type { Category, Product, Variant } from "../lib/types";
@@ -43,6 +44,8 @@ export function PosPage() {
     queryFn: () => api<{ products: Product[]; total: number }>(`/api/products?q=${encodeURIComponent(dq)}${category ? `&category=${category}` : ""}`),
     placeholderData: (prev) => prev,
   });
+
+  useLiveStock(useCallback((stock: Record<number, number>) => dispatch({ type: "refreshStock", stock }), []));
 
   useEffect(() => {
     if (cart.error) toast(cart.error, "error");
