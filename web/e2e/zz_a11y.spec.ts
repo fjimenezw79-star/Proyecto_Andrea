@@ -2,7 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 import { login } from "./helpers";
 
-const PAGES = ["/vender", "/apartados", "/caja", "/clientes", "/inventario", "/ventas", "/panel", "/reportes", "/gastos", "/productos/nuevo", "/categorias", "/configuracion"];
+const PAGES = ["/vender", "/apartados", "/caja", "/clientes", "/inventario", "/ventas", "/panel", "/reportes", "/gastos", "/productos/nuevo", "/categorias", "/configuracion", "/bitacora", "/conectar"];
 
 for (const [w, h] of [[390, 844], [1280, 800]] as const) {
   test(`sin fallas graves de accesibilidad a ${w}px`, async ({ browser }) => {

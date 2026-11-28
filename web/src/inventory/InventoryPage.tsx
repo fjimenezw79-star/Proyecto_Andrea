@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router";
 import { useAuth } from "../auth/AuthProvider";
 import { api } from "../lib/api";
+import { useLiveStock } from "../lib/liveStock";
 import { formatMoney } from "../lib/money";
 import type { Category, Product } from "../lib/types";
 
@@ -16,6 +17,7 @@ export function InventoryPage() {
   const [q, setQ] = useState("");
   const [category, setCategory] = useState<number | null>(null);
   const [low, setLow] = useState(false);
+  useLiveStock();
   const categories = useQuery({ queryKey: ["categories"], queryFn: () => api<{ categories: Category[] }>("/api/categories") });
   const products = useQuery({
     queryKey: ["products", "inv", q.trim(), category],

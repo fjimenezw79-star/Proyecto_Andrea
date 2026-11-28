@@ -4,6 +4,9 @@ import { ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 import { useAuth } from "../auth/AuthProvider";
+import { isNetworkError, queueAction } from "../offline/offlineAction";
+import { useOffline } from "../offline/OfflineProvider";
+import { clientHeaders, nowLocalIso } from "../offline/queue";
 import { api, ApiError } from "../lib/api";
 import { newId } from "../lib/cart";
 import { formatMoney } from "../lib/money";
@@ -18,7 +21,8 @@ const blank = (amount = ""): PayValue => ({ method: "cash", amount, received: ""
 
 export function LayawayDetail() {
   const { id } = useParams();
-  const { isAdmin } = useAuth();
+  const { isAdmin, user } = useAuth();
+  const { markOffline } = useOffline();
   const toast = useToast();
   const qc = useQueryClient();
   const reduce = useReducedMotion();
@@ -40,15 +44,23 @@ export function LayawayDetail() {
 
   const refresh = () => { qc.invalidateQueries({ queryKey: ["layaway", id] }); qc.invalidateQueries({ queryKey: ["layaways"] }); qc.invalidateQueries({ queryKey: ["client"] }); qc.invalidateQueries({ queryKey: ["products"] }); };
 
-  async function run(path: string, json: unknown, ok: string) {
+  async function run(path: string, json: unknown, ok: string, queueLabel?: string) {
     setBusy(true);
     setError(null);
+    const clientTime = nowLocalIso();
     try {
-      await api(path, { method: "POST", json });
+      await api(path, { method: "POST", json, headers: queueLabel ? clientHeaders(opId, clientTime) : undefined });
       toast(ok, "ok");
       setDlg(null);
       refresh();
     } catch (e) {
+      if (queueLabel && isNetworkError(e)) {
+        markOffline();
+        await queueAction(qc, { uid: opId, user: user!.id, kind: "payment", label: queueLabel, path, json, clientTime });
+        toast("Abono guardado en este dispositivo. Se enviará al volver la señal.", "ok");
+        setDlg(null);
+        return;
+      }
       setError(e instanceof ApiError ? e.message : "No se pudo guardar.");
     } finally {
       setBusy(false);
@@ -114,7 +126,7 @@ export function LayawayDetail() {
         <div className="grid gap-4">
           <p className="text-muted">Saldo {formatMoney(l.balance_cents)}</p>
           <PayFields value={pay} onChange={setPay} creditCents={credit} error={error} />
-          <Button size="lg" disabled={busy} onClick={() => { const p = payToApi(pay); if (!p) return setError("Escribe el monto del abono."); run(`/api/layaways/${l.id}/payments`, { id: opId, payments: [p] }, "Abono registrado."); }}>
+          <Button size="lg" disabled={busy} onClick={() => { const p = payToApi(pay); if (!p) return setError("Escribe el monto del abono."); run(`/api/layaways/${l.id}/payments`, { id: opId, payments: [p] }, "Abono registrado.", `Abono ${formatMoney(p.amount_cents)} · apartado #${l.folio}`); }}>
             {busy ? "Guardando…" : "Guardar abono"}
           </Button>
         </div>

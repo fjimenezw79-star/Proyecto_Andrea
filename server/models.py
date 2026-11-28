@@ -92,8 +92,8 @@ class Variant(Base):
     hidden: Mapped[bool] = mapped_column(Boolean, default=False)
     active: Mapped[bool] = mapped_column(Boolean, default=True)
     product: Mapped[Product] = relationship(back_populates="variants")
-    __table_args__ = (CheckConstraint("stock >= 0", name="ck_variants_stock"),
-                      CheckConstraint("price_cents >= 0 AND cost_cents >= 0", name="ck_variants_money"))
+    # El stock puede quedar negativo solo por ventas hechas sin señal (ver inventory.move y StockAlert).
+    __table_args__ = (CheckConstraint("price_cents >= 0 AND cost_cents >= 0", name="ck_variants_money"),)
 
 
 class StockMovement(Base):
@@ -282,3 +282,43 @@ class Expense(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=now)
     cash_session_id: Mapped[int | None] = mapped_column(ForeignKey("cash_sessions.id"), nullable=True, index=True)
     __table_args__ = (CheckConstraint("amount_cents > 0", name="ck_expenses_amount"),)
+
+
+class OfflineOp(Base):
+    """Acción enviada por un dispositivo con X-Client-Uid: se procesa una sola vez y su respuesta se repite."""
+    __tablename__ = "offline_ops"
+    uid: Mapped[str] = mapped_column(String(64), primary_key=True)
+    user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
+    endpoint: Mapped[str] = mapped_column(String(80))
+    status: Mapped[str] = mapped_column(String(12))
+    response: Mapped[str | None] = mapped_column(Text, nullable=True)
+    http_status: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    client_time: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    received_at: Mapped[datetime] = mapped_column(DateTime, default=now, index=True)
+    offline: Mapped[bool] = mapped_column(Boolean, default=False)
+
+
+class AuditLog(Base):
+    __tablename__ = "audit_log"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    at: Mapped[datetime] = mapped_column(DateTime, default=now, index=True)
+    user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
+    action: Mapped[str] = mapped_column(String(80))
+    entity_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    detail: Mapped[str] = mapped_column(Text, default="")
+    offline: Mapped[bool] = mapped_column(Boolean, default=False)
+    client_time: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+
+
+class StockAlert(Base):
+    """Una venta sin señal dejó el stock en negativo: el administrador lo revisa."""
+    __tablename__ = "stock_alerts"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    variant_id: Mapped[int] = mapped_column(ForeignKey("variants.id"), index=True)
+    stock_after: Mapped[int] = mapped_column(Integer)
+    ref_type: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    ref_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=now)
+    reviewed_by: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
+    reviewed_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    variant: Mapped[Variant] = relationship()

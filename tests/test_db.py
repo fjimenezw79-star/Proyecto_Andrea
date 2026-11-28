@@ -21,7 +21,8 @@ def test_wal_mode(app):
         assert c.exec_driver_sql("PRAGMA journal_mode").scalar() == "wal"
 
 
-def test_stock_cannot_go_negative(app):
+def test_stock_negative_allowed_by_schema_for_offline_sales(app):
+    """Etapa 4: la base acepta stock negativo (ventas sin señal); la regla vive en inventory.move."""
     from server.db import session
     from server.models import Category, Product, Variant
 
@@ -32,8 +33,8 @@ def test_stock_cannot_go_negative(app):
         session.add_all([c, p, v])
         session.commit()
         v.stock = -1
-        with pytest.raises(sqlalchemy.exc.IntegrityError):
-            session.commit()
+        session.commit()
+        assert session.get(Variant, v.id).stock == -1
 
 
 def test_backup_keeps_limit(app):
@@ -58,3 +59,12 @@ def test_operation_tables(app):
     assert {"credit_cents", "active"} <= {c["name"] for c in insp.get_columns("clients")}
     assert {"source", "layaway_id"} <= {c["name"] for c in insp.get_columns("sales")}
     assert "cash_session_id" in {c["name"] for c in insp.get_columns("sale_payments")}
+
+
+def test_connection_tables(app):
+    from sqlalchemy import inspect
+
+    from server.db import engine_for
+
+    names = set(inspect(engine_for(app)).get_table_names())
+    assert {"offline_ops", "audit_log", "stock_alerts"} <= names

@@ -15,7 +15,7 @@ const MODES: { id: Mode; label: string }[] = [
 ];
 const METHOD_LABEL = { cash: "Efectivo", card: "Tarjeta", transfer: "Transferencia", credit: "Saldo a favor" } as const;
 
-export type SaleResult = { folio: number; total_cents: number; change_cents: number };
+export type SaleResult = { folio: number | string; total_cents: number; change_cents: number; offline?: boolean };
 
 type MixedRow = { method: Payment["method"]; amount: string; received: string };
 
@@ -101,6 +101,9 @@ export function PaymentSheet({
               </motion.span>
               <h2 className="font-serif text-5xl">Venta #{done.folio}</h2>
               <p className="text-muted">Total {formatMoney(done.total_cents)}</p>
+              {done.offline && (
+                <p role="status" className="rounded-2xl bg-wine/10 px-4 py-2 text-sm font-semibold text-wine">Venta guardada en este dispositivo. Se enviará al volver la señal.</p>
+              )}
               {done.change_cents > 0 && (
                 <p className="mt-2 rounded-3xl bg-surface px-8 py-4">
                   <span className="block text-sm text-muted">Cambio</span>

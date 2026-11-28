@@ -56,6 +56,11 @@ class Config:
     POINTS_PER_PESOS = _int("POINTS_PER_PESOS", 10)
     LAYAWAY_DAYS = _int("LAYAWAY_DAYS", 30)
     LOW_STOCK_THRESHOLD = 2
+    # Acceso desde internet (Cloudflare Tunnel): ver acceso_remoto.bat
+    PUBLIC_URL = os.environ.get("PUBLIC_URL", "").strip()
+    CLOUDFLARE_TUNNEL_TOKEN = os.environ.get("CLOUDFLARE_TUNNEL_TOKEN", "").strip()
+    BLOCK_DEFAULT_PASSWORDS_REMOTE = os.environ.get("BLOCK_DEFAULT_PASSWORDS_REMOTE", "true").strip().lower() not in ("0", "false", "no")
+    TOOLS_DIR = str(BASE_DIR / "tools")
     MAX_CONTENT_LENGTH = 25 * 1024 * 1024
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Lax"

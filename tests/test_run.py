@@ -3,9 +3,9 @@ import socket
 
 
 def test_local_ip_format():
-    import run
+    from server.netinfo import local_ip
 
-    ipaddress.ip_address(run.local_ip())
+    ipaddress.ip_address(local_ip())
 
 
 def test_port_in_use_detects_open_socket():

@@ -7,6 +7,7 @@ import { LoginPage } from "./auth/LoginPage";
 import { RequireAuth } from "./auth/RequireAuth";
 import { AuthError } from "./lib/api";
 import { AppShell } from "./shell/AppShell";
+import { OfflineProvider } from "./offline/OfflineProvider";
 import { ToastProvider } from "./ui/Toast";
 import { PosPage } from "./pos/PosPage";
 import { InventoryPage } from "./inventory/InventoryPage";
@@ -23,12 +24,14 @@ import { CashPage } from "./cash/CashPage";
 import { DashboardPage } from "./admin/DashboardPage";
 import { ExpensesPage } from "./admin/ExpensesPage";
 import { ReportsPage } from "./admin/ReportsPage";
+import { ConnectPage } from "./admin/ConnectPage";
+import { AuditPage } from "./admin/AuditPage";
 
 function Routed() {
   const { expire } = useAuth();
   const [qc] = useState(() => {
     const retry = (n: number, e: unknown) => !(e instanceof AuthError) && n < 1;
-    const c = new QueryClient({ defaultOptions: { queries: { retry, staleTime: 15_000 }, mutations: { retry: false } } });
+    const c = new QueryClient({ defaultOptions: { queries: { retry, staleTime: 15_000, networkMode: "always" }, mutations: { retry: false, networkMode: "always" } } });
     const onError = (e: unknown) => e instanceof AuthError && expire();
     c.getQueryCache().config.onError = onError;
     c.getMutationCache().config.onError = onError;
@@ -36,6 +39,7 @@ function Routed() {
   });
   return (
     <QueryClientProvider client={qc}>
+      <OfflineProvider>
       <Routes>
         <Route path="/entrar" element={<LoginPage />} />
         <Route element={<RequireAuth><AppShell /></RequireAuth>}>
@@ -54,10 +58,13 @@ function Routed() {
           <Route path="gastos" element={<RequireAuth admin><ExpensesPage /></RequireAuth>} />
           <Route path="productos/nuevo" element={<RequireAuth admin><NewProductWizard /></RequireAuth>} />
           <Route path="categorias" element={<RequireAuth admin><CategoriesPage /></RequireAuth>} />
+          <Route path="bitacora" element={<RequireAuth admin><AuditPage /></RequireAuth>} />
+          <Route path="conectar" element={<RequireAuth admin><ConnectPage /></RequireAuth>} />
           <Route path="configuracion" element={<RequireAuth admin><SettingsPage /></RequireAuth>} />
           <Route path="*" element={<Navigate to="/vender" replace />} />
         </Route>
       </Routes>
+      </OfflineProvider>
     </QueryClientProvider>
   );
 }
