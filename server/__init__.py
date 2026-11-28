@@ -22,8 +22,11 @@ def create_app(config_class: type[Config] = Config) -> Flask:
     from . import security
     security.init_app(app)
 
-    from .blueprints import auth, cash, catalog, clients, expenses, inventory, layaways, reports, returns, sales, settings
-    for module in (auth, settings, catalog, inventory, sales, clients, layaways, returns, expenses, cash, reports):
+    from . import offline
+    offline.init_app(app)
+
+    from .blueprints import audit, auth, cash, catalog, clients, expenses, inventory, layaways, reports, returns, sales, settings
+    for module in (auth, settings, catalog, inventory, sales, clients, layaways, returns, expenses, cash, reports, audit):
         app.register_blueprint(module.bp)
     app.register_blueprint(catalog.uploads)
 

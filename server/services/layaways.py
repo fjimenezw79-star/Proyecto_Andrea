@@ -12,6 +12,7 @@ from sqlalchemy.exc import IntegrityError
 from ..api_util import ConflictError, ValidationError
 from ..db import begin_write, session
 from ..models import Client, Layaway, LayawayItem, LayawayPayment, Sale, SaleItem, User
+from ..offline import event_time, is_offline
 from . import payments as pay
 from .inventory import InsufficientStock, move
 from .sales import NotAllowed, label_insufficient, parse_items, points_for, price_lines
@@ -53,7 +54,8 @@ def _add_payments(l: Layaway, parsed, payment_id: str, user) -> None:
     for i, p in enumerate(parsed):
         session.add(LayawayPayment(id=payment_id if i == 0 else f"{payment_id[:36]}-{i}", layaway_id=l.id,
                                    method=p.method, amount_cents=p.amount_cents, received_cents=p.received_cents,
-                                   user_id=user.id, cash_session_id=cash_id if p.method == "cash" else None))
+                                   user_id=user.id, created_at=event_time(),
+                                   cash_session_id=cash_id if p.method == "cash" else None))
     l.paid_cents += sum(p.amount_cents for p in parsed)
 
 
@@ -80,14 +82,14 @@ def create(payload: dict, user) -> Layaway:
         if deposit > total:
             raise ValidationError("El anticipo es mayor que el total.", "payments")
         folio = (session.query(func.max(Layaway.folio)).scalar() or 0) + 1
-        l = Layaway(id=lid, folio=folio, client_id=client_id, user_id=user.id, subtotal_cents=subtotal,
+        l = Layaway(id=lid, folio=folio, client_id=client_id, user_id=user.id, subtotal_cents=subtotal, created_at=event_time(),
                     discount_cents=discount, total_cents=total, paid_cents=0, deadline=deadline,
                     note=str(payload.get("note") or "").strip()[:500])
         session.add(l)
         session.flush()
         for v, qty, disc in lines:
             try:
-                move(v.id, -qty, "layaway", user.id, ref_type="layaway", ref_id=lid)
+                move(v.id, -qty, "layaway", user.id, ref_type="layaway", ref_id=lid, allow_negative=is_offline())
             except InsufficientStock as e:
                 raise label_insufficient(e, v) from None
             session.add(LayawayItem(layaway_id=lid, variant_id=v.id, qty=qty, unit_price_cents=v.price_cents,

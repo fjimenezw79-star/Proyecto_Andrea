@@ -12,6 +12,7 @@ from sqlalchemy.exc import IntegrityError
 from ..api_util import ConflictError, ValidationError, strict_int
 from ..db import begin_write, session
 from ..models import Client, Return, Sale, SaleItem, SalePayment, User, Variant
+from ..offline import event_time, is_offline
 from . import payments as pay
 from .inventory import InsufficientStock, move
 
@@ -109,14 +110,14 @@ def create_sale(payload: dict, user) -> Sale:
         parsed = pay.parse(payload.get("payments"), total, client_id)
         cash_session_id = pay.apply(parsed, client_id=client_id, user_id=user.id)
 
-        sale = Sale(id=sale_id, folio=_next_folio(), user_id=user.id, client_id=client_id, subtotal_cents=subtotal,
+        sale = Sale(id=sale_id, folio=_next_folio(), created_at=event_time(), user_id=user.id, client_id=client_id, subtotal_cents=subtotal,
                     discount_cents=discount, total_cents=total, status="paid",
                     note=str(payload.get("note") or "").strip()[:500])
         session.add(sale)
         session.flush()
         for v, qty, disc in lines:
             try:
-                move(v.id, -qty, "sale", user.id, ref_type="sale", ref_id=sale_id)
+                move(v.id, -qty, "sale", user.id, ref_type="sale", ref_id=sale_id, allow_negative=is_offline())
             except InsufficientStock as e:
                 raise _with_label(e, v) from None
             session.add(SaleItem(sale_id=sale_id, variant_id=v.id, qty=qty, unit_price_cents=v.price_cents,

@@ -56,7 +56,9 @@ def create(data: dict) -> tuple[Client, bool]:
     email = str(data.get("email") or "").strip()[:120]
     begin_write()
     _check_phone_free(phone)
-    c = Client(id=cid, name=name, phone=phone, email=email, notes=str(data.get("notes") or "").strip()[:1000])
+    from ..offline import event_time
+    c = Client(id=cid, name=name, phone=phone, email=email, notes=str(data.get("notes") or "").strip()[:1000],
+               created_at=event_time())
     session.add(c)
     session.commit()
     return c, True
