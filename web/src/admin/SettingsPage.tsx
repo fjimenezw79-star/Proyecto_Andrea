@@ -1,20 +1,23 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState, type FormEvent } from "react";
 import { api, ApiError } from "../lib/api";
 import { Button } from "../ui/Button";
 import { Field } from "../ui/Input";
 import { useToast } from "../ui/Toast";
+import { useBusinessSettings, type BusinessSettings } from "../lib/settings";
+import { LABEL_SIZES } from "../print/Labels";
+import { VisionSettings } from "./VisionSettings";
 
-type Settings = { business_name: string; business_subtitle: string; whatsapp: string; address: string; ticket_width_mm: number; label_size: string; low_stock_threshold: number };
+type Settings = BusinessSettings;
 
 export function SettingsPage() {
   const qc = useQueryClient();
   const toast = useToast();
-  const q = useQuery({ queryKey: ["settings"], queryFn: () => api<{ settings: Settings }>("/api/settings") });
+  const q = useBusinessSettings();
   const [form, setForm] = useState<Settings | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
-  useEffect(() => { if (q.data && !form) setForm(q.data.settings); }, [q.data, form]);
+  useEffect(() => { if (q.data && !form) setForm(q.data); }, [q.data, form]);
   if (!form) return <p className="p-8 text-muted">Cargando…</p>;
   const set = (k: keyof Settings, v: string | number) => setForm({ ...form, [k]: v });
 
@@ -23,7 +26,7 @@ export function SettingsPage() {
     setBusy(true);
     setErrors({});
     try {
-      await api("/api/settings", { method: "PUT", json: { ...form, ticket_width_mm: Number(form!.ticket_width_mm), low_stock_threshold: Number(form!.low_stock_threshold) } });
+      await api("/api/settings", { method: "PUT", json: { ...form, ticket_width_mm: Number(form!.ticket_width_mm), low_stock_threshold: Number(form!.low_stock_threshold), ai_monthly_limit: Number(form!.ai_monthly_limit) } });
       toast("Configuración guardada.", "ok");
       qc.invalidateQueries({ queryKey: ["settings"] });
     } catch (err) {
@@ -60,12 +63,17 @@ export function SettingsPage() {
             <label className="grid gap-1.5 text-sm font-semibold">
               Tamaño de etiqueta
               <select value={form.label_size} onChange={(e) => set("label_size", e.target.value)} className="min-h-11 rounded-xl border border-line bg-paper px-3 text-base font-normal">
-                <option value="50x25">Térmica 50 × 25 mm</option>
-                <option value="carta">Hoja carta</option>
+                {Object.entries(LABEL_SIZES).map(([k, v]) => <option key={k} value={k}>{v.name}</option>)}
               </select>
             </label>
             <Field label="Avisar stock bajo con" inputMode="numeric" value={String(form.low_stock_threshold)} onChange={(e) => set("low_stock_threshold", e.target.value.replace(/\D/g, ""))} error={errors.low_stock_threshold} hint="piezas o menos" />
           </div>
+          <Field label="Pie del ticket" value={form.ticket_footer} maxLength={200} onChange={(e) => set("ticket_footer", e.target.value)} error={errors.ticket_footer} hint="Por ejemplo: Cambios en 7 días con ticket." />
+        </fieldset>
+        <fieldset className="grid gap-4">
+          <legend className="mb-2 font-serif text-3xl">Reconocimiento con la cámara</legend>
+          <VisionSettings />
+          <Field label="Consultas de IA al mes" inputMode="numeric" value={String(form.ai_monthly_limit)} onChange={(e) => set("ai_monthly_limit", e.target.value.replace(/\D/g, ""))} error={errors.ai_monthly_limit} hint="0 apaga el botón “Buscar con IA”. Cada consulta cuesta unos centavos de dólar." className="max-w-xs" />
         </fieldset>
         <Button type="submit" size="lg" disabled={busy} className="justify-self-start">{busy ? "Guardando…" : "Guardar configuración"}</Button>
       </form>

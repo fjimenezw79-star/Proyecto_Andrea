@@ -55,6 +55,9 @@ export type CachedClient = { id: string; name: string; phone: string; points: nu
 export const saveCatalog = (c: Omit<Catalog, "saved_at">) => set("catalog", { ...c, saved_at: new Date().toISOString() });
 export const loadCatalog = () => get<Catalog>("catalog");
 export const saveMe = (u: User | null) => set("me", u);
+/** Datos del negocio para tickets y etiquetas (no son privados: se quedan al cerrar sesión). */
+export const saveSettingsCache = (s: unknown) => set("settings", s);
+export const loadSettingsCache = <T,>() => get<T>("settings");
 
 /** Al salir: borra el usuario, los clientes y el catálogo guardados (la cola de pendientes es por usuario y se queda). */
 export async function clearPrivate(): Promise<void> {

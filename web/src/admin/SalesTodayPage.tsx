@@ -9,6 +9,8 @@ import { Modal } from "../ui/Dialog";
 import { Field } from "../ui/Input";
 import { useToast } from "../ui/Toast";
 import { ReturnPanel } from "./ReturnPanel";
+import { saleTicket } from "../lib/ticket";
+import { TicketActions } from "../print/TicketActions";
 
 type Sale = {
   id: string; folio: number; status: "paid" | "cancelled"; user_name: string; client_name: string | null;
@@ -129,6 +131,7 @@ export function SalesTodayPage() {
                 <div key={i} className="flex justify-between text-muted"><dt>{METHOD[p.method]}</dt><dd className="tnum">{formatMoney(p.amount_cents)}{p.method === "cash" && p.received_cents ? ` (recibido ${formatMoney(p.received_cents)})` : ""}</dd></div>
               ))}
             </dl>
+            <TicketActions ticket={saleTicket(open)} />
             {open.returns.length > 0 && (
               <ul className="grid gap-1 text-sm">
                 {open.returns.map((r) => <li key={r.id} className="flex justify-between text-muted"><span>Devolución: {r.reason} ({METHOD[r.refund_method as keyof typeof METHOD]})</span><span className="tnum">−{formatMoney(r.refund_cents)}</span></li>)}

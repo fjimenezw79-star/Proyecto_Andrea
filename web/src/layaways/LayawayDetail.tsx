@@ -16,6 +16,8 @@ import { Modal } from "../ui/Dialog";
 import { Field } from "../ui/Input";
 import { PayFields, payToApi, type PayValue } from "../ui/PayFields";
 import { useToast } from "../ui/Toast";
+import { layawayTicket } from "../lib/ticket";
+import { TicketActions } from "../print/TicketActions";
 
 const blank = (amount = ""): PayValue => ({ method: "cash", amount, received: "" });
 
@@ -91,6 +93,7 @@ export function LayawayDetail() {
           <motion.div className="h-full bg-ink" initial={reduce ? false : { width: 0 }} animate={{ width: `${pct}%` }} transition={{ duration: 0.7, ease: [0.2, 0.8, 0.2, 1] }} />
         </div>
       </div>
+      <TicketActions ticket={layawayTicket(l)} className="mt-4 max-w-xl" />
 
       {l.status === "pending" && (
         <div className="mt-6 flex flex-wrap gap-2">

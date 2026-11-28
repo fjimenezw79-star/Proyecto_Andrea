@@ -1,4 +1,4 @@
-import { BarChart3, Boxes, History, CalendarClock, FolderTree, LayoutDashboard, PackagePlus, QrCode, Receipt, Settings, ShoppingBag, Users, Wallet, WalletCards, type LucideIcon } from "lucide-react";
+import { BarChart3, Boxes, History, CalendarClock, FolderTree, LayoutDashboard, PackagePlus, QrCode, Receipt, Settings, ShoppingBag, Tags, Users, Wallet, WalletCards, type LucideIcon } from "lucide-react";
 
 export type NavItem = { to: string; label: string; short?: string; icon: LucideIcon; admin?: boolean; keywords?: string };
 
@@ -8,6 +8,7 @@ const ALL: NavItem[] = [
   { to: "/caja", label: "Caja", icon: Wallet, keywords: "corte efectivo fondo turno" },
   { to: "/clientes", label: "Clientes", icon: Users, keywords: "puntos saldo a favor teléfono" },
   { to: "/inventario", label: "Inventario", icon: Boxes, keywords: "existencias stock productos" },
+  { to: "/etiquetas", label: "Etiquetas", icon: Tags, keywords: "imprimir código de barras precio" },
   { to: "/ventas", label: "Ventas de hoy", short: "Ventas", icon: Receipt, keywords: "tickets devoluciones cancelar" },
   { to: "/panel", label: "Panel", icon: LayoutDashboard, admin: true, keywords: "inicio resumen alertas" },
   { to: "/reportes", label: "Reportes", icon: BarChart3, admin: true, keywords: "utilidad excel csv más vendidos" },

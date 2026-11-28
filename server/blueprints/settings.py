@@ -31,6 +31,9 @@ MAX_LEN = {"ticket_footer": 200, "business_name": 80, "business_subtitle": 80, "
 def get_settings() -> dict:
     out = dict(DEFAULT_SETTINGS)
     out.update({s.key: s.value for s in session.query(Setting).all() if s.key in DEFAULT_SETTINGS})
+    for k, options in CHOICES.items():
+        if out[k] not in options:  # valor de una versión anterior (por ejemplo "carta")
+            out[k] = DEFAULT_SETTINGS[k]
     return out
 
 

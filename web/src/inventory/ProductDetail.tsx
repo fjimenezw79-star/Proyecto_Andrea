@@ -1,7 +1,7 @@
 import * as Switch from "@radix-ui/react-switch";
 import { useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { ArrowLeft, ImagePlus, Trash2 } from "lucide-react";
+import { ArrowLeft, ImagePlus, Tags, Trash2 } from "lucide-react";
 import { useRef, useState } from "react";
 import { Link, useParams } from "react-router";
 import { useAuth } from "../auth/AuthProvider";
@@ -137,6 +137,9 @@ export function ProductDetail() {
             <p data-testid="stock-total" className={`tnum rounded-full px-4 py-2 font-semibold ${p.stock_total <= 2 ? "bg-wine text-wine-ink" : "bg-surface"}`}>
               {p.stock_total} {p.stock_total === 1 ? "pieza" : "piezas"}
             </p>
+            <Link to={`/etiquetas?producto=${p.id}`} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-line px-5 font-semibold hover:bg-surface">
+              <Tags className="size-5" aria-hidden /> Imprimir etiquetas
+            </Link>
             {isAdmin && (
               <>
                 <Button onClick={() => setEntry(true)}>Entrada</Button>

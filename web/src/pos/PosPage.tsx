@@ -22,6 +22,7 @@ import { useOffline } from "../offline/OfflineProvider";
 import { clientHeaders, nowLocalIso } from "../offline/queue";
 import { Button } from "../ui/Button";
 import { Modal } from "../ui/Dialog";
+import { cartTicket, saleTicket, type SaleForTicket } from "../lib/ticket";
 
 function seenAgo(iso: string): string {
   const min = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60_000));
@@ -142,17 +143,18 @@ export function PosPage() {
       Object.fromEntries(cart.lines.map((l) => [l.variantId, l.stock])),
     );
     const change = payments.reduce((s, p) => s + (p.method === "cash" ? (p.receivedCents ?? p.amountCents) - p.amountCents : 0), 0);
-    return { folio, total_cents: t.total, change_cents: change, offline: true };
+    const r = { folio, total_cents: t.total, change_cents: change, offline: true };
+    return { ...r, ticket: cartTicket(cart, payments, r, user!.full_name || user!.username, clientTime) };
   }
 
   async function confirm(payments: Payment[]): Promise<SaleResult> {
     const body = salePayload(cart, payments);
     const clientTime = nowLocalIso();
     try {
-      const d = await api<{ sale: SaleResult }>("/api/sales", { method: "POST", json: body, headers: clientHeaders(cart.id, clientTime) });
+      const d = await api<{ sale: SaleResult & SaleForTicket }>("/api/sales", { method: "POST", json: body, headers: clientHeaders(cart.id, clientTime) });
       if (d.sale.total_cents !== t.total)
         toast(`Esta venta ya se había registrado como #${d.sale.folio} por ${formatMoney(d.sale.total_cents)}. Revisa el carrito antes de cobrar otra vez.`, "error");
-      return d.sale;
+      return { ...d.sale, ticket: saleTicket(d.sale) };
     } catch (e) {
       if (isNetworkError(e)) return saveOffline(body, payments, clientTime);
       if (e instanceof ApiError && e.status === 409 && typeof e.data.variant_id === "number" && typeof e.data.available === "number")
