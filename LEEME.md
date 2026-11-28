@@ -2,7 +2,7 @@
 
 Sistema de ventas para la tienda: catálogo con variantes y fotos, inventario con bitácora y punto de venta con carrito y pagos mixtos. La PC del negocio funciona como servidor y los demás dispositivos se conectan a ella.
 
-> **Etapa 5 de 6.** Ya incluye la app para vender desde PC, tablet o celular, la operación diaria (clientes, apartados, devoluciones, gastos, caja, reportes y panel), la **conexión** (stock en vivo, ventas sin señal, app instalable, acceso por internet con QR, alertas y bitácora) y la **cámara y etiquetas**: lector de códigos con la cámara, reconocimiento de productos sin etiqueta (con botón opcional de IA), etiquetas con código de barras y tickets impresos o por WhatsApp. La tienda en línea llega en la etapa 6 (ver `docs/superpowers/plans/`).
+> **Versión 1.0 · sistema completo.** Punto de venta para PC, tablet y celular; operación diaria (clientes, apartados, devoluciones, gastos, caja, reportes y panel); conexión (stock en vivo, ventas sin señal, app instalable, acceso por internet con QR, alertas y bitácora); cámara y etiquetas (lector de códigos, reconocimiento por foto con botón opcional de IA, etiquetas y tickets); y **tienda en línea** con pedidos por WhatsApp. Solo falta, por decisión del dueño, comprar el dominio fijo. El manual completo está en `Manual_Modas_Andrea.pdf`.
 
 ## 1. Instalación (Windows)
 
@@ -77,6 +77,18 @@ Las fotos nuevas se preparan solas para el reconocimiento; las de antes se prepa
 Al cobrar aparecen **Imprimir ticket** (58 u 80 mm) y **Enviar por WhatsApp** (al teléfono del cliente). Se reimprime desde **Ventas de hoy**, y los apartados tienen su ticket con abonos y saldo.
 
 ![Ticket](docs/img/20-venta-ticket.webp)
+
+### Tienda en línea y pedidos
+
+Cada producto con foto y con **Mostrar en tienda en línea** aparece solo en la tienda (`/tienda/`), con su precio, variantes y piezas disponibles. Su dirección está en **Configuración › Tienda en línea** (copiar o enviar por WhatsApp), y cada ficha de producto tiene **Compartir de la tienda**, con vista previa de foto y precio para WhatsApp, Facebook y Marketplace.
+
+![Tienda](docs/img/30-tienda.webp)
+
+El cliente arma su bolsa y toca **Pedir por WhatsApp**: se abre WhatsApp con el pedido y su folio (`W-XXXXX`), y el pedido entra a **Pedidos en línea**. Ahí se **confirma** (aparta las piezas y fija el envío), se **cobra** (se vuelve venta, con ticket) o se **rechaza** (regresan las piezas).
+
+![Pedido en línea](docs/img/36-pedido.webp)
+
+Sin más configuración, la tienda la sirve esta computadora (con `acceso_remoto.bat` para internet). Para que funcione con la PC apagada, pon en `.env` la cuenta de Cloudflare (ver tabla de configuración y el manual).
 
 ### Ventas del día
 
@@ -209,6 +221,10 @@ Carga los 58 productos de `datos_prueba\`. Puedes correrlo varias veces: no dupl
 | `CLOUDFLARE_TUNNEL_TOKEN` | Token del túnel de Cloudflare para una dirección fija (opcional). |
 | `PUBLIC_URL` | La dirección fija del negocio, por ejemplo `https://ventas.modasandrea.com` (opcional). |
 | `BLOCK_DEFAULT_PASSWORDS_REMOTE` | Rechaza las contraseñas iniciales por internet (`true`). |
+| `ANTHROPIC_API_KEY` / `ANTHROPIC_MODEL` | Clave y modelo para el botón "Buscar con IA" (opcional). |
+| `CLOUDFLARE_ACCOUNT_ID` / `CLOUDFLARE_API_TOKEN` | Publica la tienda en Cloudflare Pages para que funcione con la PC apagada (opcional). |
+| `CLOUDFLARE_PAGES_PROJECT` | Nombre del sitio: `https://NOMBRE.pages.dev` (`modas-andrea-tienda`). |
+| `STORE_URL` | Dirección de la tienda con dominio propio, cuando se compre (opcional). |
 
 Reinicia `aplicacion.bat` después de cambiar un valor.
 
