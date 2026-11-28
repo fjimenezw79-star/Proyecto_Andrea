@@ -15,6 +15,10 @@ import { NewProductWizard } from "./products/NewProductWizard";
 import { CategoriesPage } from "./admin/CategoriesPage";
 import { SalesTodayPage } from "./admin/SalesTodayPage";
 import { SettingsPage } from "./admin/SettingsPage";
+import { ClientDetail } from "./clients/ClientDetail";
+import { ClientsPage } from "./clients/ClientsPage";
+import { LayawayDetail } from "./layaways/LayawayDetail";
+import { LayawaysPage } from "./layaways/LayawaysPage";
 
 function Routed() {
   const { expire } = useAuth();
@@ -36,6 +40,10 @@ function Routed() {
           <Route path="inventario" element={<InventoryPage />} />
           <Route path="inventario/:id" element={<ProductDetail />} />
           <Route path="ventas" element={<SalesTodayPage />} />
+          <Route path="apartados" element={<LayawaysPage />} />
+          <Route path="apartados/:id" element={<LayawayDetail />} />
+          <Route path="clientes" element={<ClientsPage />} />
+          <Route path="clientes/:id" element={<ClientDetail />} />
           <Route path="productos/nuevo" element={<RequireAuth admin><NewProductWizard /></RequireAuth>} />
           <Route path="categorias" element={<RequireAuth admin><CategoriesPage /></RequireAuth>} />
           <Route path="configuracion" element={<RequireAuth admin><SettingsPage /></RequireAuth>} />

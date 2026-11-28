@@ -12,6 +12,8 @@ import { ADD_PRODUCT_EVENT } from "../shell/CommandPalette";
 import { useToast } from "../ui/Toast";
 import { CartPanel } from "./CartPanel";
 import { PaymentSheet, type SaleResult } from "./PaymentSheet";
+import { ClientPicker } from "../clients/ClientPicker";
+import { NewLayawaySheet } from "../layaways/NewLayawaySheet";
 import { ProductGrid } from "./ProductGrid";
 
 export function PosPage() {
@@ -29,6 +31,9 @@ export function PosPage() {
   }, [q]);
   const [category, setCategory] = useState<number | null>(null);
   const [paying, setPaying] = useState(false);
+  const [picking, setPicking] = useState(false);
+  const [laying, setLaying] = useState(false);
+  const [pendingLayaway, setPendingLayaway] = useState(false);
   const [mobileCart, setMobileCart] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
 
@@ -62,7 +67,7 @@ export function PosPage() {
       }
     });
     const onKey = (e: KeyboardEvent) => {
-      if (paying) return;
+      if (paying || picking || laying) return;
       const el = document.activeElement as HTMLElement | null;
       const typing = el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.tagName === "SELECT") && el !== searchRef.current;
       if (typing) return;
@@ -80,7 +85,7 @@ export function PosPage() {
       window.removeEventListener("keydown", onKey);
       window.removeEventListener(ADD_PRODUCT_EVENT, onPick);
     };
-  }, [addVariant, paying, toast]);
+  }, [addVariant, paying, picking, laying, toast]);
 
   const inCart = useMemo(() => Object.fromEntries(cart.lines.map((l) => [l.variantId, l.qty])), [cart.lines]);
   const t = totals(cart);
@@ -105,7 +110,7 @@ export function PosPage() {
     qc.invalidateQueries({ queryKey: ["products"] });
   }
 
-  const panel = <CartPanel key={cart.id} cart={cart} dispatch={dispatch} role={user!.role} onCharge={() => setPaying(true)} />;
+  const panel = <CartPanel key={cart.id} cart={cart} dispatch={dispatch} role={user!.role} onCharge={() => setPaying(true)} onPickClient={() => setPicking(true)} onLayaway={() => (cart.client ? setLaying(true) : (setPendingLayaway(true), setPicking(true)))} />;
 
   return (
     <div className="grid h-full lg:grid-cols-[minmax(0,1fr)_400px]">
@@ -164,7 +169,9 @@ export function PosPage() {
         )}
       </AnimatePresence>
 
-      <PaymentSheet open={paying} total={t.total} onClose={() => setPaying(false)} onConfirm={confirm} onNewSale={newSale} />
+      <ClientPicker open={picking} current={cart.client} onOpenChange={(o) => { setPicking(o); if (!o) setPendingLayaway(false); }} onPick={(c) => { dispatch({ type: "setClient", client: c }); if (c && pendingLayaway) setTimeout(() => setLaying(true), 50); }} />
+      <NewLayawaySheet open={laying} cart={cart} onClose={() => setLaying(false)} onDone={() => { setLaying(false); newSale(); }} />
+      <PaymentSheet open={paying} total={t.total} creditCents={cart.client?.creditCents ?? 0} onClose={() => setPaying(false)} onConfirm={confirm} onNewSale={newSale} />
     </div>
   );
 }

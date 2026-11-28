@@ -1,5 +1,5 @@
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { Minus, Plus, Trash2 } from "lucide-react";
+import { CalendarClock, Minus, Plus, Trash2, User } from "lucide-react";
 import { useState } from "react";
 import type { Cart, CartAction } from "../lib/cart";
 import { maxDiscountCents, totals } from "../lib/cart";
@@ -9,7 +9,7 @@ import { variantLabel } from "./ProductGrid";
 
 export const DISCOUNT_DENIED = "Ese descuento necesita autorización del administrador.";
 
-export function CartPanel({ cart, dispatch, role, onCharge }: { cart: Cart; dispatch: (a: CartAction) => void; role: "admin" | "seller"; onCharge: () => void }) {
+export function CartPanel({ cart, dispatch, role, onCharge, onPickClient, onLayaway }: { cart: Cart; dispatch: (a: CartAction) => void; role: "admin" | "seller"; onCharge: () => void; onPickClient: () => void; onLayaway: () => void }) {
   const reduce = useReducedMotion();
   const t = totals(cart);
   const [showDiscount, setShowDiscount] = useState(cart.discountCents > 0);
@@ -34,6 +34,19 @@ export function CartPanel({ cart, dispatch, role, onCharge }: { cart: Cart; disp
             Vaciar
           </button>
         )}
+      </div>
+      <div className="px-5 pb-3">
+        <button onClick={onPickClient} className="flex w-full items-center gap-3 rounded-2xl border border-line px-4 py-2.5 text-left hover:bg-surface">
+          <User className="size-5 shrink-0 text-muted" aria-hidden />
+          {cart.client ? (
+            <span className="min-w-0 flex-1">
+              <span className="block truncate font-semibold">Cliente: {cart.client.name}</span>
+              <span className="block text-sm text-muted">{cart.client.points} puntos{cart.client.creditCents > 0 ? ` · Saldo ${formatMoney(cart.client.creditCents)}` : ""}</span>
+            </span>
+          ) : (
+            <span className="flex-1 text-muted">Cliente <span className="text-sm">(opcional, suma puntos)</span></span>
+          )}
+        </button>
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto px-5">
         {cart.lines.length === 0 ? (
@@ -118,9 +131,14 @@ export function CartPanel({ cart, dispatch, role, onCharge }: { cart: Cart; disp
             {formatMoney(t.total)}
           </motion.span>
         </div>
-        <Button size="lg" variant="wine" disabled={cart.lines.length === 0 || !!discountError} onClick={onCharge}>
-          Cobrar {formatMoney(t.total)}
-        </Button>
+        <div className="grid grid-cols-[auto_1fr] gap-2">
+          <Button size="lg" variant="ghost" disabled={cart.lines.length === 0 || !!discountError} onClick={onLayaway} title="Apartar con anticipo">
+            <CalendarClock className="size-5" aria-hidden /> Apartar
+          </Button>
+          <Button size="lg" variant="wine" disabled={cart.lines.length === 0 || !!discountError} onClick={onCharge}>
+            Cobrar {formatMoney(t.total)}
+          </Button>
+        </div>
       </div>
     </section>
   );

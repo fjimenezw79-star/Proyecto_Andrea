@@ -6,24 +6,25 @@ import { validatePayments, type Payment } from "../lib/cart";
 import { formatMoney, parsePesos } from "../lib/money";
 import { Button } from "../ui/Button";
 
-type Mode = "cash" | "card" | "transfer" | "mixed";
+type Mode = "cash" | "card" | "transfer" | "credit" | "mixed";
 const MODES: { id: Mode; label: string }[] = [
   { id: "cash", label: "Efectivo" },
   { id: "card", label: "Tarjeta" },
   { id: "transfer", label: "Transferencia" },
   { id: "mixed", label: "Mixto" },
 ];
-const METHOD_LABEL = { cash: "Efectivo", card: "Tarjeta", transfer: "Transferencia" } as const;
+const METHOD_LABEL = { cash: "Efectivo", card: "Tarjeta", transfer: "Transferencia", credit: "Saldo a favor" } as const;
 
 export type SaleResult = { folio: number; total_cents: number; change_cents: number };
 
 type MixedRow = { method: Payment["method"]; amount: string; received: string };
 
 export function PaymentSheet({
-  open, total, onClose, onConfirm, onNewSale,
+  open, total, onClose, onConfirm, onNewSale, creditCents = 0,
 }: {
   open: boolean;
   total: number;
+  creditCents?: number;
   onClose: () => void;
   onConfirm: (payments: Payment[]) => Promise<SaleResult>;
   onNewSale: () => void;
@@ -50,7 +51,7 @@ export function PaymentSheet({
 
   const payments: Payment[] | null = (() => {
     if (total === 0) return [];
-    if (mode === "card" || mode === "transfer") return [{ method: mode, amountCents: total }];
+    if (mode === "card" || mode === "transfer" || mode === "credit") return [{ method: mode, amountCents: total }];
     if (mode === "cash") {
       const r = received.trim() ? parsePesos(received) : total;
       return r === null ? null : [{ method: "cash", amountCents: total, receivedCents: r }];
@@ -122,8 +123,8 @@ export function PaymentSheet({
                 </Dialog.Close>
               </div>
               {total > 0 && (
-                <div role="tablist" aria-label="Forma de pago" className="grid grid-cols-4 gap-1 rounded-full bg-surface p-1">
-                  {MODES.map((m) => (
+                <div role="tablist" aria-label="Forma de pago" className={`grid gap-1 rounded-full bg-surface p-1 ${creditCents >= total ? "grid-cols-5" : "grid-cols-4"}`}>
+                  {[...MODES.slice(0, 3), ...(creditCents >= total ? [{ id: "credit" as Mode, label: "Saldo" }] : []), MODES[3]].map((m) => (
                     <button
                       key={m.id}
                       role="tab"
@@ -161,6 +162,9 @@ export function PaymentSheet({
                   {mode === "card" ? "Cobra con la terminal y confirma cuando salga aprobado." : "Confirma cuando veas la transferencia en la cuenta."}
                 </p>
               )}
+              {mode === "credit" && (
+                <p className="rounded-2xl bg-surface px-4 py-3 text-muted">Se descuenta del saldo a favor del cliente ({formatMoney(creditCents)}).</p>
+              )}
               {mode === "mixed" && (
                 <div className="grid gap-3">
                   {rows.map((r, i) => (
@@ -168,7 +172,7 @@ export function PaymentSheet({
                       <label className="grid gap-1 text-sm font-semibold">
                         Forma
                         <select value={r.method} onChange={(e) => setRows((rs) => rs.map((x, j) => (j === i ? { ...x, method: e.target.value as Payment["method"] } : x)))} className="min-h-11 rounded-xl border border-line bg-paper px-3">
-                          {Object.entries(METHOD_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                          {Object.entries(METHOD_LABEL).filter(([k]) => k !== "credit" || creditCents > 0).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
                         </select>
                       </label>
                       <label className="grid gap-1 text-sm font-semibold">
