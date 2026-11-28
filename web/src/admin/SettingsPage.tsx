@@ -53,16 +53,16 @@ export function SettingsPage() {
         <fieldset className="grid gap-4">
           <legend className="mb-2 font-serif text-3xl">Tickets, etiquetas e inventario</legend>
           <div className="grid gap-4 sm:grid-cols-3">
-            <label className="grid gap-1.5 text-sm font-semibold">
+            <label className="grid min-w-0 content-start gap-1.5 text-sm font-semibold">
               Ancho del ticket
-              <select value={form.ticket_width_mm} onChange={(e) => set("ticket_width_mm", Number(e.target.value))} className="min-h-11 rounded-xl border border-line bg-paper px-3 text-base font-normal">
+              <select value={form.ticket_width_mm} onChange={(e) => set("ticket_width_mm", Number(e.target.value))} className="min-h-11 w-full min-w-0 rounded-xl border border-line bg-paper px-3 text-base font-normal">
                 <option value={58}>58 mm</option>
                 <option value={80}>80 mm</option>
               </select>
             </label>
-            <label className="grid gap-1.5 text-sm font-semibold">
+            <label className="grid min-w-0 content-start gap-1.5 text-sm font-semibold">
               Tamaño de etiqueta
-              <select value={form.label_size} onChange={(e) => set("label_size", e.target.value)} className="min-h-11 rounded-xl border border-line bg-paper px-3 text-base font-normal">
+              <select value={form.label_size} onChange={(e) => set("label_size", e.target.value)} className="min-h-11 w-full min-w-0 rounded-xl border border-line bg-paper px-3 text-base font-normal">
                 {Object.entries(LABEL_SIZES).map(([k, v]) => <option key={k} value={k}>{v.name}</option>)}
               </select>
             </label>

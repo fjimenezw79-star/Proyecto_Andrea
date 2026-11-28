@@ -99,3 +99,16 @@ def test_new_settings(admin, seller):
     assert admin.put("/api/settings", json={"label_size": "a4-99"}).status_code == 400
     assert admin.put("/api/settings", json={"ai_monthly_limit": -1}).status_code == 400
     assert admin.put("/api/settings", json={"ticket_footer": "x" * 201}).status_code == 400
+
+
+def test_index_version_avoids_downloading_again(admin, seller, cat_id):
+    p = new_product(admin, cat_id)
+    pid = p["photos"][0]["id"]
+    first = seller.get("/api/vision/index").get_json()
+    again = seller.get(f"/api/vision/index?version={first['version']}").get_json()
+    assert again["unchanged"] is True and "items" not in again
+    admin.put("/api/vision/embeddings", json={"model": MODEL, "items": [{"photo_id": pid, "v": vec()}]})
+    changed = seller.get(f"/api/vision/index?version={first['version']}").get_json()
+    assert "unchanged" not in changed and len(changed["items"]) == 1
+    admin.patch(f"/api/products/{p['id']}", json={"active": False})
+    assert seller.get(f"/api/vision/index?version={changed['version']}").get_json().get("unchanged") is None

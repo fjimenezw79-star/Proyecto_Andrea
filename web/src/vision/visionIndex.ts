@@ -3,17 +3,19 @@ import { api, ApiError } from "../lib/api";
 import { loadVisionCache, saveVisionCache } from "../offline/cache";
 import { fromBase64, MODEL, type IndexItem } from "./vector";
 
-type Raw = { model: string; items: { photo_id: number; product_id: number; v: string }[] };
+type Raw = { model: string; version?: string; items: { photo_id: number; product_id: number; v: string }[] };
 
 /** Índice de huellas del catálogo; sin señal usa la copia guardada en el dispositivo. */
 export async function fetchVisionIndex(): Promise<IndexItem[]> {
-  let raw: Raw | null;
+  let raw = await loadVisionCache<Raw>();
   try {
-    raw = await api<Raw>("/api/vision/index");
-    await saveVisionCache(raw);
+    const d = await api<Raw & { unchanged?: boolean }>(`/api/vision/index${raw?.version ? `?version=${encodeURIComponent(raw.version)}` : ""}`);
+    if (!d.unchanged) {
+      raw = d;
+      await saveVisionCache(d);
+    }
   } catch (e) {
     if (!(e instanceof ApiError) || e.status !== 0) throw e;
-    raw = await loadVisionCache<Raw>();
   }
   if (!raw || raw.model !== MODEL) return [];
   return raw.items.map((i) => ({ photo_id: i.photo_id, product_id: i.product_id, vec: fromBase64(i.v) }));

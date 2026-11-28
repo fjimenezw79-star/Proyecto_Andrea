@@ -13,7 +13,7 @@ from sqlalchemy import select
 
 from ..api_util import fail, ok
 from ..db import begin_write, session
-from ..models import PhotoEmbedding, Product, ProductPhoto
+from ..models import PhotoEmbedding, Product, ProductPhoto, now
 from ..security import admin_required
 
 bp = Blueprint("vision", __name__, url_prefix="/api/vision")
@@ -26,14 +26,25 @@ MAX_ITEMS = 200
 @bp.get("/index")
 @login_required
 def index():
-    """Índice para comparar en el dispositivo (también sin señal): una huella por foto de producto activo."""
+    """Índice para comparar en el dispositivo (también sin señal): una huella por foto de producto activo.
+
+    Con ``?version=`` igual a la actual responde ``unchanged`` y el dispositivo conserva su copia."""
+    from sqlalchemy import func
+
+    n, top, last, active = session.execute(
+        select(func.count(PhotoEmbedding.photo_id), func.max(PhotoEmbedding.photo_id), func.max(PhotoEmbedding.created_at),
+               select(func.count(Product.id)).where(Product.active.is_(True)).scalar_subquery())
+        .where(PhotoEmbedding.model == MODEL)).one()
+    version = f"{MODEL}:{n}:{top or 0}:{last.isoformat() if last else ''}:{active}"
+    if request.args.get("version") == version:
+        return ok(model=MODEL, version=version, unchanged=True)
     rows = session.execute(
         select(PhotoEmbedding.photo_id, ProductPhoto.product_id, PhotoEmbedding.vector)
         .join(ProductPhoto, ProductPhoto.id == PhotoEmbedding.photo_id)
         .join(Product, Product.id == ProductPhoto.product_id)
         .where(PhotoEmbedding.model == MODEL, Product.active.is_(True))
         .order_by(PhotoEmbedding.photo_id)).all()
-    return ok(model=MODEL, dim=DIM, items=[{"photo_id": a, "product_id": b, "v": v} for a, b, v in rows])
+    return ok(model=MODEL, dim=DIM, version=version, items=[{"photo_id": a, "product_id": b, "v": v} for a, b, v in rows])
 
 
 @bp.get("/missing")
@@ -81,7 +92,7 @@ def save_embeddings():
         session.rollback()
         return fail("Una de las fotos ya no existe.", 404, "photo_id")
     for it in items:
-        session.merge(PhotoEmbedding(photo_id=it["photo_id"], model=MODEL, dim=DIM, vector=it["v"]))
+        session.merge(PhotoEmbedding(photo_id=it["photo_id"], model=MODEL, dim=DIM, vector=it["v"], created_at=now()))
     session.commit()
     return ok("Huellas guardadas.", saved=len(items))
 
