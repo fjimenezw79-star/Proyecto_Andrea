@@ -140,7 +140,7 @@
     <tr><td><code>admin</code></td><td><code>admin123</code></td><td>Administrador</td></tr>
     <tr><td><code>vendedor</code></td><td><code>12345</code></td><td>Vendedor</td></tr>
   </table>
-  <div class="note warn">Cambia estas contraseñas antes de usar el sistema en la tienda: cada usuario en <strong>Mi cuenta</strong> (toca tu nombre abajo en el menú) o el administrador con <code>restablecer_contrasena.bat</code>. Por internet no se puede entrar con las contraseñas iniciales. Después de 5 intentos equivocados, el usuario se bloquea 5 minutos.</div>
+  <div class="note warn">Cambia estas contraseñas antes de usar el sistema en la tienda: el administrador en <strong>Usuarios</strong> (también da de alta a cada vendedor, capítulo 9), o cada quien en <strong>Mi cuenta</strong>. Si se olvida la del administrador, usa <code>restablecer_contrasena.bat</code>. Por internet no se puede entrar con las contraseñas iniciales. Después de 5 intentos equivocados, el usuario se bloquea 5 minutos.</div>
 </section>
 
 <section class="chapter">
@@ -231,7 +231,24 @@
     <tr><td>Gastos, reportes, panel, categorías y configuración</td><td>No</td><td>Sí</td></tr>
     <tr><td>Bitácora, alertas de stock y Conectar dispositivo</td><td>No</td><td>Sí</td></tr>
     <tr><td>Cambiar su propia contraseña (Mi cuenta)</td><td>Sí</td><td>Sí</td></tr>
+    <tr><td>Usuarios: dar de alta, restablecer contraseñas y desactivar</td><td>No</td><td>Sí</td></tr>
   </table>
+  <h3>Dar de alta un vendedor nuevo</h3>
+  <ol class="steps">
+    <li>Entra como administrador y abre <strong>Usuarios</strong> en el menú.</li>
+    <li>Toca <strong>Nuevo usuario</strong>. Escribe el <strong>usuario</strong> con el que va a entrar (sin espacios ni acentos, por ejemplo <code>maria</code>), su <strong>nombre</strong>, elige <strong>Vendedor</strong> o <strong>Administrador</strong> y escribe su contraseña dos veces (6 caracteres o más).</li>
+    <li>Toca <strong>Crear usuario</strong>. Ya puede entrar con su usuario y contraseña, y todo lo que haga queda a su nombre.</li>
+  </ol>
+  <figure><img src="../img/38-usuarios.webp" alt=""><figcaption>Usuarios del sistema.</figcaption></figure>
+  <h3>Cambiar o restablecer contraseñas</h3>
+  <ul>
+    <li><strong>Tu propia contraseña:</strong> toca tu nombre abajo en el menú (<em>Mi cuenta</em>; en el celular, <em>Más → Mi cuenta</em>). Pide la actual.</li>
+    <li><strong>La de cualquier usuario</strong> (por ejemplo, el <code>vendedor</code> de prueba o alguien que la olvidó): en <strong>Usuarios</strong>, toca <strong>Contraseña</strong> junto a esa persona y escribe la nueva dos veces. No hace falta saber la anterior, y también se desbloquea si se equivocó 5 veces. Sirve también para la del administrador.</li>
+    <li><strong>Si se olvidó la contraseña del administrador</strong> y nadie puede entrar: en la computadora del negocio, abre la carpeta del sistema y haz doble clic en <code>restablecer_contrasena.bat</code>. Muestra la lista de usuarios (administradores y vendedores); escribe el usuario y la contraseña nueva dos veces (no se ve al escribir). También lo desbloquea y lo reactiva si estaba desactivado.</li>
+  </ul>
+  <figure><img src="../img/39-restablecer.webp" alt=""><figcaption>Restablecer la contraseña de un usuario desde el sistema.</figcaption></figure>
+  <h3>Editar o desactivar</h3>
+  <p><strong>Editar</strong> cambia el nombre o el rol. El interruptor <strong>Activo</strong> desactiva a alguien que ya no trabaja en la tienda: ya no puede entrar (si tenía la sesión abierta, se cierra), pero sus ventas, cortes y movimientos se conservan. Se puede volver a activar. El sistema no deja desactivarte a ti mismo ni quedarse sin un administrador activo. Todos estos cambios quedan en la <strong>Bitácora</strong>.</p>
 </section>
 
 <section class="chapter">
@@ -520,7 +537,7 @@
     <tr><td><code>crear_accesos_directos.bat</code></td><td>Vuelve a crear en el escritorio los accesos directos <strong>Modas Andrea</strong> y <strong>Modas Andrea (internet)</strong>, sin reinstalar.</td></tr>
     <tr><td><code>aplicacion.bat</code></td><td>Inicia el sistema. Mientras su ventana esté abierta, todos pueden usarlo.</td></tr>
     <tr><td><code>acceso_remoto.bat</code></td><td>Inicia el sistema con acceso seguro desde internet (Cloudflare) y la app instalable sin señal.</td></tr>
-    <tr><td><code>restablecer_contrasena.bat</code></td><td>Cambia la contraseña de cualquier usuario (también desbloquea).</td></tr>
+    <tr><td><code>restablecer_contrasena.bat</code></td><td>Restablece la contraseña de cualquier usuario, administrador o vendedor, sin saber la anterior. Muestra la lista de usuarios, también desbloquea y reactiva. Úsalo si se olvidó la del administrador.</td></tr>
     <tr><td><code>cargar_datos_prueba.bat</code></td><td>Carga el catálogo de prueba (58 productos).</td></tr>
     <tr><td><code>migrar_sistema_anterior.bat</code></td><td>Pasa productos, fotos, ventas y apartados del sistema anterior.</td></tr>
     <tr><td><code>ejecutar_pruebas.bat</code></td><td>Corre las pruebas automáticas sin tocar tus datos.</td></tr>
@@ -542,7 +559,7 @@
     <tr><th>Qué pasa</th><th>Qué hacer</th></tr>
     <tr><td>"El puerto 5000 ya está en uso"</td><td>El sistema ya está abierto en otra ventana. Ciérrala, o cambia <code>PORT</code> en <code>.env</code>.</td></tr>
     <tr><td>Otro dispositivo no abre la dirección de red local</td><td>Verifica que esté en la misma WiFi; escribe exactamente la dirección de la ventana negra (con <code>http://</code> y <code>:5000</code>); en Windows permite Python en el Firewall para redes privadas; algunos módems con "aislamiento de clientes" o redes de invitados bloquean esto.</td></tr>
-    <tr><td>"Usuario o contraseña incorrectos" o "Demasiados intentos"</td><td>Espera 5 minutos o usa <code>restablecer_contrasena.bat</code>.</td></tr>
+    <tr><td>"Usuario o contraseña incorrectos" o "Demasiados intentos"</td><td>Espera 5 minutos, o el administrador restablece la contraseña en <strong>Usuarios</strong>. Si es la del administrador, usa <code>restablecer_contrasena.bat</code>.</td></tr>
     <tr><td>"La sesión de seguridad expiró"</td><td>Recarga la página (F5) y vuelve a intentar.</td></tr>
     <tr><td>El lector USB no agrega productos</td><td>Debe estar configurado para terminar con Enter. Haz clic en un espacio vacío de la pantalla Vender y vuelve a escanear.</td></tr>
     <tr><td>"No encontramos ningún producto con ese código"</td><td>Ese código no está dado de alta: agrégalo en la ficha del producto como <em>Código de fábrica</em>.</td></tr>

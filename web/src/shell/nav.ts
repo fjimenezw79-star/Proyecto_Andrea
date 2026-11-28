@@ -1,4 +1,4 @@
-import { BarChart3, Boxes, Globe, History, CalendarClock, FolderTree, LayoutDashboard, PackagePlus, QrCode, Receipt, Settings, ShoppingBag, Tags, Users, Wallet, WalletCards, type LucideIcon } from "lucide-react";
+import { BarChart3, Boxes, Globe, History, CalendarClock, FolderTree, LayoutDashboard, PackagePlus, QrCode, Receipt, Settings, ShoppingBag, Tags, UserCog, Users, Wallet, WalletCards, type LucideIcon } from "lucide-react";
 
 export type NavItem = { to: string; label: string; short?: string; icon: LucideIcon; admin?: boolean; keywords?: string };
 
@@ -18,6 +18,7 @@ const ALL: NavItem[] = [
   { to: "/categorias", label: "Categorías", icon: FolderTree, admin: true, keywords: "departamentos" },
   { to: "/bitacora", label: "Bitácora", icon: History, admin: true, keywords: "historial quién hizo auditoría sin señal" },
   { to: "/conectar", label: "Conectar dispositivo", icon: QrCode, admin: true, keywords: "qr enlace celular tablet internet whatsapp" },
+  { to: "/usuarios", label: "Usuarios", icon: UserCog, admin: true, keywords: "vendedores contraseñas alta desactivar" },
   { to: "/configuracion", label: "Configuración", icon: Settings, admin: true, keywords: "negocio whatsapp ticket" },
 ];
 

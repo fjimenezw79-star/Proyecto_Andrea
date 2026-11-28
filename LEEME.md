@@ -23,7 +23,7 @@ Sistema de ventas para la tienda: catálogo con variantes y fotos, inventario co
 | `admin`    | `admin123` | Administrador |
 | `vendedor` | `12345`    | Vendedor      |
 
-Cámbialas antes de usar el sistema en la tienda. Si se olvida una contraseña, usa **`restablecer_contrasena.bat`**.
+Cámbialas antes de usar el sistema en la tienda. Cada persona debe tener su propio usuario: el administrador los da de alta en **Usuarios** (menú), donde también restablece la contraseña de cualquiera y desactiva a quien ya no trabaja. Si se olvida la contraseña del administrador, usa **`restablecer_contrasena.bat`** en la computadora del negocio.
 
 ## 2. Usar el sistema
 
@@ -185,7 +185,7 @@ No hace falta abrir puertos del módem: Cloudflare solo reenvía las visitas cif
 | `crear_accesos_directos.bat` | Vuelve a crear los accesos directos **Modas Andrea** y **Modas Andrea (internet)** sin reinstalar; si algo falla, dice el motivo. |
 | `aplicacion.bat` | Inicia el servidor. Mientras la ventana esté abierta, el sistema funciona. |
 | `acceso_remoto.bat` | Inicia el servidor con acceso seguro desde internet (Cloudflare). |
-| `restablecer_contrasena.bat` | Cambia la contraseña de cualquier usuario. |
+| `restablecer_contrasena.bat` | Restablece la contraseña de cualquier usuario (administrador o vendedor) sin saber la anterior; muestra la lista de usuarios, desbloquea y reactiva. |
 | `cargar_datos_prueba.bat` | Carga los 58 productos de prueba (no duplica). |
 | `migrar_sistema_anterior.bat` | Pasa productos, fotos, ventas y apartados del sistema anterior (`bazarges_data.db`). |
 | `ejecutar_pruebas.bat` | Corre las pruebas automáticas con bases temporales; tus datos no se tocan. |

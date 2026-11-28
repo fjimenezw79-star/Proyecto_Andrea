@@ -28,9 +28,9 @@ def create_app(config_class: type[Config] = Config) -> Flask:
     offline.init_app(app)
 
     from .blueprints import (audit, auth, cash, catalog, clients, connect, expenses, inventory, layaways, reports, returns,
-                             sales, settings, vision, online)
+                             sales, settings, users, vision, online)
     for module in (auth, settings, catalog, inventory, sales, clients, layaways, returns, expenses, cash, reports, audit,
-                   connect, vision):
+                   connect, vision, users):
         app.register_blueprint(module.bp)
     for module in (online,):
         app.register_blueprint(module.bp)

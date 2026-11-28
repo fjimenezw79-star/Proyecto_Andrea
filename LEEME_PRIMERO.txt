@@ -8,7 +8,9 @@ MODAS ANDREA (YUDA) - SISTEMA DE VENTAS - VERSION 1.0
    o con "Modas Andrea (internet)" para celulares fuera del local y la tienda,
    o con  aplicacion.bat .
 4. Entra con  admin / admin123  (administrador) o  vendedor / 12345 .
-   Cambia esas contrasenas con  restablecer_contrasena.bat .
+   Cambia esas contrasenas en el menu Usuarios (administrador).
+   Nuevos vendedores: menu Usuarios > Nuevo usuario.
+   Si se olvida la del administrador:  restablecer_contrasena.bat
 
 Otros archivos:
   actualizar.bat                pasa a una version nueva conservando tus datos

@@ -28,6 +28,7 @@ import { ConnectPage } from "./admin/ConnectPage";
 import { AuditPage } from "./admin/AuditPage";
 import { LabelsPage } from "./labels/LabelsPage";
 import { OrdersPage } from "./admin/OrdersPage";
+import { UsersPage } from "./admin/UsersPage";
 
 function Routed() {
   const { expire } = useAuth();
@@ -64,6 +65,7 @@ function Routed() {
           <Route path="categorias" element={<RequireAuth admin><CategoriesPage /></RequireAuth>} />
           <Route path="bitacora" element={<RequireAuth admin><AuditPage /></RequireAuth>} />
           <Route path="conectar" element={<RequireAuth admin><ConnectPage /></RequireAuth>} />
+          <Route path="usuarios" element={<RequireAuth admin><UsersPage /></RequireAuth>} />
           <Route path="configuracion" element={<RequireAuth admin><SettingsPage /></RequireAuth>} />
           <Route path="*" element={<Navigate to="/vender" replace />} />
         </Route>
