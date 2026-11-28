@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8">
+<title>Manual de usuario · Modas Andrea</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&family=Instrument+Serif:ital@0;1&display=swap">
+<style>
+  @page { size: Letter; margin: 18mm 17mm 20mm; }
+  :root { --ink:#17140F; --muted:#6B665E; --line:#E6E2DB; --surface:#F4F3F1; --wine:#7B1D33; --night:#070D1A; }
+  * { box-sizing: border-box; }
+  body { font-family: "Hanken Grotesk", Arial, sans-serif; color: var(--ink); font-size: 10.6pt; line-height: 1.5; margin: 0; }
+  h1, h2, h3 { font-family: "Instrument Serif", Georgia, serif; font-weight: 400; line-height: 1.05; break-after: avoid; }
+  h1 { font-size: 34pt; margin: 0 0 6mm; }
+  h2 { font-size: 24pt; margin: 9mm 0 3mm; padding-top: 2mm; border-top: 1px solid var(--line); }
+  h3 { font-size: 16pt; margin: 6mm 0 2mm; }
+  p { margin: 0 0 2.6mm; }
+  ul, ol { margin: 0 0 3mm; padding-left: 6mm; }
+  li { margin: 0 0 1.2mm; }
+  .chapter { break-before: page; }
+  .chapter > h2:first-child { border-top: 0; margin-top: 0; }
+  figure { margin: 3mm 0 5mm; break-inside: avoid; }
+  figure img { width: 100%; border: 1px solid var(--line); border-radius: 3mm; display: block; }
+  figure.phone img { width: 48%; }
+  figcaption { font-size: 9pt; color: var(--muted); margin-top: 1.5mm; }
+  table { width: 100%; border-collapse: collapse; margin: 2mm 0 4mm; font-size: 9.8pt; break-inside: avoid; }
+  th, td { text-align: left; vertical-align: top; padding: 1.8mm 2.4mm; border-bottom: 1px solid var(--line); }
+  th { background: var(--surface); font-weight: 600; }
+  code, kbd { font-family: Consolas, "Courier New", monospace; font-size: 9.4pt; background: var(--surface); padding: 0.2mm 1.2mm; border-radius: 1mm; }
+  .note { background: var(--surface); border-radius: 3mm; padding: 3mm 4mm; margin: 3mm 0 4mm; break-inside: avoid; }
+  .warn { border-left: 3px solid var(--wine); }
+  .steps { counter-reset: s; list-style: none; padding: 0; }
+  .steps > li { counter-increment: s; position: relative; padding-left: 9mm; margin-bottom: 2.4mm; }
+  .steps > li::before { content: counter(s); position: absolute; left: 0; top: 0.2mm; width: 6mm; height: 6mm; border-radius: 50%; background: var(--ink); color: #fff; font-size: 8.5pt; font-weight: 700; display: grid; place-items: center; }
+  .cover { height: 240mm; display: flex; flex-direction: column; justify-content: space-between; }
+  .cover .logo { width: 34mm; height: 34mm; border-radius: 50%; object-fit: cover; background: var(--night); }
+  .cover h1 { font-size: 58pt; margin: 8mm 0 2mm; }
+  .cover .sub { font-size: 15pt; color: var(--muted); }
+  .cover .meta { font-size: 10pt; color: var(--muted); border-top: 1px solid var(--line); padding-top: 4mm; }
+  .toc ol { columns: 2; column-gap: 10mm; padding-left: 5mm; }
+  .toc li { break-inside: avoid; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; }
+</style>
+</head>
+<body>
+
+<section class="cover">
+  <div>
+    <img class="logo" src="../../prototipos/tienda/img/logo_ma.webp" alt="">
+    <h1>Modas Andrea</h1>
+    <p class="sub">Yuda · Manual de usuario del sistema de ventas</p>
+  </div>
+  <div class="toc">
+    <h3>Contenido</h3>
+    <ol>
+      <li>Qué es y cómo funciona</li>
+      <li>Instalación en Windows</li>
+      <li>Abrir el sistema y entrar</li>
+      <li>Conectar otros dispositivos</li>
+      <li>Usuarios y permisos</li>
+      <li>Vender</li>
+      <li>Cobrar</li>
+      <li>Clientes, puntos y saldo a favor</li>
+      <li>Apartados</li>
+      <li>Ventas de hoy, cancelaciones y devoluciones</li>
+      <li>Caja y corte</li>
+      <li>Inventario</li>
+      <li>Nuevo producto con fotos</li>
+      <li>Categorías y configuración</li>
+      <li>Gastos</li>
+      <li>Reportes y panel</li>
+      <li>Respaldos y datos</li>
+      <li>Pasar el sistema anterior</li>
+      <li>Datos y pruebas</li>
+      <li>Archivos .bat</li>
+      <li>Solución de problemas</li>
+      <li>Lo que viene</li>
+    </ol>
+  </div>
+  <p class="meta"><strong>Realizado por el I.S.C FRANCISCO JAVIER JIMENEZ WITRAGO</strong><br>Versión del sistema: etapas 1 a 3 de 6 (servidor, interfaz y operación diaria) · Noviembre de 2026</p>
+</section>
+
+<section class="chapter">
+  <h2>1. Qué es y cómo funciona</h2>
+  <p>Modas Andrea es el sistema de ventas de la tienda: punto de venta, inventario con fotos, clientes, apartados, caja, gastos y reportes. Sirve para mochilas, útiles, termos, cobijas, relojes y cualquier artículo que se agregue.</p>
+  <p>Funciona como AcuaGest: <strong>una computadora del negocio es el servidor</strong>. En ella se guardan la base de datos, las fotos y los respaldos. Las demás computadoras, tablets y celulares abren el sistema en el navegador (Chrome o Edge), conectados a esa computadora.</p>
+  <div class="note"><strong>Importante:</strong> mientras la ventana negra de <code>aplicacion.bat</code> esté abierta en la computadora del negocio, el sistema funciona para todos. Si se cierra, los demás dispositivos dejan de conectarse.</div>
+  <h3>Lo que necesitas</h3>
+  <ul>
+    <li>Una computadora con <strong>Windows 10 u 11</strong> (será el servidor).</li>
+    <li>Internet solo durante la instalación (para descargar Python y sus librerías).</li>
+    <li>Para conectar otros dispositivos: que estén en la <strong>misma red WiFi</strong> que la computadora del negocio.</li>
+    <li>Opcional: un lector de códigos de barras USB y una impresora de tickets.</li>
+  </ul>
+</section>
+
+<section class="chapter">
+  <h2>2. Instalación en Windows</h2>
+  <ol class="steps">
+    <li>Descomprime el archivo ZIP en una carpeta fija, por ejemplo <code>C:\ModasAndrea</code>. Clic derecho sobre el ZIP → <em>Extraer todo…</em> No lo abras desde el ZIP sin extraer.</li>
+    <li>Entra a la carpeta y haz doble clic en <strong><code>instalar.bat</code></strong>. Si Windows muestra "Windows protegió su PC", elige <em>Más información → Ejecutar de todas formas</em>.</li>
+    <li>El instalador busca Python 3.12 y, si no está, lo instala solo (con <code>winget</code>). Si la ventana dice que no encontró <code>winget</code>, se abrirá la página de Python: instálalo marcando <em>Add python.exe to PATH</em> y vuelve a ejecutar <code>instalar.bat</code>.</li>
+    <li>Crea un entorno aislado (<code>.venv</code>), instala las librerías y genera el archivo <code>.env</code> con una clave secreta.</li>
+    <li>Prepara la base de datos en <code>data\modas-andrea.db</code>.</li>
+    <li>Pregunta si quieres <strong>cargar el catálogo de prueba</strong> (58 productos con foto). Para probar, responde <kbd>S</kbd>; para usarlo ya con tus productos reales, responde <kbd>N</kbd>.</li>
+    <li>Crea el acceso directo <strong>Modas Andrea</strong> en el escritorio y te ofrece abrirlo.</li>
+  </ol>
+  <div class="note">Puedes volver a ejecutar <code>instalar.bat</code> cuando quieras (por ejemplo, al recibir una versión nueva): <strong>no borra tus datos</strong>.</div>
+  <h3>Actualizar a una versión nueva</h3>
+  <ol class="steps">
+    <li>Cierra la ventana de <code>aplicacion.bat</code>.</li>
+    <li>Copia tu carpeta <code>data</code> y tu archivo <code>.env</code> a un lugar seguro (o simplemente conserva tu carpeta).</li>
+    <li>Extrae la versión nueva en otra carpeta, copia ahí tu <code>data</code> y tu <code>.env</code>, y ejecuta <code>instalar.bat</code>.</li>
+    <li>Al abrir, el sistema actualiza la base de datos solo, sin perder información.</li>
+  </ol>
+</section>
+
+<section class="chapter">
+  <h2>3. Abrir el sistema y entrar</h2>
+  <p>Haz doble clic en el acceso directo <strong>Modas Andrea</strong> (o en <code>aplicacion.bat</code>). Se abre una ventana negra con dos direcciones y, en unos segundos, el navegador con la pantalla de entrada.</p>
+  <ul>
+    <li><strong>En esta computadora:</strong> <code>http://127.0.0.1:5000</code></li>
+    <li><strong>En la red local:</strong> por ejemplo <code>http://192.168.1.20:5000</code> (la usan los demás dispositivos).</li>
+  </ul>
+  <figure><img src="../img/01-entrar.webp" alt=""><figcaption>Pantalla de entrada.</figcaption></figure>
+  <h3>Usuarios iniciales</h3>
+  <table>
+    <tr><th>Usuario</th><th>Contraseña</th><th>Rol</th></tr>
+    <tr><td><code>admin</code></td><td><code>admin123</code></td><td>Administrador</td></tr>
+    <tr><td><code>vendedor</code></td><td><code>12345</code></td><td>Vendedor</td></tr>
+  </table>
+  <div class="note warn">Cambia estas contraseñas antes de usar el sistema en la tienda con <code>restablecer_contrasena.bat</code>. Después de 5 intentos equivocados, el usuario se bloquea 5 minutos.</div>
+</section>
+
+<section class="chapter">
+  <h2>4. Conectar otros dispositivos</h2>
+  <ol class="steps">
+    <li>Conecta la tablet, celular o laptop a la <strong>misma red WiFi</strong> que la computadora del negocio.</li>
+    <li>En el navegador escribe la dirección <strong>En la red local</strong> que aparece en la ventana negra (por ejemplo <code>http://192.168.1.20:5000</code>).</li>
+    <li>La primera vez, Windows puede preguntar si permite que Python use la red: elige <strong>Permitir</strong> (redes privadas).</li>
+    <li>Entra con tu usuario. Para tenerla como app: en Chrome, menú ⋮ → <em>Agregar a la pantalla principal</em>.</li>
+  </ol>
+  <div class="note">Si la dirección no abre en otro dispositivo, revisa la sección <em>Solución de problemas</em>. Mientras usen la red local, que se vaya el internet <strong>no</strong> afecta: los dispositivos siguen conectados a la computadora del negocio. La conexión desde fuera de la tienda y las ventas sin señal llegan en la etapa 4.</div>
+  <figure class="phone"><img src="../img/07-celular.webp" alt=""><figcaption>En el celular el menú queda abajo y el carrito se abre con "Ver carrito".</figcaption></figure>
+</section>
+
+<section class="chapter">
+  <h2>5. Usuarios y permisos</h2>
+  <table>
+    <tr><th>Puede…</th><th>Vendedor</th><th>Administrador</th></tr>
+    <tr><td>Vender, cobrar, buscar con Ctrl+K y escanear</td><td>Sí</td><td>Sí</td></tr>
+    <tr><td>Descuentos</td><td>Hasta 10 % de la venta</td><td>Sin límite</td></tr>
+    <tr><td>Clientes: registrar, editar y ver</td><td>Sí</td><td>Sí</td></tr>
+    <tr><td>Apartados: crear, abonar y liquidar</td><td>Sí</td><td>Sí</td></tr>
+    <tr><td>Cancelar apartados</td><td>No</td><td>Sí</td></tr>
+    <tr><td>Abrir caja y hacer corte</td><td>Sí</td><td>Sí, y ve el historial de cortes</td></tr>
+    <tr><td>Ver inventario y ventas del día</td><td>Sí (sin costos)</td><td>Sí (con costos)</td></tr>
+    <tr><td>Cancelar ventas y registrar devoluciones</td><td>No</td><td>Sí</td></tr>
+    <tr><td>Productos, precios, entradas y ajustes de inventario</td><td>No</td><td>Sí</td></tr>
+    <tr><td>Gastos, reportes, panel, categorías y configuración</td><td>No</td><td>Sí</td></tr>
+  </table>
+</section>
+
+<section class="chapter">
+  <h2>6. Vender</h2>
+  <figure><img src="../img/02-vender.webp" alt=""><figcaption>Vender: productos a la izquierda, carrito a la derecha.</figcaption></figure>
+  <p>Hay tres formas de agregar un producto al carrito:</p>
+  <ul>
+    <li><strong>Tocarlo</strong> en la cuadrícula. Cada tarjeta muestra la foto, el precio y cuántas piezas quedan. Los chips de arriba filtran por categoría.</li>
+    <li><strong>Escanearlo</strong> con el lector USB, en cualquier momento de la pantalla Vender. Lee el código <code>MA######</code> del sistema o el código de fábrica.</li>
+    <li><strong>Buscarlo</strong> con <kbd>Ctrl</kbd> + <kbd>K</kbd> o con el buscador: por nombre o código.</li>
+  </ul>
+  <p>En el carrito ajustas piezas con <strong>−</strong> y <strong>+</strong>, quitas renglones y aplicas un <strong>Descuento</strong>. El sistema no deja pasar de las piezas que hay. Si te mueves a otra pantalla, el carrito se conserva.</p>
+  <div class="note">El vendedor puede descontar hasta el 10 % de la venta. Si escribe más, aparece "Ese descuento necesita autorización del administrador." y no deja cobrar.</div>
+</section>
+
+<section class="chapter">
+  <h2>7. Cobrar</h2>
+  <p>Toca <strong>Cobrar</strong>. Elige la forma de pago:</p>
+  <ul>
+    <li><strong>Efectivo:</strong> escribe lo recibido (o toca <em>Exacto</em>, $500 o $1,000) y el sistema muestra el <strong>cambio</strong>.</li>
+    <li><strong>Tarjeta:</strong> cobra con tu terminal y confirma cuando salga aprobado.</li>
+    <li><strong>Transferencia:</strong> confirma cuando veas el depósito.</li>
+    <li><strong>Saldo:</strong> aparece si el cliente tiene saldo a favor suficiente.</li>
+    <li><strong>Mixto:</strong> combina formas, por ejemplo parte en tarjeta y parte en efectivo. Los montos deben sumar el total.</li>
+  </ul>
+  <figure><img src="../img/03-cobrar.webp" alt=""><figcaption>Cobro en efectivo con cambio.</figcaption></figure>
+  <p>Al confirmar aparece <strong>Venta #folio</strong> con el cambio en grande. Toca <strong>Nueva venta</strong> para empezar otra. Tocar dos veces "Confirmar cobro" no crea dos ventas.</p>
+</section>
+
+<section class="chapter">
+  <h2>8. Clientes, puntos y saldo a favor</h2>
+  <p>En el carrito toca <strong>Cliente</strong> para buscarlo por nombre o teléfono, o <strong>Registrar cliente nuevo</strong> (nombre y teléfono de 10 dígitos, opcional). No se permiten dos clientes con el mismo teléfono.</p>
+  <ul>
+    <li><strong>Puntos:</strong> cada compra suma 1 punto por cada $10 pagados. Si devuelve piezas, se restan.</li>
+    <li><strong>Saldo a favor:</strong> se genera al cancelar un apartado con "Dejar como saldo a favor" o con una devolución "a saldo". Se usa al cobrar con la pestaña <strong>Saldo</strong> o dentro de un pago mixto.</li>
+  </ul>
+  <p>En el menú <strong>Clientes</strong> ves la lista; en la ficha de cada cliente, sus puntos, su saldo, lo que ha comprado, sus apartados y sus notas.</p>
+</section>
+
+<section class="chapter">
+  <h2>9. Apartados</h2>
+  <ol class="steps">
+    <li>En <strong>Vender</strong>, agrega los productos al carrito.</li>
+    <li>Elige al <strong>cliente</strong> (el apartado siempre lleva cliente).</li>
+    <li>Toca <strong>Apartar</strong>: escribe el <strong>anticipo</strong>, la forma de pago y la <strong>fecha límite</strong> (30 días por defecto).</li>
+    <li>Las piezas salen del inventario para que nadie más las venda. Aparece <em>Apartado #folio · Saldo $…</em>.</li>
+  </ol>
+  <figure><img src="../img/08-apartado.webp" alt=""><figcaption>Ficha de un apartado con su avance de pago.</figcaption></figure>
+  <p>En el menú <strong>Apartados</strong> tienes las pestañas Pendientes, Vencidos, Liquidados y Cancelados. En la ficha:</p>
+  <ul>
+    <li><strong>Registrar abono:</strong> no permite abonar más que el saldo.</li>
+    <li><strong>Liquidar:</strong> con el pago final (o si ya está pagado). Se registra como venta y se entregan los productos.</li>
+    <li><strong>Cancelar apartado</strong> (administrador): escribe el motivo y elige si el dinero se <em>devuelve</em> (en efectivo sale de la caja) o queda como <em>saldo a favor</em>. Las piezas regresan al inventario y los abonos quedan registrados.</li>
+  </ul>
+</section>
+
+<section class="chapter">
+  <h2>10. Ventas de hoy, cancelaciones y devoluciones</h2>
+  <figure><img src="../img/06-ventas.webp" alt=""><figcaption>Ventas del día con totales por forma de pago.</figcaption></figure>
+  <p>Arriba ves el total del día y cuánto entró en efectivo, tarjeta y transferencia. Con el selector de fecha consultas otros días. Toca una venta para ver su detalle.</p>
+  <h3>Cancelar una venta (administrador)</h3>
+  <p>Para errores de captura: escribe el motivo y confirma. Todas las piezas regresan, se restan los puntos, el saldo a favor usado regresa al cliente y, si fue en efectivo, el dinero sale de la caja abierta. La venta queda registrada como cancelada.</p>
+  <h3>Devolver piezas (administrador)</h3>
+  <p>Cuando el cliente regresa una o varias piezas: escribe cuántas piezas de cada producto regresan, el motivo y cómo se reembolsa (efectivo, tarjeta, transferencia o saldo a favor). El sistema calcula el reembolso con lo que se pagó por esas piezas, incluyendo descuentos. Una venta que ya tiene devoluciones no se puede cancelar: se devuelven las piezas restantes.</p>
+</section>
+
+<section class="chapter">
+  <h2>11. Caja y corte</h2>
+  <figure><img src="../img/09-caja.webp" alt=""><figcaption>Caja abierta: efectivo que debe haber y movimientos.</figcaption></figure>
+  <ol class="steps">
+    <li>Al empezar el turno: menú <strong>Caja</strong> → escribe el <strong>Fondo inicial</strong> → <strong>Abrir caja</strong>.</li>
+    <li>Durante el día la pantalla muestra en vivo el <strong>efectivo que debe haber</strong>: fondo + ventas en efectivo + abonos en efectivo − reembolsos en efectivo − gastos pagados de la caja − ventas canceladas en efectivo.</li>
+    <li>Al terminar: <strong>Hacer corte</strong> → escribe el efectivo contado. Verás <em>Cuadra</em>, <em>Faltan $…</em> o <em>Sobran $…</em> → <strong>Guardar corte</strong>.</li>
+  </ol>
+  <div class="note">El esperado cuenta lo <strong>cobrado</strong>, no lo recibido: si cobras $730 y te dan $1,000, suman $730. Si alguien cobra en efectivo sin abrir caja, el sistema la abre solo con fondo $0. El administrador ve el historial de cortes con sus diferencias.</div>
+</section>
+
+<section class="chapter">
+  <h2>12. Inventario</h2>
+  <figure><img src="../img/04-ficha.webp" alt=""><figcaption>Ficha de producto: fotos, variantes, precios y bitácora.</figcaption></figure>
+  <p>El menú <strong>Inventario</strong> lista todos los productos con su foto, piezas y precio. Puedes filtrar por categoría, por <strong>Stock bajo</strong> o buscar por nombre o código. En la ficha de cada producto:</p>
+  <ul>
+    <li><strong>Fotos:</strong> agrega o quita fotos (siempre debe quedar al menos una).</li>
+    <li><strong>Variantes:</strong> cada color, talla o capacidad tiene su propio código <code>MA######</code>, código de fábrica, precio, costo y piezas. El precio y el costo se editan en la tabla.</li>
+    <li><strong>Mostrar en tienda en línea:</strong> interruptor para la tienda en línea (etapa 6).</li>
+    <li><strong>Entrada:</strong> cuando llega mercancía; suma piezas y puede actualizar el costo.</li>
+    <li><strong>Ajustar existencias:</strong> cuando el conteo físico no coincide; pide el motivo.</li>
+    <li><strong>Bitácora:</strong> cada cambio de piezas (venta, cancelación, entrada, ajuste, apartado, devolución) con fecha y nota.</li>
+  </ul>
+</section>
+
+<section class="chapter">
+  <h2>13. Nuevo producto con fotos</h2>
+  <figure><img src="../img/05-nuevo-producto.webp" alt=""><figcaption>Alta de producto en 4 pasos.</figcaption></figure>
+  <ol class="steps">
+    <li><strong>Datos:</strong> nombre, categoría y descripción.</li>
+    <li><strong>Precio:</strong> un precio y costo, o marca <em>Tiene variantes</em> (por ejemplo Color: Negro, Rosa…) con precio de cada opción. Si la etiqueta trae código de barras, escanéalo en <em>Código de fábrica</em>.</li>
+    <li><strong>Fotos:</strong> la guía pide <em>Frente</em>, <em>Lado</em> y <em>Detalle</em>. Puedes <em>Usar cámara</em>, <em>Tomar foto con el celular</em> o <em>Elegir foto</em> de la galería. Se necesita al menos una.</li>
+    <li><strong>Revisar y guardar:</strong> recibe su código <code>MA######</code> y aparece de inmediato en Vender. Las piezas se cargan después con <strong>Entrada</strong>.</li>
+  </ol>
+  <div class="note">La cámara dentro del navegador funciona en la computadora del negocio. En celulares conectados por la red local, usa <strong>Tomar foto con el celular</strong>, que abre la cámara del teléfono.</div>
+</section>
+
+<section class="chapter">
+  <h2>14. Categorías y configuración</h2>
+  <h3>Categorías</h3>
+  <p>Crea categorías y subcategorías (por ejemplo <em>Hogar › Termos</em>), renómbralas o desactívalas. Aparecen como filtros en Vender e Inventario y, más adelante, como secciones de la tienda en línea.</p>
+  <h3>Configuración</h3>
+  <p>Nombre y subtítulo del negocio, WhatsApp (para los pedidos en línea), dirección, ancho del ticket (58 u 80 mm), tamaño de etiqueta y a partir de cuántas piezas se avisa "stock bajo".</p>
+</section>
+
+<section class="chapter">
+  <h2>15. Gastos</h2>
+  <p>Menú <strong>Gastos</strong> (administrador): escribe el concepto, la categoría (Renta, Luz e internet, Sueldos, Mercancía, Insumos, Otros) y el monto. Marca <strong>Se pagó con dinero de la caja</strong> cuando el dinero salió del cajón: así el corte lo descuenta. Un gasto de una caja ya cortada no se puede borrar ni cambiar de monto.</p>
+</section>
+
+<section class="chapter">
+  <h2>16. Reportes y panel</h2>
+  <figure><img src="../img/10-reportes.webp" alt=""><figcaption>Reportes del mes.</figcaption></figure>
+  <ul>
+    <li><strong>Periodo:</strong> Hoy, Semana, Mes o un rango de fechas.</li>
+    <li><strong>Indicadores:</strong> ventas netas (ventas − devoluciones), utilidad bruta (con el costo de cada pieza al momento de venderla), gastos y utilidad neta.</li>
+    <li><strong>Gráficas:</strong> ventas por día (con <em>Ver tabla</em>), por categoría, dinero recibido por forma de pago y ventas por vendedor.</li>
+    <li><strong>Más vendidos</strong> y <strong>Descargar Excel (CSV)</strong> con cada pieza vendida.</li>
+  </ul>
+  <figure><img src="../img/11-panel.webp" alt=""><figcaption>Panel del administrador.</figcaption></figure>
+  <p>El <strong>Panel</strong> muestra ventas de hoy y del mes, utilidad, apartados que vencen en 7 días o ya vencidos, stock bajo y <strong>Se agota pronto</strong>: productos que, al ritmo de venta de los últimos 30 días, se acaban en menos de dos semanas.</p>
+</section>
+
+<section class="chapter">
+  <h2>17. Respaldos y datos</h2>
+  <ul>
+    <li>Todo vive en la carpeta <code>data</code>: la base (<code>modas-andrea.db</code>), las fotos (<code>fotos</code>) y los respaldos (<code>respaldos</code>).</li>
+    <li>Cada vez que se abre el sistema se crea un <strong>respaldo del día</strong>; se conservan los 15 más recientes.</li>
+    <li>Recomendación: una vez por semana copia la carpeta <code>data</code> a una memoria USB o a la nube.</li>
+    <li>Para restaurar: cierra el sistema, copia el respaldo que quieras como <code>data\modas-andrea.db</code> y vuelve a abrir.</li>
+  </ul>
+  <h3>Configuración avanzada (archivo <code>.env</code>)</h3>
+  <table>
+    <tr><th>Variable</th><th>Para qué</th></tr>
+    <tr><td><code>PORT</code></td><td>Puerto del servidor (5000).</td></tr>
+    <tr><td><code>SELLER_MAX_DISCOUNT_PCT</code></td><td>Descuento máximo del vendedor (10).</td></tr>
+    <tr><td><code>POINTS_PER_PESOS</code></td><td>Un punto por cada N pesos (10).</td></tr>
+    <tr><td><code>LAYAWAY_DAYS</code></td><td>Plazo de un apartado en días (30).</td></tr>
+    <tr><td><code>BACKUPS_TO_KEEP</code></td><td>Respaldos que se conservan (15).</td></tr>
+  </table>
+  <p>Ábrelo con el Bloc de notas y reinicia <code>aplicacion.bat</code> después de cambiarlo.</p>
+</section>
+
+<section class="chapter">
+  <h2>18. Pasar el sistema anterior</h2>
+  <p>Si tienes la carpeta <code>PROYECTO ANDREA</code> del sistema anterior:</p>
+  <ol class="steps">
+    <li>Haz doble clic en <strong><code>migrar_sistema_anterior.bat</code></strong>.</li>
+    <li>Arrastra a la ventana el archivo <code>bazarges_data.db</code> de esa carpeta y presiona <kbd>Enter</kbd>.</li>
+    <li>Se pasan los productos con sus fotos, precios y existencias, las ventas y los apartados pendientes con todos sus abonos.</li>
+  </ol>
+  <ul>
+    <li>El código anterior (por ejemplo <code>MOD001</code>) queda como código de fábrica: se puede seguir escaneando.</li>
+    <li>No se copian los usuarios ni las contraseñas anteriores.</li>
+    <li>Se puede ejecutar varias veces: no duplica nada.</li>
+  </ul>
+</section>
+
+<section class="chapter">
+  <h2>19. Datos y pruebas</h2>
+  <h3>Catálogo de prueba</h3>
+  <p><strong><code>cargar_datos_prueba.bat</code></strong> carga 58 productos (mochilas, termos, cobijas, relojes inteligentes y útiles) con foto, precio y existencias, para practicar sin tocar productos reales. No duplica si lo ejecutas otra vez.</p>
+  <div class="note warn">Si vas a usar el sistema con tus productos reales, empieza con una base limpia: no cargues el catálogo de prueba, o borra la carpeta <code>data</code> antes de empezar en serio (con el sistema cerrado).</div>
+  <h3>Pruebas automáticas</h3>
+  <p><strong><code>ejecutar_pruebas.bat</code></strong> revisa que todo funcione en tu computadora: ventas, inventario, apartados, caja, devoluciones, reportes, migración y seguridad. Son más de 150 pruebas y tardan alrededor de un minuto. Usan bases de datos temporales: <strong>tus datos no se tocan</strong>. Al final dice "Todas las pruebas pasaron" o qué falló.</p>
+  <p>Si tienes Node.js instalado, ofrece también correr las pruebas de la interfaz (opcional).</p>
+  <h3>Una prueba rápida a mano</h3>
+  <ol class="steps">
+    <li>Abre caja con $500.</li>
+    <li>Vende un producto en efectivo recibiendo un billete mayor y revisa el cambio.</li>
+    <li>Aparta otro producto a un cliente nuevo con anticipo; abona y liquida.</li>
+    <li>Como administrador, devuelve una pieza de una venta.</li>
+    <li>Haz el corte: el contado debe coincidir con el esperado.</li>
+    <li>Revisa Reportes del día y descarga el CSV.</li>
+  </ol>
+</section>
+
+<section class="chapter">
+  <h2>20. Archivos .bat</h2>
+  <table>
+    <tr><th>Archivo</th><th>Para qué sirve</th></tr>
+    <tr><td><code>instalar.bat</code></td><td>Instala o actualiza todo. No borra datos.</td></tr>
+    <tr><td><code>aplicacion.bat</code></td><td>Inicia el sistema. Mientras su ventana esté abierta, todos pueden usarlo.</td></tr>
+    <tr><td><code>restablecer_contrasena.bat</code></td><td>Cambia la contraseña de cualquier usuario (también desbloquea).</td></tr>
+    <tr><td><code>cargar_datos_prueba.bat</code></td><td>Carga el catálogo de prueba (58 productos).</td></tr>
+    <tr><td><code>migrar_sistema_anterior.bat</code></td><td>Pasa productos, fotos, ventas y apartados del sistema anterior.</td></tr>
+    <tr><td><code>ejecutar_pruebas.bat</code></td><td>Corre las pruebas automáticas sin tocar tus datos.</td></tr>
+  </table>
+</section>
+
+<section class="chapter">
+  <h2>21. Solución de problemas</h2>
+  <table>
+    <tr><th>Qué pasa</th><th>Qué hacer</th></tr>
+    <tr><td>"El puerto 5000 ya está en uso"</td><td>El sistema ya está abierto en otra ventana. Ciérrala, o cambia <code>PORT</code> en <code>.env</code>.</td></tr>
+    <tr><td>Otro dispositivo no abre la dirección de red local</td><td>Verifica que esté en la misma WiFi; escribe exactamente la dirección de la ventana negra (con <code>http://</code> y <code>:5000</code>); en Windows permite Python en el Firewall para redes privadas; algunos módems con "aislamiento de clientes" o redes de invitados bloquean esto.</td></tr>
+    <tr><td>"Usuario o contraseña incorrectos" o "Demasiados intentos"</td><td>Espera 5 minutos o usa <code>restablecer_contrasena.bat</code>.</td></tr>
+    <tr><td>"La sesión de seguridad expiró"</td><td>Recarga la página (F5) y vuelve a intentar.</td></tr>
+    <tr><td>El lector USB no agrega productos</td><td>Debe estar configurado para terminar con Enter. Haz clic en un espacio vacío de la pantalla Vender y vuelve a escanear.</td></tr>
+    <tr><td>"No encontramos ningún producto con ese código"</td><td>Ese código no está dado de alta: agrégalo en la ficha del producto como <em>Código de fábrica</em>.</td></tr>
+    <tr><td>La cámara no abre</td><td>Usa <em>Tomar foto con el celular</em> o <em>Elegir foto</em>.</td></tr>
+    <tr><td>"No hay suficientes piezas"</td><td>Otro dispositivo vendió esas piezas. Revisa el producto o registra una Entrada si llegó mercancía.</td></tr>
+    <tr><td>El corte no cuadra</td><td>Revisa los movimientos de la caja: ventas en efectivo, abonos, reembolsos y gastos de caja.</td></tr>
+    <tr><td>El instalador falla al descargar librerías</td><td>Revisa el internet y vuelve a ejecutar <code>instalar.bat</code>.</td></tr>
+  </table>
+</section>
+
+<section class="chapter">
+  <h2>22. Lo que viene</h2>
+  <table>
+    <tr><th>Etapa</th><th>Qué agrega</th></tr>
+    <tr><td>4 · Conexión y sin señal</td><td>Stock en vivo, ventas que se guardan en el dispositivo si se va el internet, app instalable, enlace seguro por internet (Cloudflare) y pantalla "Conectar dispositivo" con QR.</td></tr>
+    <tr><td>5 · Cámara y etiquetas</td><td>Leer códigos con la cámara, imprimir etiquetas y tickets, reconocer productos sin etiqueta con la cámara y botón de IA.</td></tr>
+    <tr><td>6 · Tienda en línea</td><td>Página pública con el estilo Revista conectada al inventario, links con vista previa para WhatsApp y Marketplace, y pedidos por WhatsApp que entran al sistema.</td></tr>
+  </table>
+</section>
+
+</body>
+</html>

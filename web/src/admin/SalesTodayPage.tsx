@@ -8,14 +8,17 @@ import { Button } from "../ui/Button";
 import { Modal } from "../ui/Dialog";
 import { Field } from "../ui/Input";
 import { useToast } from "../ui/Toast";
+import { ReturnPanel } from "./ReturnPanel";
 
 type Sale = {
   id: string; folio: number; status: "paid" | "cancelled"; user_name: string; client_name: string | null;
   subtotal_cents: number; discount_cents: number; total_cents: number; change_cents: number; created_at: string; cancel_reason: string | null;
-  items: { sku: string; name: string; attrs: Record<string, string>; qty: number; unit_price_cents: number; discount_cents: number }[];
-  payments: { method: "cash" | "card" | "transfer"; amount_cents: number; received_cents: number | null }[];
+  items: { id: number; sku: string; name: string; attrs: Record<string, string>; qty: number; returned_qty: number; unit_price_cents: number; discount_cents: number }[];
+  payments: { method: "cash" | "card" | "transfer" | "credit"; amount_cents: number; received_cents: number | null }[];
+  returns: { id: string; refund_cents: number; refund_method: string; reason: string; created_at: string }[];
+  fully_returned: boolean; source: string; client_id: string | null;
 };
-const METHOD = { cash: "Efectivo", card: "Tarjeta", transfer: "Transferencia" } as const;
+const METHOD = { cash: "Efectivo", card: "Tarjeta", transfer: "Transferencia", credit: "Saldo a favor" } as const;
 
 function today() {
   const d = new Date();
@@ -31,12 +34,13 @@ export function SalesTodayPage() {
   const [date, setDate] = useState(today());
   const [open, setOpen] = useState<Sale | null>(null);
   const [cancelling, setCancelling] = useState(false);
+  const [returning, setReturning] = useState(false);
   const [reason, setReason] = useState("");
   const [reasonErr, setReasonErr] = useState<string | null>(null);
   const sales = useQuery({ queryKey: ["sales", date], queryFn: () => api<{ sales: Sale[] }>(`/api/sales?date=${date}`) });
   const list = sales.data?.sales ?? [];
   const paid = list.filter((s) => s.status === "paid");
-  const byMethod = { cash: 0, card: 0, transfer: 0 };
+  const byMethod = { cash: 0, card: 0, transfer: 0, credit: 0 };
   paid.forEach((s) => s.payments.forEach((p) => (byMethod[p.method] += p.amount_cents)));
   const total = paid.reduce((a, s) => a + s.total_cents, 0);
 
@@ -81,7 +85,7 @@ export function SalesTodayPage() {
             return (
               <motion.li key={s.id} initial={reduce ? false : { opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: Math.min(i, 10) * 0.02 }} className="bg-paper">
                 <button
-                  onClick={() => { setOpen(s); setCancelling(false); setReason(""); setReasonErr(null); }}
+                  onClick={() => { setOpen(s); setCancelling(false); setReturning(false); setReason(""); setReasonErr(null); }}
                   className={`grid w-full grid-cols-[auto_1fr_auto] items-center gap-4 px-4 py-3 text-left hover:bg-surface md:grid-cols-[80px_80px_1fr_160px_140px] ${s.status === "cancelled" ? "text-muted" : ""}`}
                 >
                   <span className="tnum font-serif text-2xl"><span className="sr-only">Venta </span>#{s.folio}</span>
@@ -113,7 +117,7 @@ export function SalesTodayPage() {
             <ul className="grid gap-2">
               {open.items.map((it, i) => (
                 <li key={i} className="flex justify-between gap-3">
-                  <span>{it.qty} × {it.name} <span className="text-muted">({it.sku})</span></span>
+                  <span>{it.qty} × {it.name} <span className="text-muted">({it.sku})</span>{it.returned_qty > 0 && <span className="ml-2 rounded-full bg-surface px-2 py-0.5 text-sm">{it.returned_qty} devuelta{it.returned_qty === 1 ? "" : "s"}</span>}</span>
                   <span className="tnum">{formatMoney(it.unit_price_cents * it.qty - it.discount_cents)}</span>
                 </li>
               ))}
@@ -125,7 +129,19 @@ export function SalesTodayPage() {
                 <div key={i} className="flex justify-between text-muted"><dt>{METHOD[p.method]}</dt><dd className="tnum">{formatMoney(p.amount_cents)}{p.method === "cash" && p.received_cents ? ` (recibido ${formatMoney(p.received_cents)})` : ""}</dd></div>
               ))}
             </dl>
-            {isAdmin && open.status === "paid" && (
+            {open.returns.length > 0 && (
+              <ul className="grid gap-1 text-sm">
+                {open.returns.map((r) => <li key={r.id} className="flex justify-between text-muted"><span>Devolución: {r.reason} ({METHOD[r.refund_method as keyof typeof METHOD]})</span><span className="tnum">−{formatMoney(r.refund_cents)}</span></li>)}
+              </ul>
+            )}
+            {isAdmin && open.status === "paid" && !open.fully_returned && (
+              returning ? (
+                <ReturnPanel saleId={open.id} items={open.items} saleDiscount={open.discount_cents} hasClient={!!open.client_id} onDone={() => { toast("Devolución registrada. Las piezas regresaron al inventario.", "ok"); setOpen(null); qc.invalidateQueries({ queryKey: ["sales"] }); qc.invalidateQueries({ queryKey: ["products"] }); }} />
+              ) : (
+                <Button variant="ghost" onClick={() => { setReturning(true); setCancelling(false); }}>Devolver piezas</Button>
+              )
+            )}
+            {isAdmin && open.status === "paid" && open.returns.length === 0 && open.source !== "layaway" && (
               cancelling ? (
                 <div className="grid gap-3 rounded-2xl border border-danger/40 p-4">
                   <Field label="Motivo de la cancelación" value={reason} onChange={(e) => { setReason(e.target.value); setReasonErr(null); }} error={reasonErr} autoFocus />

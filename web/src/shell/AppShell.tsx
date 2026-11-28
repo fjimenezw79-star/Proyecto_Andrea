@@ -155,7 +155,7 @@ export function AppShell() {
               <>
                 {isActive && <motion.span layoutId="tab-pill" className="absolute inset-x-3 top-0 h-1 rounded-full bg-wine" />}
                 <i.icon className={`size-6 ${isActive ? "text-ink" : "text-muted"}`} aria-hidden />
-                <span className={isActive ? "text-ink" : "text-muted"}>{i.label.replace(" de hoy", "")}</span>
+                <span className={isActive ? "text-ink" : "text-muted"}>{i.short ?? i.label}</span>
               </>
             )}
           </NavLink>

@@ -45,3 +45,16 @@ def test_backup_keeps_limit(app):
         (bdir / f"modas-andrea-2026-01-{d + 1:02d}.db").write_bytes(b"x")
     backup_database(app)
     assert len(list(bdir.glob("modas-andrea-*.db"))) == 15
+
+
+def test_operation_tables(app):
+    from sqlalchemy import inspect
+
+    from server.db import engine_for
+
+    insp = inspect(engine_for(app))
+    names = set(insp.get_table_names())
+    assert {"layaways", "layaway_items", "layaway_payments", "returns", "return_items", "expenses", "cash_sessions"} <= names
+    assert {"credit_cents", "active"} <= {c["name"] for c in insp.get_columns("clients")}
+    assert {"source", "layaway_id"} <= {c["name"] for c in insp.get_columns("sales")}
+    assert "cash_session_id" in {c["name"] for c in insp.get_columns("sale_payments")}
